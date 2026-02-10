@@ -52,7 +52,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       `}>
                 <div className="h-full flex flex-col">
                     <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-center">
-                        <Logo />
+                        <Link href="/dashboard" className="hover:opacity-80 transition-opacity">
+                            <Logo />
+                        </Link>
                     </div>
 
                     <nav className="flex-1 p-4 space-y-1">
@@ -93,7 +95,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Mobile Header */}
                 <header className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                    <Logo className="w-6 h-6" textSize="text-lg" />
+                    <Link href="/dashboard">
+                        <Logo className="w-6 h-6" textSize="text-lg" />
+                    </Link>
                     <button
                         onClick={() => setIsSidebarOpen(true)}
                         className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"
