@@ -53,8 +53,8 @@ export function OverviewChart({ data }: { data: OverviewData[] }) {
                         wrapperStyle={{ paddingBottom: '20px' }}
                         formatter={(value) => <span className="text-slate-600 dark:text-slate-400 font-medium">{value}</span>}
                     />
-                    <Bar dataKey="receita" name="Receitas" fill="#34d399" radius={[4, 4, 0, 0]} barSize={20} />
-                    <Bar dataKey="despesa" name="Despesas" fill="#fb7185" radius={[4, 4, 0, 0]} barSize={20} />
+                    <Bar dataKey="receita" name="Receitas" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={20} />
+                    <Bar dataKey="despesa" name="Despesas" fill="#f97316" radius={[4, 4, 0, 0]} barSize={20} />
                 </BarChart>
             </ResponsiveContainer>
         </div>

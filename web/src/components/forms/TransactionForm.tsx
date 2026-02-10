@@ -224,7 +224,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                             id="category"
                             name="category"
                             required
-                            className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white [&>option]:text-slate-900"
+                            className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white dark:[color-scheme:dark]"
                             value={formData.category}
                             onChange={handleChange}
                         >
@@ -244,7 +244,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                             name="date"
                             type="date"
                             required
-                            className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white"
+                            className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white dark:[color-scheme:dark]"
                             value={formData.date}
                             onChange={handleChange}
                         />
@@ -259,7 +259,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                         <select
                             id="card_id"
                             name="card_id"
-                            className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white [&>option]:text-slate-900"
+                            className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white dark:[color-scheme:dark]"
                             value={formData.card_id || ''}
                             onChange={handleChange}
                         >
