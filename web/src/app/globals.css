@@ -16,54 +16,27 @@
 }
 
 :root {
-  /* Base - Slate Gray / Light Mode */
-  --background: #f8fafc;
+  /* Enforcing Neo-Fintech Dark Mode by default */
+  --background: #020617;
+  /* slate-950 (Deepest Dark) */
+  --foreground: #f8fafc;
   /* slate-50 */
-  --foreground: #020617;
-  /* slate-950 */
 
-  /* Brand - Neon Fintech */
-  --brand-50: #f7fee7;
-  /* lime-50 */
-  --brand-100: #ecfccb;
-  /* lime-100 */
-  --brand-500: #84cc16;
+  --brand-50: #1a2e05;
+  /* lime-950/20 */
+  --brand-100: #365314;
+  /* lime-900 */
+  --brand-500: #a3e635;
+  /* lime-400 (Neon) */
+  --brand-600: #84cc16;
   /* lime-500 */
-  --brand-600: #65a30d;
-  /* lime-600 */
-  --brand-900: #2c4c0b;
-  /* lime-950 (adjusted) */
+  --brand-900: #f7fee7;
+  /* lime-50 */
 
-  /* Semantic */
-  --success: #10b981;
-  /* emerald-500 */
-  --danger: #f43f5e;
-  /* rose-500 */
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #020617;
-    /* slate-950 (Deepest Dark) */
-    --foreground: #f8fafc;
-    /* slate-50 */
-
-    --brand-50: #1a2e05;
-    /* lime-950/20 */
-    --brand-100: #365314;
-    /* lime-900 */
-    --brand-500: #a3e635;
-    /* lime-400 (Neon) */
-    --brand-600: #84cc16;
-    /* lime-500 */
-    --brand-900: #f7fee7;
-    /* lime-50 */
-
-    --success: #34d399;
-    /* emerald-400 */
-    --danger: #fb7185;
-    /* rose-400 */
-  }
+  --success: #34d399;
+  /* emerald-400 */
+  --danger: #fb7185;
+  /* rose-400 */
 }
 
 body {
