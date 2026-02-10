@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { Loader2, Save, ArrowUpCircle, ArrowDownCircle, X } from 'lucide-react'
 
 type Card = {
@@ -26,6 +26,7 @@ interface TransactionFormProps {
 
 export function TransactionForm({ initialData }: TransactionFormProps) {
     const router = useRouter()
+    const supabase = createClient()
     const [loading, setLoading] = useState(false)
     const [cards, setCards] = useState<Card[]>([])
 

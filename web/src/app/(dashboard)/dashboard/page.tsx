@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { ArrowUpRight, ArrowDownRight, Wallet, Loader2, Plus, CreditCard, BarChart3 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { OverviewChart } from '@/components/charts/OverviewChart'
 import { CategoryChart } from '@/components/charts/CategoryChart'
 import { MonthSelector } from '@/components/ui/MonthSelector'
@@ -19,6 +19,7 @@ type Transaction = {
 }
 
 export default function DashboardPage() {
+    const supabase = createClient()
     const [loading, setLoading] = useState(true)
     const [currentDate, setCurrentDate] = useState(new Date())
     const [stats, setStats] = useState({

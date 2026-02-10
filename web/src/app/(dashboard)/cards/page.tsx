@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Plus, Loader2 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { CardItem } from '@/components/cards/CardItem'
 
 type Card = {
@@ -16,6 +16,7 @@ type Card = {
 }
 
 export default function CardsPage() {
+    const supabase = createClient()
     const [cards, setCards] = useState<Card[]>([])
     const [loading, setLoading] = useState(true)
 

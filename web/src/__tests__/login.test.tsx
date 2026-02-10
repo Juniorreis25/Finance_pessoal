@@ -2,24 +2,27 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import LoginPage from '../app/(auth)/login/page'
 
-// Mock Supabase
-vi.mock('@/lib/supabase', () => ({
-    supabase: {
+// Define Mocks
+const signInWithPasswordMock = vi.fn()
+
+// Mock @/lib/supabase/client
+vi.mock('@/lib/supabase/client', () => ({
+    createClient: vi.fn(() => ({
         auth: {
-            signInWithPassword: vi.fn(),
+            signInWithPassword: signInWithPasswordMock,
         },
-    },
+    }))
 }))
 
 // Mock Next Navigation
 const pushMock = vi.fn()
+const refreshMock = vi.fn()
 vi.mock('next/navigation', () => ({
     useRouter: () => ({
         push: pushMock,
+        refresh: refreshMock,
     }),
 }))
-
-import { supabase } from '@/lib/supabase'
 
 describe('LoginPage', () => {
     beforeEach(() => {
@@ -28,7 +31,7 @@ describe('LoginPage', () => {
 
     it('renders login form correctly', () => {
         render(<LoginPage />)
-        expect(screen.getByText(/Finance/i)).toBeInTheDocument()
+        expect(screen.getByText(/Bem-vindo/i)).toBeInTheDocument()
         expect(screen.getByLabelText(/Email/i)).toBeInTheDocument()
         expect(screen.getByLabelText(/Senha/i)).toBeInTheDocument()
         expect(screen.getByRole('button', { name: /Entrar/i })).toBeInTheDocument()
@@ -36,8 +39,8 @@ describe('LoginPage', () => {
 
     it('handles login submission successfully', async () => {
         // Setup Supabase mock success
-        vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
-            data: { user: { id: '1', email: 'test@test.com' } } as any,
+        signInWithPasswordMock.mockResolvedValue({
+            data: { user: { id: '1', email: 'test@test.com' } },
             error: null,
         })
 
@@ -48,19 +51,20 @@ describe('LoginPage', () => {
         fireEvent.click(screen.getByRole('button', { name: /Entrar/i }))
 
         await waitFor(() => {
-            expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
+            expect(signInWithPasswordMock).toHaveBeenCalledWith({
                 email: 'test@test.com',
                 password: 'password123',
             })
             expect(pushMock).toHaveBeenCalledWith('/dashboard')
+            expect(refreshMock).toHaveBeenCalled()
         })
     })
 
     it('displays error message on failure', async () => {
         // Setup Supabase mock error
-        vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
-            data: { user: null } as any,
-            error: { message: 'Invalid login credentials' } as any,
+        signInWithPasswordMock.mockResolvedValue({
+            data: { user: null },
+            error: { message: 'Invalid login credentials' },
         })
 
         render(<LoginPage />)

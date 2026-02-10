@@ -5,7 +5,7 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { CreditCard, CalendarCheck, CalendarX, Edit2, Trash2, Wifi } from 'lucide-react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 type Card = {
@@ -18,6 +18,7 @@ type Card = {
 
 export function CardItem({ card }: { card: Card }) {
     const router = useRouter()
+    const supabase = createClient()
     const status = calculateCardStatus(new Date(), card.closing_day, card.due_day)
 
     const handleDelete = async () => {
@@ -87,8 +88,8 @@ export function CardItem({ card }: { card: Card }) {
 
                     {/* Status Indicator */}
                     <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md border ${status.isGoodDayToBuy
-                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                            : 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+                        ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                        : 'bg-rose-500/20 text-rose-400 border-rose-500/30'
                         }`}>
                         {status.isGoodDayToBuy ? <CalendarCheck className="w-3 h-3" /> : <CalendarX className="w-3 h-3" />}
                         {status.isGoodDayToBuy ? 'Melhor Dia' : 'Fechada'}

@@ -3,31 +3,34 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Loader2, Lock, Mail, LogIn } from 'lucide-react'
+import { Loader2, Lock, Mail, UserPlus, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
-export default function LoginPage() {
+export default function RegisterPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [success, setSuccess] = useState(false)
     const router = useRouter()
     const supabase = createClient()
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
         setError(null)
 
         try {
-            const { error } = await supabase.auth.signInWithPassword({
+            const { error } = await supabase.auth.signUp({
                 email,
                 password,
+                options: {
+                    emailRedirectTo: `${location.origin}/auth/callback`,
+                },
             })
 
             if (error) throw error
-            router.push('/dashboard')
-            router.refresh() // Force refresh to update server components with new cookie
+            setSuccess(true)
         } catch (err: any) {
             setError(err.message)
         } finally {
@@ -35,12 +38,34 @@ export default function LoginPage() {
         }
     }
 
+    if (success) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-background p-4">
+                <div className="w-full max-w-sm space-y-6 rounded-2xl bg-white p-8 shadow-xl dark:bg-slate-800 text-center">
+                    <div className="mx-auto w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mb-4">
+                        <Mail className="w-6 h-6" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Verifique seu email</h2>
+                    <p className="text-slate-500 dark:text-slate-400">
+                        Enviamos um link de confirmação para <strong>{email}</strong>.
+                    </p>
+                    <div className="pt-4">
+                        <Link href="/login" className="text-brand-600 hover:text-brand-500 font-medium flex items-center justify-center gap-2">
+                            <ArrowLeft className="w-4 h-4" />
+                            Voltar para o Login
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="flex min-h-screen items-center justify-center bg-background p-4">
             <div className="w-full max-w-sm space-y-6 rounded-2xl bg-white p-8 shadow-xl dark:bg-slate-800">
                 <div className="text-center">
-                    <h1 className="text-3xl font-bold text-brand-900 dark:text-brand-50">Bem-vindo</h1>
-                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Entre para gerenciar suas finanças</p>
+                    <h1 className="text-3xl font-bold text-brand-900 dark:text-brand-50">Crie sua Conta</h1>
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Comece a controlar suas finanças hoje</p>
                 </div>
 
                 {error && (
@@ -49,7 +74,7 @@ export default function LoginPage() {
                     </div>
                 )}
 
-                <form onSubmit={handleLogin} className="space-y-4">
+                <form onSubmit={handleRegister} className="space-y-4">
                     <div className="space-y-2">
                         <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
                         <div className="relative">
@@ -73,9 +98,10 @@ export default function LoginPage() {
                             <input
                                 id="password"
                                 type="password"
-                                placeholder="••••••••"
+                                placeholder="Mínimo 6 caracteres"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                minLength={6}
                                 className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white transition-all"
                                 required
                             />
@@ -89,8 +115,8 @@ export default function LoginPage() {
                     >
                         {loading ? <Loader2 className="animate-spin h-5 w-5" /> : (
                             <>
-                                <LogIn className="w-5 h-5" />
-                                Entrar
+                                <UserPlus className="w-5 h-5" />
+                                Criar Conta
                             </>
                         )}
                     </button>
@@ -98,9 +124,9 @@ export default function LoginPage() {
 
                 <div className="text-center pt-2">
                     <p className="text-sm text-slate-500">
-                        Não tem uma conta?{' '}
-                        <Link href="/register" className="text-brand-600 font-bold hover:underline">
-                            Cadastre-se
+                        Já tem uma conta?{' '}
+                        <Link href="/login" className="text-brand-600 font-bold hover:underline">
+                            Entrar
                         </Link>
                     </p>
                 </div>

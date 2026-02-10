@@ -2,17 +2,24 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { CardForm as AddCardForm } from '../components/forms/AddCardForm'
-import { supabase } from '@/lib/supabase'
 
-vi.mock('@/lib/supabase', () => ({
-    supabase: {
+// Define mock functions outside
+const getUserMock = vi.fn()
+const insertMock = vi.fn()
+const fromMock = vi.fn(() => ({
+    insert: insertMock,
+    update: vi.fn().mockResolvedValue({ error: null }),
+    eq: vi.fn().mockReturnValue({ error: null }) // For update/delete chains if any
+}))
+
+// Mock @/lib/supabase/client
+vi.mock('@/lib/supabase/client', () => ({
+    createClient: vi.fn(() => ({
         auth: {
-            getUser: vi.fn(),
+            getUser: getUserMock,
         },
-        from: vi.fn(() => ({
-            insert: vi.fn(),
-        })),
-    },
+        from: fromMock,
+    }))
 }))
 
 const pushMock = vi.fn()
@@ -21,12 +28,16 @@ vi.mock('next/navigation', () => ({
     useRouter: () => ({
         push: pushMock,
         refresh: refreshMock,
+        back: vi.fn(),
     }),
 }))
 
 describe('CardForm', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        // Reset default mock implementations
+        getUserMock.mockResolvedValue({ data: { user: { id: 'user123' } }, error: null })
+        insertMock.mockResolvedValue({ error: null })
     })
 
     it('renders form fields correctly', () => {
@@ -37,18 +48,6 @@ describe('CardForm', () => {
     })
 
     it('submits form successfully', async () => {
-        // Mock User
-        vi.mocked(supabase.auth.getUser).mockResolvedValue({
-            data: { user: { id: 'user123' } } as any,
-            error: null
-        })
-
-        // Mock Insert success
-        const insertMock = vi.fn().mockResolvedValue({ error: null })
-        vi.mocked(supabase.from).mockReturnValue({
-            insert: insertMock
-        } as any)
-
         render(<AddCardForm />)
 
         fireEvent.change(screen.getByPlaceholderText(/Ex: Nubank/i), { target: { value: 'My Card' } })

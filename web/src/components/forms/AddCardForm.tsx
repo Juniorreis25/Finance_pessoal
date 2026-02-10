@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { Loader2, CreditCard, Save, X } from 'lucide-react'
 
 type CardData = {
@@ -19,6 +19,7 @@ interface CardFormProps {
 
 export function CardForm({ initialData }: CardFormProps) {
     const router = useRouter()
+    const supabase = createClient()
     const [loading, setLoading] = useState(false)
 
     // Helper to format currency on init

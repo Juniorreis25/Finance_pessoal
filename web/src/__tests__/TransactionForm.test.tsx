@@ -2,19 +2,38 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { TransactionForm } from '../components/forms/TransactionForm'
-import { supabase } from '@/lib/supabase'
 
-vi.mock('@/lib/supabase', () => ({
-    supabase: {
+// Define mocks
+const getUserMock = vi.fn()
+const selectMock = vi.fn().mockResolvedValue({ data: [] })
+const insertMock = vi.fn().mockResolvedValue({ error: null })
+const updateMock = vi.fn().mockResolvedValue({ error: null })
+
+// Mock @/lib/supabase/client
+vi.mock('@/lib/supabase/client', () => ({
+    createClient: vi.fn(() => ({
         auth: {
-            getUser: vi.fn(),
+            getUser: getUserMock,
         },
-        from: vi.fn(() => ({
-            select: vi.fn().mockResolvedValue({ data: [] }), // Mock fetching cards
-            insert: vi.fn().mockResolvedValue({ error: null })
-        })),
-    },
+        from: vi.fn((table) => {
+            if (table === 'cards') return { select: selectMock }
+            if (table === 'transactions') return {
+                insert: insertMock,
+                update: updateMock,
+                // mock eq for update chains if needed, though TransactionForm uses update(payload).eq()
+                // so update() usually returns an object that has eq()
+            }
+            return {}
+        })
+    }))
 }))
+
+// Fix chain for update: .update().eq()
+// Actually TransactionForm does: .update(payload).eq('id', id)
+// So updateMock should return an object with eq
+updateMock.mockReturnValue({
+    eq: vi.fn().mockResolvedValue({ error: null })
+})
 
 const pushMock = vi.fn()
 const refreshMock = vi.fn()
@@ -22,50 +41,37 @@ vi.mock('next/navigation', () => ({
     useRouter: () => ({
         push: pushMock,
         refresh: refreshMock,
+        back: vi.fn(),
     }),
 }))
 
 describe('TransactionForm', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        getUserMock.mockResolvedValue({ data: { user: { id: 'user123' } }, error: null })
+        selectMock.mockResolvedValue({ data: [] })
+        insertMock.mockResolvedValue({ error: null })
+        // Re-setup update mock return
+        updateMock.mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ error: null })
+        })
     })
 
     it('renders form and toggles type', () => {
         render(<TransactionForm />)
         expect(screen.getByText(/Despesa/i)).toBeInTheDocument()
         expect(screen.getByText(/Receita/i)).toBeInTheDocument()
-
-        // Default is expense, check for cards select (optional text or logic)
-        // Check placeholder
         expect(screen.getByPlaceholderText(/Ex: Supermercado/i)).toBeInTheDocument()
 
-        // Switch to Income
         fireEvent.click(screen.getByText(/Receita/i))
         expect(screen.getByPlaceholderText(/Ex: Salário Mensal/i)).toBeInTheDocument()
     })
 
     it('submits transaction successfully', async () => {
-        vi.mocked(supabase.auth.getUser).mockResolvedValue({
-            data: { user: { id: 'user123' } } as any,
-            error: null
-        })
-
-        const insertMock = vi.fn().mockResolvedValue({ error: null })
-        // We need to mock the chain: from().insert()
-        // And also from().select() for the cards fetch on mount
-
-        vi.mocked(supabase.from).mockImplementation((table) => {
-            if (table === 'cards') return { select: vi.fn().mockResolvedValue({ data: [] }) } as any
-            if (table === 'transactions') return { insert: insertMock } as any
-            return {} as any
-        })
-
         render(<TransactionForm />)
 
         fireEvent.change(screen.getByPlaceholderText(/Ex: Supermercado/i), { target: { value: 'Lunch' } })
         fireEvent.change(screen.getByPlaceholderText(/0.00/i), { target: { value: '5000' } })
-
-        // Select Category
         fireEvent.change(screen.getByLabelText(/Categoria/i), { target: { value: 'Alimentação' } })
 
         fireEvent.click(screen.getByText(/Salvar Transação/i))
@@ -75,7 +81,7 @@ describe('TransactionForm', () => {
                 user_id: 'user123',
                 description: 'Lunch',
                 amount: 50,
-                type: 'expense',
+                type: 'expense', // default
                 category: 'Alimentação'
             }))
             expect(pushMock).toHaveBeenCalledWith('/transactions')

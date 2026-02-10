@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Plus, ArrowDownRight, ArrowUpRight, ArrowRightLeft, Edit2, Trash2, Search, Filter } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { format, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { MonthSelector } from '@/components/ui/MonthSelector'
@@ -19,6 +19,7 @@ type Transaction = {
 }
 
 export default function TransactionsPage() {
+    const supabase = createClient()
     const [transactions, setTransactions] = useState<Transaction[]>([])
     const [loading, setLoading] = useState(true)
     const [currentDate, setCurrentDate] = useState(new Date())
