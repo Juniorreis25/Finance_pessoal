@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  devIndicators: false as any,
+  devIndicators: false, // Type is valid in recent Next.js versions
 };
 
 export default nextConfig;

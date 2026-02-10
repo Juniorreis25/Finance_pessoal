@@ -183,7 +183,7 @@ export default function DashboardPage() {
                                 </div>
 
                                 <div className="mt-8">
-                                    <h2 className="text-5xl md:text-7xl font-bold text-white tracking-tighter">
+                                    <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tighter">
                                         <MaskedValue value={stats.balance} prefix={isValuesVisible ? "R$ " : ""} />
                                     </h2>
                                 </div>

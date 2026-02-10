@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { AddCardForm } from '../components/forms/AddCardForm'
+import { CardForm as AddCardForm } from '../components/forms/AddCardForm'
 import { supabase } from '@/lib/supabase'
 
 vi.mock('@/lib/supabase', () => ({
@@ -23,7 +24,7 @@ vi.mock('next/navigation', () => ({
     }),
 }))
 
-describe('AddCardForm', () => {
+describe('CardForm', () => {
     beforeEach(() => {
         vi.clearAllMocks()
     })
@@ -51,7 +52,7 @@ describe('AddCardForm', () => {
         render(<AddCardForm />)
 
         fireEvent.change(screen.getByPlaceholderText(/Ex: Nubank/i), { target: { value: 'My Card' } })
-        fireEvent.change(screen.getByPlaceholderText(/5000.00/i), { target: { value: '1000' } })
+        fireEvent.change(screen.getByPlaceholderText(/R\$ 0,00/i), { target: { value: '100000' } })
         fireEvent.change(screen.getByPlaceholderText(/10/i), { target: { value: '10' } })
         fireEvent.change(screen.getByPlaceholderText(/17/i), { target: { value: '17' } })
 

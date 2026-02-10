@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { TransactionForm } from '../components/forms/TransactionForm'
 import { supabase } from '@/lib/supabase'
@@ -62,7 +63,7 @@ describe('TransactionForm', () => {
         render(<TransactionForm />)
 
         fireEvent.change(screen.getByPlaceholderText(/Ex: Supermercado/i), { target: { value: 'Lunch' } })
-        fireEvent.change(screen.getByPlaceholderText(/0.00/i), { target: { value: '50' } })
+        fireEvent.change(screen.getByPlaceholderText(/0.00/i), { target: { value: '5000' } })
 
         // Select Category
         fireEvent.change(screen.getByLabelText(/Categoria/i), { target: { value: 'Alimentação' } })

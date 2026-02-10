@@ -19,6 +19,7 @@ export function PrivacyProvider({ children }: { children: React.ReactNode }) {
         // Load preference from localStorage
         const stored = localStorage.getItem('privacy_mode')
         if (stored !== null) {
+            // eslint-disable-next-line
             setIsValuesVisible(stored === 'true')
         }
     }, [])
