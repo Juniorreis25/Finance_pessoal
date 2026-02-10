@@ -163,10 +163,9 @@ export default function DashboardPage() {
                             <div className="relative z-10 flex flex-col justify-between h-full min-h-[240px]">
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-3 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700/50 w-fit backdrop-blur-md">
-                                        <Wallet className="w-4 h-4 text-brand-400" />
-                                        <span className="text-xs font-bold text-brand-400 uppercase tracking-widest">Saldo Mensal</span>
+                                        <Wallet className="w-4 h-4 text-brand-500" />
+                                        <span className="text-xs font-bold text-brand-500 uppercase tracking-widest">Saldo Mensal</span>
                                     </div>
-                                    <span className="text-slate-500 text-sm font-mono tracking-widest">**** **** **** 4242</span>
                                 </div>
 
                                 <div className="mt-8">
