@@ -22,7 +22,20 @@ export function CardItem({ card }: { card: Card }) {
     const status = calculateCardStatus(new Date(), card.closing_day, card.due_day)
 
     const handleDelete = async () => {
-        if (window.confirm('Tem certeza que deseja excluir este cartão?')) {
+        if (window.confirm('Tem certeza que deseja excluir este cartão? ATENÇÃO: Todas as transações vinculadas a ele também serão excluídas permanentemente.')) {
+            // 1. Delete linked transactions first (Client-side Cascade)
+            const { error: txError } = await supabase
+                .from('transactions')
+                .delete()
+                .eq('card_id', card.id)
+
+            if (txError) {
+                console.error('Error deleting transactions:', txError)
+                alert('Erro ao excluir transações vinculadas ao cartão.')
+                return
+            }
+
+            // 2. Delete the card
             const { error } = await supabase.from('cards').delete().eq('id', card.id)
             if (error) {
                 alert('Erro ao excluir cartão')
