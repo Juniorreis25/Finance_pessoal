@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { CardItem } from '@/components/cards/CardItem'
-import { ArrowUpCircle, ArrowDownCircle, Wallet, Loader2 } from 'lucide-react'
+import { ArrowUpRight, ArrowDownRight, Wallet, Loader2, Plus, CreditCard, BarChart3 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { OverviewChart } from '@/components/charts/OverviewChart'
 import { CategoryChart } from '@/components/charts/CategoryChart'
-import { BalanceChart } from '@/components/charts/BalanceChart'
+import { MonthSelector } from '@/components/ui/MonthSelector'
+import Link from 'next/link'
+import { startOfMonth, endOfMonth, isWithinInterval, startOfYear, endOfYear } from 'date-fns'
 
 type Transaction = {
     amount: number
@@ -17,6 +18,7 @@ type Transaction = {
 
 export default function DashboardPage() {
     const [loading, setLoading] = useState(true)
+    const [currentDate, setCurrentDate] = useState(new Date())
     const [stats, setStats] = useState({
         balance: 0,
         income: 0,
@@ -24,22 +26,30 @@ export default function DashboardPage() {
     })
     const [overviewData, setOverviewData] = useState<any[]>([])
     const [categoryData, setCategoryData] = useState<any[]>([])
-    const [balanceData, setBalanceData] = useState<any[]>([])
 
     useEffect(() => {
         async function fetchData() {
+            setLoading(true)
             const { data: transactions } = await supabase
                 .from('transactions')
                 .select('*')
-                .order('date', { ascending: true }) // Order by date for balance calculation
+                .order('date', { ascending: true })
 
             if (transactions) {
-                // Calculate Totals
-                const income = transactions
+                // Filter for Current Month (Stats & Categories)
+                const monthStart = startOfMonth(currentDate)
+                const monthEnd = endOfMonth(currentDate)
+
+                const monthTransactions = transactions.filter(t =>
+                    isWithinInterval(new Date(t.date), { start: monthStart, end: monthEnd })
+                )
+
+                // Calculate Totals for Selected Month
+                const income = monthTransactions
                     .filter(t => t.type === 'income')
                     .reduce((acc, curr) => acc + curr.amount, 0)
 
-                const expense = transactions
+                const expense = monthTransactions
                     .filter(t => t.type === 'expense')
                     .reduce((acc, curr) => acc + curr.amount, 0)
 
@@ -49,34 +59,33 @@ export default function DashboardPage() {
                     expense
                 })
 
-                // Prepare Overview Data (Grouping by Month - Simplified to Current Month for MVP or All Time grouped by Month)
-                // Group by Month (YYYY-MM)
+                // Group by Month (For Overview Chart - Whole Year of Selected Date)
+                const yearStart = startOfYear(currentDate)
+                const yearEnd = endOfYear(currentDate)
+                const yearTransactions = transactions.filter(t =>
+                    isWithinInterval(new Date(t.date), { start: yearStart, end: yearEnd })
+                )
+
                 const monthlyData: Record<string, { income: number, expense: number }> = {}
-                const balanceEvolution: { date: string, balance: number }[] = []
-                let currentBalance = 0
 
-                transactions.forEach(t => {
-                    const dateObj = new Date(t.date)
-                    // Overview Data
-                    const monthName = dateObj.toLocaleDateString('pt-BR', { month: 'short' })
-                    if (!monthlyData[monthName]) monthlyData[monthName] = { income: 0, expense: 0 }
+                // Initialize all months for the year
+                for (let i = 0; i < 12; i++) {
+                    const d = new Date(yearStart.getFullYear(), i, 1)
+                    const monthName = d.toLocaleDateString('pt-BR', { month: 'short' })
+                    monthlyData[monthName] = { income: 0, expense: 0 }
+                }
 
-                    if (t.type === 'income') monthlyData[monthName].income += t.amount
-                    else monthlyData[monthName].expense += t.amount
+                yearTransactions.forEach(t => {
+                    const dateObj = new Date(t.date) // Timezone might be an issue, but local simplified for now
+                    // Adjust for timezone offset to avoid previous day mapping if date is Midnight UTC
+                    const userTimezoneOffset = dateObj.getTimezoneOffset() * 60000
+                    const adjustedDate = new Date(dateObj.getTime() + userTimezoneOffset)
 
-                    // Balance Evolution (Daily)
-                    const change = t.type === 'income' ? t.amount : -t.amount
-                    currentBalance += change
-                    // Simplified: Add entry for each transaction or group by day?
-                    // Grouping by day is better for chart
-                    const dateStr = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+                    const monthName = adjustedDate.toLocaleDateString('pt-BR', { month: 'short' })
 
-                    // If last entry is same day, update it, else push new
-                    const lastEntry = balanceEvolution[balanceEvolution.length - 1]
-                    if (lastEntry && lastEntry.date === dateStr) {
-                        lastEntry.balance = currentBalance
-                    } else {
-                        balanceEvolution.push({ date: dateStr, balance: currentBalance })
+                    if (monthlyData[monthName]) {
+                        if (t.type === 'income') monthlyData[monthName].income += t.amount
+                        else monthlyData[monthName].expense += t.amount
                     }
                 })
 
@@ -86,95 +95,152 @@ export default function DashboardPage() {
                     despesa: values.expense
                 }))
                 setOverviewData(chartData)
-                setBalanceData(balanceEvolution)
 
-                // Prepare Category Data
+                // Category Data (Selected Month)
                 const catMap: Record<string, number> = {}
-                transactions
+                monthTransactions
                     .filter(t => t.type === 'expense')
                     .forEach(t => {
                         catMap[t.category] = (catMap[t.category] || 0) + t.amount
                     })
 
-                const colors = ['#f43f5e', '#facc15', '#3b82f6', '#10b981', '#a855f7', '#64748b']
-                const pieData = Object.entries(catMap).map(([name, value], index) => ({
+                const pieData = Object.entries(catMap).map(([name, value]) => ({
                     name,
                     value,
-                    color: colors[index % colors.length]
+                    color: '' // Handled in component
                 }))
                 setCategoryData(pieData)
             }
             setLoading(false)
         }
         fetchData()
-    }, [])
-
-    if (loading) {
-        return <div className="flex h-96 items-center justify-center"><Loader2 className="animate-spin w-8 h-8 text-brand-600" /></div>
-    }
+    }, [currentDate])
 
     return (
-        <div className="space-y-8">
-            <div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Visão Geral</h1>
-                <p className="text-slate-500 dark:text-slate-400">Acompanhe seus indicadores financeiros.</p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-3">
-                <div className="p-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="p-3 bg-brand-100 text-brand-600 rounded-lg dark:bg-brand-900/30 dark:text-brand-400">
-                            <Wallet className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Saldo Atual</p>
-                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
-                                R$ {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                            </h3>
-                        </div>
-                    </div>
+        <div className="space-y-8 pb-10">
+            {/* Header with Asymmetry */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                <div>
+                    <h1 className="text-4xl font-extrabold tracking-tighter text-slate-900 dark:text-white">
+                        Visão<span className="text-brand-500">Geral</span>
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
+                        Resumo financeiro em tempo real.
+                    </p>
                 </div>
 
-                <div className="p-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="p-3 bg-success/10 text-success rounded-lg">
-                            <ArrowUpCircle className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Receitas</p>
-                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
-                                R$ {stats.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                            </h3>
-                        </div>
-                    </div>
-                </div>
+                <div className="flex flex-col md:flex-row gap-4 items-end">
+                    <MonthSelector currentDate={currentDate} onDateChange={setCurrentDate} />
 
-                <div className="p-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="p-3 bg-danger/10 text-danger rounded-lg">
-                            <ArrowDownCircle className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Despesas</p>
-                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
-                                R$ {stats.expense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                            </h3>
-                        </div>
+                    <div className="flex gap-2">
+                        <Link href="/transactions" className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                            <BarChart3 className="w-5 h-5" />
+                        </Link>
+                        <Link href="/cards" className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                            <CreditCard className="w-5 h-5" />
+                        </Link>
+                        <Link href="/transactions/new" className="flex items-center gap-2 px-5 py-3 bg-brand-500 text-slate-950 font-bold rounded-2xl hover:scale-105 transition-transform shadow-lg shadow-brand-500/20">
+                            <Plus className="w-5 h-5" />
+                            Nova Transação
+                        </Link>
                     </div>
                 </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
-                <div className="p-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                    <OverviewChart data={overviewData} />
+            {loading ? (
+                <div className="flex h-[50vh] items-center justify-center w-full">
+                    <Loader2 className="animate-spin w-10 h-10 text-brand-500" />
                 </div>
-                <div className="p-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                    <CategoryChart data={categoryData} />
-                </div>
-                <div className="p-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 md:col-span-2">
-                    <BalanceChart data={balanceData} />
-                </div>
-            </div>
+            ) : (
+                <>
+                    {/* Master Card Layout - Asymmetric Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+                        {/* Master Balance Card (Span 8) */}
+                        <div className="md:col-span-8 relative overflow-hidden bg-gradient-to-br from-slate-900 to-slate-950 rounded-[2rem] p-8 border border-slate-800 shadow-2xl">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 blur-[100px] rounded-full pointer-events-none" />
+
+                            <div className="relative z-10 flex flex-col justify-between h-full min-h-[240px]">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-3 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700/50 w-fit backdrop-blur-md">
+                                        <Wallet className="w-4 h-4 text-brand-400" />
+                                        <span className="text-xs font-bold text-brand-400 uppercase tracking-widest">Saldo Mensal</span>
+                                    </div>
+                                    <span className="text-slate-500 text-sm font-mono tracking-widest">**** **** **** 4242</span>
+                                </div>
+
+                                <div className="mt-8">
+                                    <h2 className="text-5xl md:text-7xl font-bold text-white tracking-tighter">
+                                        <span className="text-2xl md:text-4xl text-slate-500 font-medium align-top mr-2">R$</span>
+                                        {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                    </h2>
+                                </div>
+
+                                <div className="mt-8 flex gap-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-emerald-500/10 rounded-full text-emerald-400">
+                                            <ArrowUpRight className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-slate-500 font-medium">Receitas</p>
+                                            <p className="text-lg font-bold text-emerald-400">
+                                                R$ {stats.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="w-px h-10 bg-slate-800" />
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-rose-500/10 rounded-full text-rose-400">
+                                            <ArrowDownRight className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-slate-500 font-medium">Despesas</p>
+                                            <p className="text-lg font-bold text-rose-400">
+                                                R$ {stats.expense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Secondary Cards (Span 4) */}
+                        <div className="md:col-span-4 flex flex-col gap-6">
+                            <div className="flex-1 bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/5 group-hover:bg-brand-500/10 transition-colors blur-3xl rounded-full" />
+                                <div className="relative z-10">
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Economia Mensal</h3>
+                                    <p className="text-slate-500 text-sm mb-4">Baseado em sua média</p>
+                                    <div className="text-3xl font-bold text-brand-500 tracking-tight">+12%</div>
+                                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-4 overflow-hidden">
+                                        <div className="bg-brand-500 h-full w-[75%] rounded-full shadow-[0_0_10px_rgba(132,204,22,0.5)]" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-6 border border-slate-800 shadow-lg flex items-center justify-center relative overflow-hidden">
+                                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
+                                <button className="relative z-10 flex flex-col items-center gap-3 group">
+                                    <div className="w-16 h-16 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center group-hover:scale-110 group-hover:border-brand-500/50 transition-all shadow-lg">
+                                        <Plus className="w-8 h-8 text-brand-500" />
+                                    </div>
+                                    <span className="text-sm font-bold text-slate-400 group-hover:text-white transition-colors">Nova Meta</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Charts Section */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <OverviewChart data={overviewData} />
+                        </div>
+                        <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <CategoryChart data={categoryData} />
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
     )
 }

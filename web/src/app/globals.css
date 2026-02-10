@@ -10,41 +10,59 @@
   --color-brand-900: var(--brand-900);
   --color-success: var(--success);
   --color-danger: var(--danger);
-  
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 :root {
   /* Base - Slate Gray / Light Mode */
-  --background: #f8fafc; /* slate-50 */
-  --foreground: #0f172a; /* slate-900 */
+  --background: #f8fafc;
+  /* slate-50 */
+  --foreground: #020617;
+  /* slate-950 */
 
-  /* Brand - Deep Blue */
-  --brand-50: #f0f9ff;
-  --brand-100: #e0f2fe;
-  --brand-500: #0ea5e9; /* sky-500 - bright accessible blue or deeper? */
-  --brand-600: #0284c7; /* sky-600 */
-  --brand-900: #0c4a6e; /* sky-900 - deep trust */
+  /* Brand - Neon Fintech */
+  --brand-50: #f7fee7;
+  /* lime-50 */
+  --brand-100: #ecfccb;
+  /* lime-100 */
+  --brand-500: #84cc16;
+  /* lime-500 */
+  --brand-600: #65a30d;
+  /* lime-600 */
+  --brand-900: #2c4c0b;
+  /* lime-950 (adjusted) */
 
   /* Semantic */
-  --success: #10b981; /* emerald-500 */
-  --danger: #f43f5e; /* rose-500 - soft ruby */
+  --success: #10b981;
+  /* emerald-500 */
+  --danger: #f43f5e;
+  /* rose-500 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0f172a; /* slate-900 */
-    --foreground: #f8fafc; /* slate-50 */
+    --background: #020617;
+    /* slate-950 (Deepest Dark) */
+    --foreground: #f8fafc;
+    /* slate-50 */
 
-    --brand-50: #082f49;
-    --brand-100: #0c4a6e;
-    --brand-500: #38bdf8;
-    --brand-600: #0ea5e9; 
-    --brand-900: #f0f9ff;
+    --brand-50: #1a2e05;
+    /* lime-950/20 */
+    --brand-100: #365314;
+    /* lime-900 */
+    --brand-500: #a3e635;
+    /* lime-400 (Neon) */
+    --brand-600: #84cc16;
+    /* lime-500 */
+    --brand-900: #f7fee7;
+    /* lime-50 */
 
-    --success: #34d399; /* emerald-400 */
-    --danger: #fb7185; /* rose-400 */
+    --success: #34d399;
+    /* emerald-400 */
+    --danger: #fb7185;
+    /* rose-400 */
   }
 }
 
