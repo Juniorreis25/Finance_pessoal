@@ -8,6 +8,8 @@ import { CategoryChart } from '@/components/charts/CategoryChart'
 import { MonthSelector } from '@/components/ui/MonthSelector'
 import Link from 'next/link'
 import { startOfMonth, endOfMonth, isWithinInterval, startOfYear, endOfYear } from 'date-fns'
+import { usePrivacy } from '@/providers/PrivacyProvider'
+import { MaskedValue } from '@/components/ui/MaskedValue'
 
 type Transaction = {
     amount: number
@@ -26,6 +28,7 @@ export default function DashboardPage() {
     })
     const [overviewData, setOverviewData] = useState<any[]>([])
     const [categoryData, setCategoryData] = useState<any[]>([])
+    const { isValuesVisible, toggleVisibility } = usePrivacy()
 
     useEffect(() => {
         async function fetchData() {
@@ -166,12 +169,22 @@ export default function DashboardPage() {
                                         <Wallet className="w-4 h-4 text-brand-500" />
                                         <span className="text-xs font-bold text-brand-500 uppercase tracking-widest">Saldo Mensal</span>
                                     </div>
+                                    <button
+                                        onClick={toggleVisibility}
+                                        className="p-2 text-slate-500 hover:text-white transition-colors"
+                                        aria-label={isValuesVisible ? "Ocultar valores" : "Mostrar valores"}
+                                    >
+                                        {isValuesVisible ? (
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                                        ) : (
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" /><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" /><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" /><line x1="2" x2="22" y1="2" y2="22" /></svg>
+                                        )}
+                                    </button>
                                 </div>
 
                                 <div className="mt-8">
                                     <h2 className="text-5xl md:text-7xl font-bold text-white tracking-tighter">
-                                        <span className="text-2xl md:text-4xl text-slate-500 font-medium align-top mr-2">R$</span>
-                                        {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                        <MaskedValue value={stats.balance} prefix={isValuesVisible ? "R$ " : ""} />
                                     </h2>
                                 </div>
 
@@ -183,7 +196,7 @@ export default function DashboardPage() {
                                         <div>
                                             <p className="text-xs text-slate-500 font-medium">Receitas</p>
                                             <p className="text-lg font-bold text-emerald-400">
-                                                R$ {stats.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                                <MaskedValue value={stats.income} />
                                             </p>
                                         </div>
                                     </div>
@@ -195,7 +208,7 @@ export default function DashboardPage() {
                                         <div>
                                             <p className="text-xs text-slate-500 font-medium">Despesas</p>
                                             <p className="text-lg font-bold text-rose-400">
-                                                R$ {stats.expense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                                <MaskedValue value={stats.expense} />
                                             </p>
                                         </div>
                                     </div>
