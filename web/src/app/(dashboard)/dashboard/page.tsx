@@ -157,7 +157,7 @@ export default function DashboardPage() {
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
                         {/* Master Balance Card (Span 8) */}
-                        <div className="md:col-span-8 relative overflow-hidden bg-gradient-to-br from-slate-900 to-slate-950 rounded-[2rem] p-8 border border-slate-800 shadow-2xl">
+                        <div className="md:col-span-12 relative overflow-hidden bg-gradient-to-br from-slate-900 to-slate-950 rounded-[2rem] p-8 border border-slate-800 shadow-2xl">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 blur-[100px] rounded-full pointer-events-none" />
 
                             <div className="relative z-10 flex flex-col justify-between h-full min-h-[240px]">
@@ -204,30 +204,7 @@ export default function DashboardPage() {
                             </div>
                         </div>
 
-                        {/* Secondary Cards (Span 4) */}
-                        <div className="md:col-span-4 flex flex-col gap-6">
-                            <div className="flex-1 bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/5 group-hover:bg-brand-500/10 transition-colors blur-3xl rounded-full" />
-                                <div className="relative z-10">
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Economia Mensal</h3>
-                                    <p className="text-slate-500 text-sm mb-4">Baseado em sua média</p>
-                                    <div className="text-3xl font-bold text-brand-500 tracking-tight">+12%</div>
-                                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-4 overflow-hidden">
-                                        <div className="bg-brand-500 h-full w-[75%] rounded-full shadow-[0_0_10px_rgba(132,204,22,0.5)]" />
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div className="flex-1 bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-6 border border-slate-800 shadow-lg flex items-center justify-center relative overflow-hidden">
-                                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
-                                <button className="relative z-10 flex flex-col items-center gap-3 group">
-                                    <div className="w-16 h-16 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center group-hover:scale-110 group-hover:border-brand-500/50 transition-all shadow-lg">
-                                        <Plus className="w-8 h-8 text-brand-500" />
-                                    </div>
-                                    <span className="text-sm font-bold text-slate-400 group-hover:text-white transition-colors">Nova Meta</span>
-                                </button>
-                            </div>
-                        </div>
                     </div>
 
                     {/* Charts Section */}
