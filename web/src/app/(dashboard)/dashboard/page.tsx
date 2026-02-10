@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { OverviewChart } from '@/components/charts/OverviewChart'
 import { CategoryChart } from '@/components/charts/CategoryChart'
 import { MonthSelector } from '@/components/ui/MonthSelector'
+import { CategorySelector } from '@/components/ui/CategorySelector'
 import Link from 'next/link'
 import { startOfMonth, endOfMonth, isWithinInterval, startOfYear, endOfYear } from 'date-fns'
 import { usePrivacy } from '@/providers/PrivacyProvider'
@@ -22,6 +23,7 @@ export default function DashboardPage() {
     const supabase = createClient()
     const [loading, setLoading] = useState(true)
     const [currentDate, setCurrentDate] = useState(new Date())
+    const [selectedCategory, setSelectedCategory] = useState('')
     const [stats, setStats] = useState({
         balance: 0,
         income: 0,
@@ -44,7 +46,12 @@ export default function DashboardPage() {
                 const monthStart = startOfMonth(currentDate)
                 const monthEnd = endOfMonth(currentDate)
 
-                const monthTransactions = transactions.filter(t =>
+                // Apply Category Filter if Selected
+                const filteredTransactions = selectedCategory
+                    ? transactions.filter(t => t.category === selectedCategory)
+                    : transactions
+
+                const monthTransactions = filteredTransactions.filter(t =>
                     isWithinInterval(new Date(t.date), { start: monthStart, end: monthEnd })
                 )
 
@@ -66,7 +73,7 @@ export default function DashboardPage() {
                 // Group by Month (For Overview Chart - Whole Year of Selected Date)
                 const yearStart = startOfYear(currentDate)
                 const yearEnd = endOfYear(currentDate)
-                const yearTransactions = transactions.filter(t =>
+                const yearTransactions = filteredTransactions.filter(t =>
                     isWithinInterval(new Date(t.date), { start: yearStart, end: yearEnd })
                 )
 
@@ -80,8 +87,7 @@ export default function DashboardPage() {
                 }
 
                 yearTransactions.forEach(t => {
-                    const dateObj = new Date(t.date) // Timezone might be an issue, but local simplified for now
-                    // Adjust for timezone offset to avoid previous day mapping if date is Midnight UTC
+                    const dateObj = new Date(t.date)
                     const userTimezoneOffset = dateObj.getTimezoneOffset() * 60000
                     const adjustedDate = new Date(dateObj.getTime() + userTimezoneOffset)
 
@@ -118,7 +124,7 @@ export default function DashboardPage() {
             setLoading(false)
         }
         fetchData()
-    }, [currentDate])
+    }, [currentDate, selectedCategory])
 
     return (
         <div className="space-y-8 pb-10">
@@ -134,6 +140,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-4 items-end">
+                    <CategorySelector selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
                     <MonthSelector currentDate={currentDate} onDateChange={setCurrentDate} />
 
                     <div className="flex gap-2">
