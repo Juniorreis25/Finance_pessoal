@@ -14,6 +14,8 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
+import { Logo } from '@/components/ui/Logo'
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const supabase = createClient()
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -27,8 +29,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     const navItems = [
         { href: '/dashboard', label: 'Visão Geral', icon: LayoutDashboard },
-        { href: '/cards', label: 'Cartões', icon: CreditCard },
         { href: '/transactions', label: 'Transações', icon: ArrowRightLeft },
+        { href: '/cards', label: 'Cartões', icon: CreditCard },
     ]
 
     return (
@@ -49,8 +51,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
                 <div className="h-full flex flex-col">
-                    <div className="p-6 border-b border-slate-100 dark:border-slate-700">
-                        <h1 className="text-2xl font-bold text-brand-600 dark:text-brand-400">Finance</h1>
+                    <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-center">
+                        <Logo />
                     </div>
 
                     <nav className="flex-1 p-4 space-y-1">
@@ -78,7 +80,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <div className="p-4 border-t border-slate-100 dark:border-slate-700">
                         <button
                             onClick={handleLogout}
-                            className="flex w-full items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                            className="flex w-full items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors"
                         >
                             <LogOut className="w-5 h-5" />
                             Sair
@@ -91,7 +93,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Mobile Header */}
                 <header className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                    <h1 className="text-lg font-bold text-brand-600 dark:text-brand-400">Finance</h1>
+                    <Logo className="w-6 h-6" textSize="text-lg" />
                     <button
                         onClick={() => setIsSidebarOpen(true)}
                         className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"
