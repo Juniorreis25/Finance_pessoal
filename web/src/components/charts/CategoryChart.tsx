@@ -58,8 +58,12 @@ export function CategoryChart({ data }: { data: CategoryData[] }) {
                         itemStyle={{ color: '#f8fafc' }}
                     />
                     <Legend
-                        wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
-                        formatter={(value) => <span className="text-slate-600 dark:text-slate-400 font-medium">{value}</span>}
+                        verticalAlign="middle"
+                        align="right"
+                        layout="vertical"
+                        iconType="circle"
+                        wrapperStyle={{ fontSize: '12px' }}
+                        formatter={(value) => <span className="text-slate-600 dark:text-slate-400 font-medium ml-1">{value}</span>}
                     />
                 </PieChart>
             </ResponsiveContainer>

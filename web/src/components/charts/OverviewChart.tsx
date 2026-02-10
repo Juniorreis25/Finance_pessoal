@@ -19,7 +19,7 @@ export function OverviewChart({ data }: { data: OverviewData[] }) {
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={data}
-                    margin={{ top: 5, right: 10, left: -20, bottom: 5 }}
+                    margin={{ top: 20, right: 10, left: -20, bottom: 20 }}
                 >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.5} />
                     <XAxis
@@ -48,7 +48,9 @@ export function OverviewChart({ data }: { data: OverviewData[] }) {
                         itemStyle={{ color: '#f8fafc' }}
                     />
                     <Legend
-                        wrapperStyle={{ paddingTop: '20px' }}
+                        verticalAlign="top"
+                        align="right"
+                        wrapperStyle={{ paddingBottom: '20px' }}
                         formatter={(value) => <span className="text-slate-600 dark:text-slate-400 font-medium">{value}</span>}
                     />
                     <Bar dataKey="receita" name="Receitas" fill="#34d399" radius={[4, 4, 0, 0]} barSize={20} />
