@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from 'react'
 import { TransactionForm } from '@/components/forms/TransactionForm'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 export default function EditTransactionPage({ params }: { params: Promise<{ id: string }> }) {
@@ -10,6 +10,7 @@ export default function EditTransactionPage({ params }: { params: Promise<{ id: 
     const [transaction, setTransaction] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const router = useRouter()
+    const supabase = createClient()
 
     useEffect(() => {
         async function fetchTransaction() {

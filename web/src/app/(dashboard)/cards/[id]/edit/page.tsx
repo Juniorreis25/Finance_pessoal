@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from 'react'
 import { CardForm } from '@/components/forms/AddCardForm'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 export default function EditCardPage({ params }: { params: Promise<{ id: string }> }) {
@@ -10,6 +10,7 @@ export default function EditCardPage({ params }: { params: Promise<{ id: string 
     const [card, setCard] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const router = useRouter()
+    const supabase = createClient()
 
     useEffect(() => {
         async function fetchCard() {
