@@ -275,14 +275,14 @@ export default function DashboardPage() {
                                     </div>
                                 </div>
 
-                                {/* Next Month Preview - Right Section (4 cols) */}
+                                {/* Next Month Preview - Right Section (4 cols on desktop, full width on mobile) */}
                                 <div className="lg:col-span-4 flex flex-col justify-center lg:border-l lg:border-slate-800/50 lg:pl-8">
-                                    <div className="bg-slate-800/30 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/30">
-                                        <div className="flex items-center gap-2 mb-4">
+                                    <div className="bg-slate-800/30 backdrop-blur-sm rounded-2xl p-5 border border-slate-700/30">
+                                        <div className="flex items-center gap-2 mb-3">
                                             <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
                                             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Próximo Mês</span>
                                         </div>
-                                        <p className="text-sm text-slate-500 mb-2">{format(addMonths(currentDate, 1), "MMMM 'de' yyyy", { locale: ptBR })}</p>
+                                        <p className="text-sm text-slate-500 mb-2 capitalize">{format(addMonths(currentDate, 1), "MMMM 'de' yyyy", { locale: ptBR })}</p>
                                         <div className="flex items-baseline gap-2">
                                             <span className="text-2xl font-bold text-amber-400">
                                                 <MaskedValue value={nextMonthStats.expense} prefix={isValuesVisible ? "R$ " : ""} />
