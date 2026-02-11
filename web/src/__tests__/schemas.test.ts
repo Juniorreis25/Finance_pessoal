@@ -8,7 +8,7 @@ describe('Transaction Schema Validation', () => {
             amount: 150.50,
             type: 'expense',
             category: 'Alimentação',
-            date: new Date(),
+            date: new Date().toISOString(),
         }
         const result = transactionSchema.safeParse(validTransaction)
         expect(result.success).toBe(true)
@@ -20,7 +20,7 @@ describe('Transaction Schema Validation', () => {
             amount: -100,
             type: 'expense',
             category: 'Outros',
-            date: new Date(),
+            date: new Date().toISOString(),
         }
         const result = transactionSchema.safeParse(invalidTransaction)
         expect(result.success).toBe(false)
@@ -35,7 +35,7 @@ describe('Transaction Schema Validation', () => {
             amount: 100,
             type: 'income',
             category: 'Salário',
-            date: new Date(),
+            date: new Date().toISOString(),
         }
         const result = transactionSchema.safeParse(invalidTransaction)
         expect(result.success).toBe(false)
