@@ -1,9 +1,9 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2, Save, ArrowUpCircle, ArrowDownCircle, X } from 'lucide-react'
+import { Loader2, Save, ArrowUpCircle, ArrowDownCircle, X, CalendarClock, Calculator } from 'lucide-react'
+import { addMonths, format, parseISO } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 
 type Card = {
     id: string
@@ -18,6 +18,9 @@ type TransactionData = {
     date: string
     type: 'income' | 'expense'
     card_id?: string | null
+    installment_id?: string | null
+    installment_number?: number | null
+    total_installments?: number | null
 }
 
 interface TransactionFormProps {
@@ -31,6 +34,8 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
     const [cards, setCards] = useState<Card[]>([])
 
     const [type, setType] = useState<'income' | 'expense'>(initialData?.type || 'expense')
+    const [isInstallment, setIsInstallment] = useState(!!initialData?.installment_id)
+    const [installments, setInstallments] = useState(initialData?.total_installments || 2)
 
     // Helper to format currency on init
     const formatCurrency = (value: number | string) => {
@@ -48,6 +53,12 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
     })
     const [error, setError] = useState<string | null>(null)
 
+    // Derived state for installment summaries
+    const [installmentSummary, setInstallmentSummary] = useState<{
+        lastDate: string
+        monthlyValue: string
+    } | null>(null)
+
     useEffect(() => {
         async function fetchCards() {
             const { data } = await supabase.from('cards').select('id, name')
@@ -56,10 +67,40 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
         fetchCards()
     }, [])
 
+    const parseCurrency = (value: string) => {
+        if (!value) return 0
+        const clean = value.replace(/[R$\s.]/g, '').replace(',', '.')
+        return parseFloat(clean)
+    }
+
+    // Effect to calculate installment summary
+    useEffect(() => {
+        if (!isInstallment || !formData.date || !formData.amount || installments < 2) {
+            setInstallmentSummary(null)
+            return
+        }
+
+        try {
+            const startDate = parseISO(formData.date)
+            const totalAmount = parseCurrency(formData.amount)
+            
+            // Calculate last date
+            const finalDate = addMonths(startDate, installments - 1)
+            
+            // Calculate monthly amount (approximate)
+            const monthly = totalAmount / installments
+            
+            setInstallmentSummary({
+                lastDate: format(finalDate, "MMMM 'de' yyyy", { locale: ptBR }),
+                monthlyValue: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(monthly)
+            })
+        } catch (e) {
+            setInstallmentSummary(null)
+        }
+    }, [isInstallment, formData.date, formData.amount, installments])
+
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value
-
-        // Remove non-digits
         const numericValue = value.replace(/\D/g, '')
 
         if (!numericValue) {
@@ -67,24 +108,13 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
             return
         }
 
-        // Convert to float (divide by 100 for cents)
         const floatValue = parseFloat(numericValue) / 100
-
-        // Format back to currency string
         const formatted = new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL',
         }).format(floatValue)
 
         setFormData({ ...formData, amount: formatted })
-    }
-
-    const parseCurrency = (value: string) => {
-        if (!value) return 0
-        // Clean non-numeric characters except comma (if any, but our formatter uses dot for thousands and comma for decimal)
-        // Standard approach for BRL: remove 'R$', trim, remove dots, replace comma with dot
-        const clean = value.replace(/[R$\s.]/g, '').replace(',', '.')
-        return parseFloat(clean)
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -94,32 +124,53 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
 
         try {
             const { data: { user } } = await supabase.auth.getUser()
-            // if (!user) throw new Error('Usuário não autenticado')
             const userId = user?.id || 'anon-user'
-
             const amountValue = parseCurrency(formData.amount)
 
-            const payload = {
+            // Common payload props
+            const basePayload = {
                 user_id: userId,
                 type,
-                description: formData.description,
-                amount: amountValue,
                 category: formData.category,
                 date: formData.date,
                 card_id: type === 'expense' && formData.card_id ? formData.card_id : null,
             }
 
-            if (initialData?.id) {
-                const { error: updateError } = await supabase
-                    .from('transactions')
-                    .update(payload)
-                    .eq('id', initialData.id)
-                if (updateError) throw updateError
+            if (isInstallment && type === 'expense' && !initialData?.id) {
+                // CREATE INSTALLMENTS (RPC Call)
+                // Note: RPC function must be created in Supabase (20240211_add_installments.sql)
+                const { error: rpcError } = await supabase.rpc('create_installment_transaction', {
+                    p_user_id: userId,
+                    p_description: formData.description,
+                    p_amount: amountValue,
+                    p_category: formData.category,
+                    p_date: formData.date,
+                    p_total_installments: installments,
+                    p_card_id: formData.card_id || null
+                })
+                
+                if (rpcError) throw new Error(`Erro ao criar parcelas: ${rpcError.message}`)
+
             } else {
-                const { error: insertError } = await supabase
-                    .from('transactions')
-                    .insert(payload)
-                if (insertError) throw insertError
+                // STANDARD CREATE / UPDATE
+                const payload = {
+                    ...basePayload,
+                    description: formData.description,
+                    amount: amountValue,
+                }
+
+                if (initialData?.id) {
+                    const { error: updateError } = await supabase
+                        .from('transactions')
+                        .update(payload)
+                        .eq('id', initialData.id)
+                    if (updateError) throw updateError
+                } else {
+                    const { error: insertError } = await supabase
+                        .from('transactions')
+                        .insert(payload)
+                    if (insertError) throw insertError
+                }
             }
 
             router.push('/transactions')
@@ -154,7 +205,10 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
             <div className="flex gap-2 p-1.5 bg-slate-100 dark:bg-slate-950 rounded-2xl max-w-md mx-auto">
                 <button
                     type="button"
-                    onClick={() => setType('expense')}
+                    onClick={() => {
+                        setType('expense')
+                        // Reset installment if switching to income (optional, but safer)
+                    }}
                     className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${type === 'expense'
                         ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/30'
                         : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
@@ -165,7 +219,10 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                 </button>
                 <button
                     type="button"
-                    onClick={() => setType('income')}
+                    onClick={() => {
+                        setType('income')
+                        setIsInstallment(false)
+                    }}
                     className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${type === 'income'
                         ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
                         : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
@@ -185,7 +242,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
             <div className="space-y-6">
                 <div>
                     <label htmlFor="amount" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                        Valor (R$)
+                        Valor {isInstallment ? 'Total' : ''} (R$)
                     </label>
                     <input
                         id="amount"
@@ -237,7 +294,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
 
                     <div>
                         <label htmlFor="date" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                            Data
+                            Data {isInstallment ? 'da 1ª Parcela' : ''}
                         </label>
                         <input
                             id="date"
@@ -252,22 +309,85 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                 </div>
 
                 {type === 'expense' && (
-                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-                        <label htmlFor="card_id" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                            Cartão (Opcional)
-                        </label>
-                        <select
-                            id="card_id"
-                            name="card_id"
-                            className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white dark:[color-scheme:dark]"
-                            value={formData.card_id || ''}
-                            onChange={handleChange}
-                        >
-                            <option value="">Nenhum (Dinheiro/Débito)</option>
-                            {cards.map(card => (
-                                <option key={card.id} value={card.id}>{card.name}</option>
-                            ))}
-                        </select>
+                    <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+                         {/* Card Selection */}
+                        <div>
+                            <label htmlFor="card_id" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
+                                Cartão (Opcional)
+                            </label>
+                            <select
+                                id="card_id"
+                                name="card_id"
+                                className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white dark:[color-scheme:dark]"
+                                value={formData.card_id || ''}
+                                onChange={handleChange}
+                            >
+                                <option value="">Nenhum (Dinheiro/Débito)</option>
+                                {cards.map(card => (
+                                    <option key={card.id} value={card.id}>{card.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Installment Toggle & Logic */}
+                        {!initialData?.id && (
+                            <div className="bg-slate-50 dark:bg-slate-950/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`p-2 rounded-lg ${isInstallment ? 'bg-brand-500 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>
+                                            <CalendarClock className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-slate-900 dark:text-white text-sm">Transação Parcelada?</p>
+                                            <p className="text-xs text-slate-500">Divide o valor em meses futuros</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsInstallment(!isInstallment)}
+                                        className={`w-12 h-6 rounded-full transition-colors relative ${isInstallment ? 'bg-brand-500' : 'bg-slate-300 dark:bg-slate-700'}`}
+                                    >
+                                        <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-transform ${isInstallment ? 'left-7' : 'left-1'}`} />
+                                    </button>
+                                </div>
+
+                                {isInstallment && (
+                                    <div className="mt-5 space-y-4 animate-in fade-in slide-in-from-top-2">
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
+                                                Número de Parcelas
+                                            </label>
+                                            <div className="flex items-center gap-4">
+                                                <input
+                                                    type="range"
+                                                    min="2"
+                                                    max="24"
+                                                    value={installments}
+                                                    onChange={(e) => setInstallments(parseInt(e.target.value))}
+                                                    className="flex-1 h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500"
+                                                />
+                                                <div className="w-16 h-12 flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-lg">
+                                                    {installments}x
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {installmentSummary && (
+                                            <div className="bg-brand-500/10 border border-brand-500/20 rounded-xl p-4 flex flex-col gap-2">
+                                                <div className="flex justify-between items-center text-sm">
+                                                    <span className="text-slate-600 dark:text-slate-400">Mensalidade:</span>
+                                                    <span className="font-bold text-brand-600 dark:text-brand-400">{installmentSummary.monthlyValue}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center text-sm">
+                                                    <span className="text-slate-600 dark:text-slate-400">Última parcela:</span>
+                                                    <span className="font-bold text-slate-900 dark:text-white">{installmentSummary.lastDate}</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
