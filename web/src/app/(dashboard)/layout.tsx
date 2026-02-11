@@ -9,7 +9,8 @@ import {
     ArrowRightLeft,
     Menu,
     X,
-    LogOut
+    LogOut,
+    Repeat
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -30,6 +31,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const navItems = [
         { href: '/dashboard', label: 'Visão Geral', icon: LayoutDashboard },
         { href: '/transactions', label: 'Transações', icon: ArrowRightLeft },
+        { href: '/recurring', label: 'Recorrentes', icon: Repeat },
         { href: '/cards', label: 'Cartões', icon: CreditCard },
     ]
 
