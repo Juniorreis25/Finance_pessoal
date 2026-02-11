@@ -2,7 +2,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Table: Cards
-CREATE TABLE cards (
+CREATE TABLE IF NOT EXISTS cards (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) NOT NULL,
     name TEXT NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE cards (
 );
 
 -- Table: Transactions
-CREATE TABLE transactions (
+CREATE TABLE IF NOT EXISTS transactions (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) NOT NULL,
     card_id UUID REFERENCES cards(id), -- Nullable for cash/debit transactions
@@ -35,14 +35,20 @@ ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
 -- For shared access, we might need a shared key or organization table, 
 -- but for now assuming strict user ownership or single shared login)
 
+-- Drop existing policies to ensure idempotency
+DROP POLICY IF EXISTS "Users can view their own cards" ON cards;
+DROP POLICY IF EXISTS "Users can insert their own cards" ON cards;
+DROP POLICY IF EXISTS "Users can view their own transactions" ON transactions;
+DROP POLICY IF EXISTS "Users can insert their own transactions" ON transactions;
+
 CREATE POLICY "Users can view their own cards" ON cards
-    FOR SELECT USING (auth.uid() = user_id);
+    FOR SELECT USING (auth.uid()::text = user_id::text);
 
 CREATE POLICY "Users can insert their own cards" ON cards
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+    FOR INSERT WITH CHECK (auth.uid()::text = user_id::text);
 
 CREATE POLICY "Users can view their own transactions" ON transactions
-    FOR SELECT USING (auth.uid() = user_id);
+    FOR SELECT USING (auth.uid()::text = user_id::text);
 
 CREATE POLICY "Users can insert their own transactions" ON transactions
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+    FOR INSERT WITH CHECK (auth.uid()::text = user_id::text);
