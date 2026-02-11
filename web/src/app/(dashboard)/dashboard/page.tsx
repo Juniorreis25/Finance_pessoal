@@ -227,13 +227,13 @@ export default function DashboardPage() {
                     <MonthSelector currentDate={currentDate} onDateChange={setCurrentDate} />
 
                     <div className="flex gap-2">
-                        <Link href="/transactions" className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Ver transações">
+                        <Link href="/transactions" className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Ver transações" title="Ver Histórico de Transações">
                             <BarChart3 className="w-5 h-5" />
                         </Link>
-                        <Link href="/cards" className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Ver cartões">
+                        <Link href="/cards" className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Ver cartões" title="Gerenciar Meus Cartões">
                             <CreditCard className="w-5 h-5" />
                         </Link>
-                        <Link href="/transactions/new" className="flex items-center gap-2 px-5 py-3 bg-brand-500 text-slate-950 font-bold rounded-2xl hover:scale-105 transition-transform shadow-lg shadow-brand-500/20 cursor-pointer">
+                        <Link href="/transactions/new" className="flex items-center gap-2 px-5 py-3 bg-brand-500 text-slate-950 font-bold rounded-2xl hover:scale-105 transition-transform shadow-lg shadow-brand-500/20 cursor-pointer" title="Adicionar Nova Transação">
                             <Plus className="w-5 h-5" />
                             Nova Transação
                         </Link>
@@ -266,6 +266,7 @@ export default function DashboardPage() {
                                             onClick={toggleVisibility}
                                             className="p-2 text-slate-500 hover:text-white transition-colors cursor-pointer"
                                             aria-label={isValuesVisible ? "Ocultar valores" : "Mostrar valores"}
+                                            title={isValuesVisible ? "Ocultar valores para privacidade" : "Mostrar valores financeiros"}
                                         >
                                             {isValuesVisible ? (
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>

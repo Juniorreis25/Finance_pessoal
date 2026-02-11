@@ -227,6 +227,7 @@ export default function ProfilePage() {
                                 onClick={handleRemoveAvatar}
                                 className="absolute -top-2 -right-2 p-2 bg-rose-500 text-white rounded-full hover:bg-rose-600 transition-colors shadow-lg cursor-pointer"
                                 aria-label="Remover avatar"
+                                title="Remover Foto de Perfil"
                             >
                                 <X className="w-4 h-4" />
                             </button>
