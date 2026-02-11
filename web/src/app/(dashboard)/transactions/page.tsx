@@ -138,10 +138,10 @@ export default function TransactionsPage() {
 
                                 {/* Actions - Always Visible but subtle */}
                                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0">
-                                    <Link href={`/transactions/${tx.id}/edit`} className="p-2 text-slate-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors">
+                                    <Link href={`/transactions/${tx.id}/edit`} className="p-2 text-slate-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors cursor-pointer" title="Editar Transação">
                                         <Edit2 className="w-4 h-4" />
                                     </Link>
-                                    <button onClick={() => handleDelete(tx.id)} className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors">
+                                    <button onClick={() => handleDelete(tx.id)} className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors cursor-pointer" title="Excluir Transação">
                                         <Trash2 className="w-4 h-4" />
                                     </button>
                                 </div>

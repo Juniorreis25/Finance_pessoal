@@ -112,10 +112,10 @@ export function CardItem({ card }: { card: Card }) {
 
             {/* Hover Actions Overlay */}
             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-                <Link href={`/cards/${card.id}/edit`} className="p-2 bg-slate-800/80 text-white rounded-full hover:bg-brand-500 hover:text-slate-900 transition-colors backdrop-blur-sm shadow-lg border border-white/10">
+                <Link href={`/cards/${card.id}/edit`} className="p-2 bg-slate-800/80 text-white rounded-full hover:bg-brand-500 hover:text-slate-900 transition-colors backdrop-blur-sm shadow-lg border border-white/10 cursor-pointer" title="Editar Cartão">
                     <Edit2 className="w-4 h-4" />
                 </Link>
-                <button onClick={handleDelete} className="p-2 bg-slate-800/80 text-white rounded-full hover:bg-rose-500 hover:text-white transition-colors backdrop-blur-sm shadow-lg border border-white/10">
+                <button onClick={handleDelete} className="p-2 bg-slate-800/80 text-white rounded-full hover:bg-rose-500 hover:text-white transition-colors backdrop-blur-sm shadow-lg border border-white/10 cursor-pointer" title="Excluir Cartão">
                     <Trash2 className="w-4 h-4" />
                 </button>
             </div>
