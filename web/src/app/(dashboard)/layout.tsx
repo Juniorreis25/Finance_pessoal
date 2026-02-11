@@ -52,6 +52,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <aside className={`
         fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700
         transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-screen lg:flex-shrink-0
+        h-screen
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
                 <div className="h-full flex flex-col">
