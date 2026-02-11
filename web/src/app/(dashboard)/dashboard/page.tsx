@@ -36,10 +36,18 @@ export default function DashboardPage() {
     useEffect(() => {
         async function fetchData() {
             setLoading(true)
+
+            // Fetch regular transactions
             const { data: transactions } = await supabase
                 .from('transactions')
                 .select('*')
                 .order('date', { ascending: true })
+
+            // Fetch active recurring expenses
+            const { data: recurringExpenses } = await supabase
+                .from('recurring_expenses')
+                .select('*')
+                .eq('active', true)
 
             if (transactions) {
                 // Filter for Current Month (Stats & Categories)
@@ -60,9 +68,16 @@ export default function DashboardPage() {
                     .filter(t => t.type === 'income')
                     .reduce((acc, curr) => acc + curr.amount, 0)
 
-                const expense = monthTransactions
+                let expense = monthTransactions
                     .filter(t => t.type === 'expense')
                     .reduce((acc, curr) => acc + curr.amount, 0)
+
+                // Add recurring expenses to current month
+                const recurringExpenseTotal = (recurringExpenses || [])
+                    .filter(re => !selectedCategory || re.category === selectedCategory)
+                    .reduce((acc, curr) => acc + curr.amount, 0)
+
+                expense += recurringExpenseTotal
 
                 setStats({
                     balance: income - expense,
@@ -99,6 +114,11 @@ export default function DashboardPage() {
                     }
                 })
 
+                // Add recurring expenses to ALL months in the year
+                Object.keys(monthlyData).forEach(monthName => {
+                    monthlyData[monthName].expense += recurringExpenseTotal
+                })
+
                 const chartData = Object.entries(monthlyData).map(([name, values]) => ({
                     name,
                     receita: values.income,
@@ -106,13 +126,20 @@ export default function DashboardPage() {
                 }))
                 setOverviewData(chartData)
 
-                // Category Data (Selected Month)
+                // Category Data (Selected Month) - Include recurring expenses
                 const catMap: Record<string, number> = {}
                 monthTransactions
                     .filter(t => t.type === 'expense')
                     .forEach(t => {
                         catMap[t.category] = (catMap[t.category] || 0) + t.amount
                     })
+
+                    // Add recurring expenses to category breakdown
+                    ; (recurringExpenses || [])
+                        .filter(re => !selectedCategory || re.category === selectedCategory)
+                        .forEach(re => {
+                            catMap[re.category] = (catMap[re.category] || 0) + re.amount
+                        })
 
                 const pieData = Object.entries(catMap).map(([name, value]) => ({
                     name,
