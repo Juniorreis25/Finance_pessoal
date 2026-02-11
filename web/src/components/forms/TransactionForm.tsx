@@ -21,6 +21,7 @@ type TransactionData = {
     installment_id?: string | null
     installment_number?: number | null
     total_installments?: number | null
+    purchase_date?: string | null
 }
 
 interface TransactionFormProps {
@@ -49,6 +50,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
         amount: initialData?.amount ? formatCurrency(initialData.amount) : '',
         category: initialData?.category || '',
         date: initialData?.date || new Date().toISOString().split('T')[0],
+        purchaseDate: initialData?.purchase_date || new Date().toISOString().split('T')[0],
         card_id: initialData?.card_id || '',
     })
     const [error, setError] = useState<string | null>(null)
@@ -81,15 +83,16 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
         }
 
         try {
+            // Fix timezone issue by appending time or just using parseISO
             const startDate = parseISO(formData.date)
             const totalAmount = parseCurrency(formData.amount)
-            
+
             // Calculate last date
             const finalDate = addMonths(startDate, installments - 1)
-            
+
             // Calculate monthly amount (approximate)
             const monthly = totalAmount / installments
-            
+
             setInstallmentSummary({
                 lastDate: format(finalDate, "MMMM 'de' yyyy", { locale: ptBR }),
                 monthlyValue: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(monthly)
@@ -134,6 +137,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                 category: formData.category,
                 date: formData.date,
                 card_id: type === 'expense' && formData.card_id ? formData.card_id : null,
+                purchase_date: isInstallment ? formData.purchaseDate : null
             }
 
             if (isInstallment && type === 'expense' && !initialData?.id) {
@@ -144,11 +148,12 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                     p_description: formData.description,
                     p_amount: amountValue,
                     p_category: formData.category,
-                    p_date: formData.date,
+                    p_date: formData.date, // First Installment Date
                     p_total_installments: installments,
-                    p_card_id: formData.card_id || null
+                    p_card_id: formData.card_id || null,
+                    p_purchase_date: formData.purchaseDate // Actual Purchase Date
                 })
-                
+
                 if (rpcError) throw new Error(`Erro ao criar parcelas: ${rpcError.message}`)
 
             } else {
@@ -292,25 +297,45 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                         </select>
                     </div>
 
-                    <div>
-                        <label htmlFor="date" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                            Data {isInstallment ? 'da 1ª Parcela' : ''}
-                        </label>
-                        <input
-                            id="date"
-                            name="date"
-                            type="date"
-                            required
-                            className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white dark:[color-scheme:dark]"
-                            value={formData.date}
-                            onChange={handleChange}
-                        />
+                    {/* Dynamic Date Container */}
+                    <div className={isInstallment ? "col-span-1 md:col-span-2 grid grid-cols-2 gap-6" : "col-span-1"}>
+                        {isInstallment && (
+                            <div>
+                                <label htmlFor="purchaseDate" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
+                                    Data da Compra
+                                </label>
+                                <input
+                                    id="purchaseDate"
+                                    name="purchaseDate"
+                                    type="date"
+                                    required={isInstallment}
+                                    className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white dark:[color-scheme:dark]"
+                                    value={formData.purchaseDate}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        )}
+
+                        <div className={isInstallment ? "" : "w-full"}>
+                            <label htmlFor="date" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
+                                {isInstallment ? 'Data da 1ª Parcela' : 'Data'}
+                            </label>
+                            <input
+                                id="date"
+                                name="date"
+                                type="date"
+                                required
+                                className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white dark:[color-scheme:dark]"
+                                value={formData.date}
+                                onChange={handleChange}
+                            />
+                        </div>
                     </div>
                 </div>
 
                 {type === 'expense' && (
                     <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
-                         {/* Card Selection */}
+                        {/* Card Selection */}
                         <div>
                             <label htmlFor="card_id" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
                                 Cartão (Opcional)
