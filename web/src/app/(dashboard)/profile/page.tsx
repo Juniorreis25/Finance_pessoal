@@ -225,7 +225,8 @@ export default function ProfilePage() {
                             <button
                                 type="button"
                                 onClick={handleRemoveAvatar}
-                                className="absolute -top-2 -right-2 p-2 bg-rose-500 text-white rounded-full hover:bg-rose-600 transition-colors shadow-lg"
+                                className="absolute -top-2 -right-2 p-2 bg-rose-500 text-white rounded-full hover:bg-rose-600 transition-colors shadow-lg cursor-pointer"
+                                aria-label="Remover avatar"
                             >
                                 <X className="w-4 h-4" />
                             </button>
@@ -240,7 +241,7 @@ export default function ProfilePage() {
                             className="hidden"
                             disabled={uploading}
                         />
-                        <div className="flex items-center gap-2 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <div className="flex items-center gap-2 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                             {uploading ? (
                                 <>
                                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -299,7 +300,7 @@ export default function ProfilePage() {
                     <button
                         type="button"
                         onClick={() => router.back()}
-                        className="flex items-center gap-2 px-6 py-3.5 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
+                        className="flex items-center gap-2 px-6 py-3.5 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white cursor-pointer"
                     >
                         <X className="w-5 h-5" />
                         Cancelar
@@ -307,7 +308,7 @@ export default function ProfilePage() {
                     <button
                         type="submit"
                         disabled={saving}
-                        className="flex items-center gap-2 px-8 py-3.5 bg-brand-500 text-slate-950 rounded-2xl font-bold hover:bg-brand-400 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 transition-all shadow-lg shadow-brand-500/20"
+                        className="flex items-center gap-2 px-8 py-3.5 bg-brand-500 text-slate-950 rounded-2xl font-bold hover:bg-brand-400 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 transition-all shadow-lg shadow-brand-500/20 cursor-pointer"
                     >
                         {saving ? <Loader2 className="animate-spin w-5 h-5" /> : <Save className="w-5 h-5" />}
                         Salvar Perfil

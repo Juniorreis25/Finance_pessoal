@@ -227,13 +227,13 @@ export default function DashboardPage() {
                     <MonthSelector currentDate={currentDate} onDateChange={setCurrentDate} />
 
                     <div className="flex gap-2">
-                        <Link href="/transactions" className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <Link href="/transactions" className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Ver transações">
                             <BarChart3 className="w-5 h-5" />
                         </Link>
-                        <Link href="/cards" className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <Link href="/cards" className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Ver cartões">
                             <CreditCard className="w-5 h-5" />
                         </Link>
-                        <Link href="/transactions/new" className="flex items-center gap-2 px-5 py-3 bg-brand-500 text-slate-950 font-bold rounded-2xl hover:scale-105 transition-transform shadow-lg shadow-brand-500/20">
+                        <Link href="/transactions/new" className="flex items-center gap-2 px-5 py-3 bg-brand-500 text-slate-950 font-bold rounded-2xl hover:scale-105 transition-transform shadow-lg shadow-brand-500/20 cursor-pointer">
                             <Plus className="w-5 h-5" />
                             Nova Transação
                         </Link>
@@ -264,7 +264,7 @@ export default function DashboardPage() {
                                         </div>
                                         <button
                                             onClick={toggleVisibility}
-                                            className="p-2 text-slate-500 hover:text-white transition-colors"
+                                            className="p-2 text-slate-500 hover:text-white transition-colors cursor-pointer"
                                             aria-label={isValuesVisible ? "Ocultar valores" : "Mostrar valores"}
                                         >
                                             {isValuesVisible ? (

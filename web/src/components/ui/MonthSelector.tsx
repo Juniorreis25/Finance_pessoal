@@ -22,7 +22,7 @@ export function MonthSelector({ currentDate, onDateChange }: MonthSelectorProps)
         <div className="flex items-center bg-white dark:bg-slate-900 rounded-2xl p-1.5 shadow-sm border border-slate-200 dark:border-slate-800">
             <button
                 onClick={handlePrevious}
-                className="p-2 text-slate-500 hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                className="p-2 text-slate-500 hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
                 aria-label="Mês anterior"
             >
                 <ChevronLeft className="w-5 h-5" />
@@ -37,7 +37,7 @@ export function MonthSelector({ currentDate, onDateChange }: MonthSelectorProps)
 
             <button
                 onClick={handleNext}
-                className="p-2 text-slate-500 hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                className="p-2 text-slate-500 hover:text-brand-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
                 aria-label="Próximo mês"
             >
                 <ChevronRight className="w-5 h-5" />
