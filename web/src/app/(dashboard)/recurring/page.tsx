@@ -23,6 +23,7 @@ export default function RecurringExpensesPage() {
     const router = useRouter()
     const [expenses, setExpenses] = useState<RecurringExpense[]>([])
     const [loading, setLoading] = useState(true)
+    const [searchTerm, setSearchTerm] = useState('')
 
     const fetchExpenses = async () => {
         setLoading(true)
@@ -63,6 +64,12 @@ export default function RecurringExpensesPage() {
         }
     }
 
+    // Filter expenses by search term
+    const filteredExpenses = expenses.filter(expense => {
+        return expense.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            expense.category.toLowerCase().includes(searchTerm.toLowerCase())
+    })
+
     return (
         <div className="space-y-8 max-w-5xl mx-auto">
             {/* Header */}
@@ -72,13 +79,25 @@ export default function RecurringExpensesPage() {
                     <p className="text-slate-500 dark:text-slate-400">Gerencie seus pagamentos fixos mensais.</p>
                 </div>
 
-                <Link
-                    href="/recurring/new"
-                    className="flex items-center gap-2 bg-brand-500 text-slate-950 px-5 py-2 rounded-xl font-bold hover:bg-brand-400 transition hover:scale-105 shadow-lg shadow-brand-500/20 whitespace-nowrap"
-                >
-                    <Plus className="w-4 h-4" />
-                    Nova Recorrente
-                </Link>
+                <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
+                    {/* Search Bar */}
+                    <div className="relative flex-1 md:w-64">
+                        <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                        <input
+                            placeholder="Buscar por descrição..."
+                            className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <Link
+                        href="/recurring/new"
+                        className="flex items-center gap-2 bg-brand-500 text-slate-950 px-5 py-2 rounded-xl font-bold hover:bg-brand-400 transition hover:scale-105 shadow-lg shadow-brand-500/20 whitespace-nowrap"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Nova Recorrente
+                    </Link>
+                </div>
             </div>
 
             {/* List */}
@@ -89,9 +108,9 @@ export default function RecurringExpensesPage() {
                             <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded"></div>
                         </div>
                     </div>
-                ) : expenses.length > 0 ? (
+                ) : filteredExpenses.length > 0 ? (
                     <div className="grid gap-4">
-                        {expenses.map((expense) => (
+                        {filteredExpenses.map((expense) => (
                             <div
                                 key={expense.id}
                                 className={`relative group bg-white dark:bg-slate-900 p-5 rounded-2xl flex items-center justify-between border ${!expense.active ? 'border-dashed border-slate-300 dark:border-slate-700 opacity-70' : 'border-slate-100 dark:border-slate-800'} shadow-sm hover:shadow-md transition-all`}
