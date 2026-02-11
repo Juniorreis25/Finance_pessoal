@@ -13,10 +13,7 @@ export const transactionSchema = z.object({
   amount: z.number().positive('O valor deve ser positivo'),
   type: z.enum(['income', 'expense']),
   category: z.string().min(1, 'Categoria é obrigatória'), // In future this could be a UUID
-  date: z.date({
-    required_error: 'Data é obrigatória',
-    invalid_type_error: 'Data inválida',
-  }),
+  date: z.string().min(1, 'Data é obrigatória'),
   card_id: z.string().uuid().nullable().optional(),
 })
 
