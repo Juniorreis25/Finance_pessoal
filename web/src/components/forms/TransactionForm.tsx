@@ -137,7 +137,8 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                 category: formData.category,
                 date: formData.date,
                 card_id: type === 'expense' && formData.card_id ? formData.card_id : null,
-                purchase_date: isInstallment ? formData.purchaseDate : null
+                purchase_date: isInstallment ? formData.purchaseDate : null,
+                total_installments: isInstallment ? installments : null
             }
 
             if (isInstallment && type === 'expense' && !initialData?.id) {
@@ -355,64 +356,63 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                         </div>
 
                         {/* Installment Toggle & Logic */}
-                        {!initialData?.id && (
-                            <div className="bg-slate-50 dark:bg-slate-950/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-2 rounded-lg ${isInstallment ? 'bg-brand-500 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>
-                                            <CalendarClock className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-slate-900 dark:text-white text-sm">Transação Parcelada?</p>
-                                            <p className="text-xs text-slate-500">Divide o valor em meses futuros</p>
-                                        </div>
+                        {/* Installment Toggle & Logic */}
+                        <div className="bg-slate-50 dark:bg-slate-950/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-lg ${isInstallment ? 'bg-brand-500 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>
+                                        <CalendarClock className="w-5 h-5" />
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsInstallment(!isInstallment)}
-                                        className={`w-12 h-6 rounded-full transition-colors relative ${isInstallment ? 'bg-brand-500' : 'bg-slate-300 dark:bg-slate-700'}`}
-                                    >
-                                        <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-transform ${isInstallment ? 'left-7' : 'left-1'}`} />
-                                    </button>
+                                    <div>
+                                        <p className="font-bold text-slate-900 dark:text-white text-sm">Transação Parcelada?</p>
+                                        <p className="text-xs text-slate-500">Divide o valor em meses futuros</p>
+                                    </div>
                                 </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsInstallment(!isInstallment)}
+                                    className={`w-12 h-6 rounded-full transition-colors relative ${isInstallment ? 'bg-brand-500' : 'bg-slate-300 dark:bg-slate-700'}`}
+                                >
+                                    <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-transform ${isInstallment ? 'left-7' : 'left-1'}`} />
+                                </button>
+                            </div>
 
-                                {isInstallment && (
-                                    <div className="mt-5 space-y-4 animate-in fade-in slide-in-from-top-2">
-                                        <div>
-                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                                                Número de Parcelas
-                                            </label>
-                                            <div className="flex items-center gap-4">
-                                                <input
-                                                    type="range"
-                                                    min="2"
-                                                    max="24"
-                                                    value={installments}
-                                                    onChange={(e) => setInstallments(parseInt(e.target.value))}
-                                                    className="flex-1 h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500"
-                                                />
-                                                <div className="w-16 h-12 flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-lg">
-                                                    {installments}x
-                                                </div>
+                            {isInstallment && (
+                                <div className="mt-5 space-y-4 animate-in fade-in slide-in-from-top-2">
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
+                                            Número de Parcelas
+                                        </label>
+                                        <div className="flex items-center gap-4">
+                                            <input
+                                                type="range"
+                                                min="2"
+                                                max="24"
+                                                value={installments}
+                                                onChange={(e) => setInstallments(parseInt(e.target.value))}
+                                                className="flex-1 h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500"
+                                            />
+                                            <div className="w-16 h-12 flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-lg">
+                                                {installments}x
                                             </div>
                                         </div>
-
-                                        {installmentSummary && (
-                                            <div className="bg-brand-500/10 border border-brand-500/20 rounded-xl p-4 flex flex-col gap-2">
-                                                <div className="flex justify-between items-center text-sm">
-                                                    <span className="text-slate-600 dark:text-slate-400">Mensalidade:</span>
-                                                    <span className="font-bold text-brand-600 dark:text-brand-400">{installmentSummary.monthlyValue}</span>
-                                                </div>
-                                                <div className="flex justify-between items-center text-sm">
-                                                    <span className="text-slate-600 dark:text-slate-400">Última parcela:</span>
-                                                    <span className="font-bold text-slate-900 dark:text-white">{installmentSummary.lastDate}</span>
-                                                </div>
-                                            </div>
-                                        )}
                                     </div>
-                                )}
-                            </div>
-                        )}
+
+                                    {installmentSummary && (
+                                        <div className="bg-brand-500/10 border border-brand-500/20 rounded-xl p-4 flex flex-col gap-2">
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-slate-600 dark:text-slate-400">Mensalidade:</span>
+                                                <span className="font-bold text-brand-600 dark:text-brand-400">{installmentSummary.monthlyValue}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-slate-600 dark:text-slate-400">Última parcela:</span>
+                                                <span className="font-bold text-slate-900 dark:text-white">{installmentSummary.lastDate}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>
