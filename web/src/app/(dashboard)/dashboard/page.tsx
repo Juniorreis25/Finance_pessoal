@@ -35,6 +35,10 @@ export default function DashboardPage() {
     })
     const [overviewData, setOverviewData] = useState<any[]>([])
     const [categoryData, setCategoryData] = useState<any[]>([])
+    const [userProfile, setUserProfile] = useState<{ display_name: string | null, welcome_message: string | null }>({
+        display_name: null,
+        welcome_message: null
+    })
     const { isValuesVisible, toggleVisibility } = usePrivacy()
 
     useEffect(() => {
@@ -176,6 +180,28 @@ export default function DashboardPage() {
         fetchData()
     }, [currentDate, selectedCategory])
 
+    // Fetch user profile
+    useEffect(() => {
+        async function fetchProfile() {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+
+            const { data: profile } = await supabase
+                .from('user_profiles')
+                .select('display_name, welcome_message')
+                .eq('user_id', user.id)
+                .single()
+
+            if (profile) {
+                setUserProfile({
+                    display_name: profile.display_name,
+                    welcome_message: profile.welcome_message
+                })
+            }
+        }
+        fetchProfile()
+    }, [])
+
     return (
         <div className="space-y-8 pb-10">
             {/* Header with Asymmetry */}
@@ -184,9 +210,16 @@ export default function DashboardPage() {
                     <h1 className="text-4xl font-extrabold tracking-tighter text-slate-900 dark:text-white">
                         Visão<span className="text-brand-500">Geral</span>
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
-                        Resumo financeiro em tempo real.
-                    </p>
+                    {userProfile.display_name || userProfile.welcome_message ? (
+                        <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
+                            {userProfile.display_name && `Olá, ${userProfile.display_name}! `}
+                            {userProfile.welcome_message || 'Bem-vindo de volta!'}
+                        </p>
+                    ) : (
+                        <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
+                            Resumo financeiro em tempo real.
+                        </p>
+                    )}
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-4 items-end">

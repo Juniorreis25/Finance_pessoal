@@ -10,7 +10,8 @@ import {
     Menu,
     X,
     LogOut,
-    Repeat
+    Repeat,
+    User
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -33,6 +34,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { href: '/transactions', label: 'Transações', icon: ArrowRightLeft },
         { href: '/recurring', label: 'Recorrentes', icon: Repeat },
         { href: '/cards', label: 'Cartões', icon: CreditCard },
+        { href: '/profile', label: 'Perfil', icon: User },
     ]
 
     return (
