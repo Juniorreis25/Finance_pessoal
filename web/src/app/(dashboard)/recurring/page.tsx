@@ -6,6 +6,7 @@ import { Plus, Edit2, Trash2, Repeat, CheckCircle, XCircle, Search } from 'lucid
 import { createClient } from '@/lib/supabase/client'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { useRouter } from 'next/navigation'
 
 type RecurringExpense = {
     id: string
@@ -19,6 +20,7 @@ type RecurringExpense = {
 
 export default function RecurringExpensesPage() {
     const supabase = createClient()
+    const router = useRouter()
     const [expenses, setExpenses] = useState<RecurringExpense[]>([])
     const [loading, setLoading] = useState(true)
 
@@ -44,6 +46,7 @@ export default function RecurringExpensesPage() {
                 alert('Erro ao excluir despesa')
             } else {
                 fetchExpenses()
+                router.refresh() // Invalidate cache
             }
         }
     }
@@ -54,7 +57,10 @@ export default function RecurringExpensesPage() {
             .update({ active: !currentStatus })
             .eq('id', id)
 
-        if (!error) fetchExpenses()
+        if (!error) {
+            fetchExpenses()
+            router.refresh() // Invalidate Next.js cache so Dashboard re-fetches
+        }
     }
 
     return (
