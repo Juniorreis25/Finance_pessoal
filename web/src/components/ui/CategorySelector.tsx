@@ -8,7 +8,7 @@ type CategorySelectorProps = {
 }
 
 export function CategorySelector({ selectedCategory, onCategoryChange }: CategorySelectorProps) {
-    const expenseCategories = ['Alimentação', 'Moradia', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Outros']
+    const expenseCategories = ['Alimentação', 'Moradia', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Financiamento', 'Empréstimo', 'Outros']
     const incomeCategories = ['Salário', 'Investimentos', 'Freelance']
     // Combine unique categories and sort
     const allCategories = Array.from(new Set([...expenseCategories, ...incomeCategories])).sort()
