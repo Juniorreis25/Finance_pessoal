@@ -66,7 +66,7 @@ export default function RegisterPage() {
             <div className="w-full max-w-sm space-y-6 rounded-2xl bg-white p-8 shadow-xl dark:bg-slate-800">
                 <div className="text-center">
                     <div className="flex justify-center mb-6">
-                        <Logo text="Finance Pessoal" textSize="text-3xl" className="w-16 h-16" />
+                        <Logo className="w-full h-24" />
                     </div>
                     <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Crie sua Conta</h1>
                     <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Comece a controlar suas finanças hoje</p>
