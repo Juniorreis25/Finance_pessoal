@@ -16,7 +16,7 @@ export function Logo({
                 <div className="absolute inset-0 bg-white/20 rounded-xl" />
             </div>
             {showText && (
-                <div className="flex flex-col -space-y-1.5 leading-tight">
+                <div className="flex flex-col space-y-0.5">
                     <span className={`${textSize} font-black tracking-tighter text-slate-900 dark:text-white`}>
                         Finance<span className="text-emerald-500">Pessoal</span>
                     </span>
