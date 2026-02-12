@@ -1,15 +1,27 @@
-import { Wallet } from 'lucide-react'
+import Image from 'next/image'
 
-export function Logo({ className = "w-8 h-8", textSize = "text-xl" }: { className?: string, textSize?: string }) {
+export function Logo({ className = "w-10 h-10", textSize = "text-xl", showText = true }: { className?: string, textSize?: string, showText?: boolean }) {
     return (
-        <div className="flex items-center gap-2">
-            <div className={`relative flex items-center justify-center ${className} bg-gradient-to-br from-brand-400 to-brand-600 rounded-xl shadow-lg shadow-brand-500/20 text-slate-900 group-hover:scale-105 transition-transform duration-300`}>
-                <Wallet className="w-1/2 h-1/2" strokeWidth={2.5} />
-                <div className="absolute inset-0 bg-white/20 rounded-xl" />
+        <div className="flex items-center gap-3 group">
+            <div className={`relative flex items-center justify-center ${className} overflow-hidden rounded-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3`}>
+                <Image
+                    src="/logo.png"
+                    alt="Finance Pessoal Logo"
+                    fill
+                    className="object-contain"
+                    priority
+                />
             </div>
-            <span className={`${textSize} font-extrabold tracking-tighter text-slate-900 dark:text-white`}>
-                Finance<span className="text-brand-500">Pessoal</span>
-            </span>
+            {showText && (
+                <div className="flex flex-col -space-y-1">
+                    <span className={`${textSize} font-black tracking-tighter text-slate-900 dark:text-white transition-colors duration-300`}>
+                        Finance<span className="text-emerald-500">Pessoal</span>
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 ml-0.5">
+                        Controle & Crescimento
+                    </span>
+                </div>
+            )}
         </div>
     )
 }
