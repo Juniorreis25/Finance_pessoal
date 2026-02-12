@@ -42,7 +42,7 @@ describe('CardForm', () => {
 
     it('renders form fields correctly', () => {
         render(<AddCardForm />)
-        expect(screen.getByText(/Novo Cartão/i)).toBeInTheDocument()
+        expect(screen.getByText(/Salvar Cartão/i)).toBeInTheDocument()
         expect(screen.getByText(/Nome do Cartão/i)).toBeInTheDocument()
         expect(screen.getByText(/Limite/i)).toBeInTheDocument()
     })
