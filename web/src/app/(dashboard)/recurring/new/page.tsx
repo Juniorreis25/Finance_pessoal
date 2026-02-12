@@ -86,7 +86,7 @@ export default function NewRecurringExpensePage() {
         setFormData({ ...formData, [e.target.name]: e.target.value })
     }
 
-    const categories = ['Alimentação', 'Moradia', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Assinaturas', 'Outros']
+    const categories = ['Alimentação', 'Moradia', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Financiamento', 'Empréstimo', 'Assinaturas', 'Outros']
 
     return (
         <div className="max-w-2xl mx-auto">

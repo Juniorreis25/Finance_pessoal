@@ -192,7 +192,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
         setFormData({ ...formData, [e.target.name]: e.target.value })
     }
 
-    const expenseCategories = ['Alimentação', 'Moradia', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Outros']
+    const expenseCategories = ['Alimentação', 'Moradia', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Financiamento', 'Empréstimo', 'Outros']
     const incomeCategories = ['Salário', 'Investimentos', 'Freelance', 'Outros']
 
     return (
