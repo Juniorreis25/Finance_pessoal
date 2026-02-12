@@ -41,7 +41,7 @@ export default function LoginPage() {
             <div className="w-full max-w-sm space-y-6 rounded-2xl bg-white p-8 shadow-xl dark:bg-slate-800">
                 <div className="text-center">
                     <div className="flex justify-center mb-6">
-                        <Logo textSize="text-3xl" className="w-12 h-12" />
+                        <Logo className="w-12 h-12" textSize="text-3xl" />
                     </div>
                     <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Bem-vindo</h1>
                     <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Entre para gerenciar suas finanças</p>
