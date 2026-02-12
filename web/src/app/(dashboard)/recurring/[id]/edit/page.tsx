@@ -108,7 +108,7 @@ export default function EditRecurringExpensePage() {
         setFormData({ ...formData, [e.target.name]: e.target.value })
     }
 
-    const categories = ['Alimentação', 'Moradia', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Financiamento', 'Empréstimo', 'Assinaturas', 'Outros']
+    const categories = ['Alimentação', 'Assinaturas', 'Educação', 'Empréstimo', 'Financiamento', 'Lazer', 'Moradia', 'Saúde', 'Transporte', 'Outros']
 
     if (initialLoading) {
         return (
