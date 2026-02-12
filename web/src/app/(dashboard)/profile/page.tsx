@@ -86,14 +86,20 @@ export default function ProfilePage() {
             // Create unique filename
             const fileExt = file.name.split('.').pop()
             const fileName = `${user.id}-${Date.now()}.${fileExt}`
-            const filePath = `avatars/${fileName}`
+            const filePath = fileName // Direct in the bucket
 
             // Upload to Supabase Storage
             const { error: uploadError } = await supabase.storage
                 .from('avatars')
-                .upload(filePath, file, { upsert: true })
+                .upload(filePath, file, {
+                    upsert: true,
+                    cacheControl: '3600'
+                })
 
-            if (uploadError) throw uploadError
+            if (uploadError) {
+                console.error('Upload error:', uploadError)
+                throw new Error(`Erro no upload: ${uploadError.message}`)
+            }
 
             // Get public URL
             const { data: { publicUrl } } = supabase.storage
