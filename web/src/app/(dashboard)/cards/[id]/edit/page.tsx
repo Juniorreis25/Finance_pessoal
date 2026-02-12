@@ -36,9 +36,9 @@ export default function EditCardPage({ params }: { params: Promise<{ id: string 
 
     return (
         <div className="max-w-2xl mx-auto">
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold mb-2">Editar Cartão</h1>
-                <p className="text-slate-500 dark:text-slate-400">Atualize as informações do seu cartão.</p>
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Editar Cartão</h1>
+                <p className="text-slate-500 dark:text-slate-400">Atualize as informações do seu cartão para manter sua gestão financeira atualizada.</p>
             </div>
 
             <CardForm initialData={card} />

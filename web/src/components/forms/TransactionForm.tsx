@@ -198,14 +198,8 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
     return (
         <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-800 max-w-2xl mx-auto">
 
-            <div className="flex items-center justify-between mb-2">
-                <div>
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                        {initialData ? 'Editar Transação' : 'Nova Transação'}
-                    </h2>
-                    <p className="text-slate-500 dark:text-slate-400">Registre suas movimentações.</p>
-                </div>
-            </div>
+            {/* Form is titled in the parent page to avoid redundancy */}
+
 
             {/* Type Toggle - Neo Style */}
             <div className="flex gap-2 p-1.5 bg-slate-100 dark:bg-slate-950 rounded-2xl max-w-md mx-auto">
