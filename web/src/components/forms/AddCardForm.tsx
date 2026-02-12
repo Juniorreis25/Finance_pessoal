@@ -125,17 +125,8 @@ export function CardForm({ initialData }: CardFormProps) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-800 max-w-2xl mx-auto">
-            <div className="flex items-center gap-4 mb-2">
-                <div className="p-3 bg-brand-500/10 text-brand-500 rounded-2xl">
-                    <CreditCard className="w-8 h-8" />
-                </div>
-                <div>
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                        {initialData ? 'Editar Cartão' : 'Novo Cartão'}
-                    </h2>
-                    <p className="text-slate-500 dark:text-slate-400">Preencha os dados do seu cartão de crédito.</p>
-                </div>
-            </div>
+            {/* Form is titled in the parent page to avoid redundancy */}
+
 
             {error && (
                 <div className="bg-rose-500/10 text-rose-500 p-4 rounded-xl text-sm font-medium border border-rose-500/20">

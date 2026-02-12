@@ -90,12 +90,13 @@ export default function NewRecurringExpensePage() {
 
     return (
         <div className="max-w-2xl mx-auto">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Nova Despesa Recorrente</h1>
+                <p className="text-slate-500 dark:text-slate-400">Cadastre suas contas fixas para automação e controle.</p>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-800">
 
-                <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Nova Despesa Recorrente</h2>
-                    <p className="text-slate-500 dark:text-slate-400">Cadastre uma conta fixa mensal.</p>
-                </div>
 
                 {error && (
                     <div className="bg-rose-500/10 text-rose-500 p-4 rounded-xl text-sm font-medium border border-rose-500/20">

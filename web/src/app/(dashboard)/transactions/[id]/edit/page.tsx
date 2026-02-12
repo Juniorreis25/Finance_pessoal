@@ -36,9 +36,9 @@ export default function EditTransactionPage({ params }: { params: Promise<{ id: 
 
     return (
         <div className="max-w-2xl mx-auto">
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold mb-2">Editar Transação</h1>
-                <p className="text-slate-500 dark:text-slate-400">Atualize os dados do lançamento.</p>
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Editar Transação</h1>
+                <p className="text-slate-500 dark:text-slate-400">Atualize os dados do lançamento para manter seus registros precisos.</p>
             </div>
 
             <TransactionForm initialData={transaction} />
