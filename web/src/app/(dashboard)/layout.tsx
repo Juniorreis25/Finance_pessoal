@@ -58,7 +58,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="h-full flex flex-col">
                     <div className="p-4 border-b border-slate-100 dark:border-slate-700">
                         <Link href="/dashboard" className="flex items-center justify-center gap-2 w-full hover:bg-slate-50 dark:hover:bg-slate-700/50 p-2 rounded-xl transition-all group" title="Ir para Visão Geral">
-                            <Logo className="w-52 h-20" />
+                            <Logo className="w-10 h-10" textSize="text-2xl" />
                         </Link>
                     </div>
 
@@ -102,7 +102,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Mobile Header */}
                 <header className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                     <Link href="/dashboard" className="flex items-center p-1 -ml-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors" title="Ir para Visão Geral">
-                        <Logo className="w-32 h-10" />
+                        <Logo className="w-8 h-8" textSize="text-xl" />
                     </Link>
                     <button
                         onClick={() => setIsSidebarOpen(true)}

@@ -65,8 +65,8 @@ export default function RegisterPage() {
         <div className="flex min-h-screen items-center justify-center bg-background p-4">
             <div className="w-full max-w-sm space-y-6 rounded-2xl bg-white p-8 shadow-xl dark:bg-slate-800">
                 <div className="text-center">
-                    <div className="flex justify-center mb-4">
-                        <Logo className="w-64 h-32" />
+                    <div className="flex justify-center mb-6">
+                        <Logo className="w-12 h-12" textSize="text-3xl" />
                     </div>
                     <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Crie sua Conta</h1>
                     <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Comece a controlar suas finanças hoje</p>
