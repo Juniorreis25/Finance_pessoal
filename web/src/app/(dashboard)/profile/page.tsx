@@ -191,11 +191,11 @@ export default function ProfilePage() {
     return (
         <div className="max-w-2xl mx-auto">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Meu Perfil</h1>
-                <p className="text-slate-500 dark:text-slate-400">Personalize sua experiência</p>
+                <h1 className="text-3xl font-bold text-white tracking-tight">Meu Perfil</h1>
+                <p className="text-slate-400">Personalize sua experiência</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-800">
+            <form onSubmit={handleSubmit} className="space-y-8 bg-slate-900 p-8 rounded-[2rem] shadow-2xl border border-slate-800">
 
                 {error && (
                     <div className="bg-rose-500/10 text-rose-500 p-4 rounded-xl text-sm font-medium border border-rose-500/20">
@@ -212,7 +212,7 @@ export default function ProfilePage() {
                 {/* Avatar Upload */}
                 <div className="flex flex-col items-center gap-4">
                     <div className="relative">
-                        <div className="w-32 h-32 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 border-4 border-white dark:border-slate-700 shadow-xl">
+                        <div className="w-32 h-32 rounded-full overflow-hidden bg-slate-800 border-4 border-slate-700 shadow-xl">
                             {avatarPreview ? (
                                 <Image
                                     src={avatarPreview}
@@ -248,7 +248,7 @@ export default function ProfilePage() {
                             className="hidden"
                             disabled={uploading}
                         />
-                        <div className="flex items-center gap-2 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                        <div className="flex items-center gap-2 px-6 py-3 bg-slate-800 text-slate-300 rounded-2xl font-bold hover:bg-slate-700 transition-colors cursor-pointer">
                             {uploading ? (
                                 <>
                                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -277,7 +277,7 @@ export default function ProfilePage() {
                             name="display_name"
                             type="text"
                             placeholder="Como gostaria de ser chamado?"
-                            className="w-full pl-12 pr-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
+                            className="w-full pl-12 pr-5 py-3.5 bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-white placeholder:text-slate-500"
                             value={formData.display_name || ''}
                             onChange={handleChange}
                         />
@@ -296,7 +296,7 @@ export default function ProfilePage() {
                             name="welcome_message"
                             rows={3}
                             placeholder="Mensagem que aparecerá no Dashboard"
-                            className="w-full pl-12 pr-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400 resize-none"
+                            className="w-full pl-12 pr-5 py-3.5 bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-white placeholder:text-slate-500 resize-none"
                             value={formData.welcome_message || ''}
                             onChange={handleChange}
                         />
@@ -307,7 +307,7 @@ export default function ProfilePage() {
                     <button
                         type="button"
                         onClick={() => router.back()}
-                        className="flex items-center gap-2 px-6 py-3.5 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white cursor-pointer"
+                        className="flex items-center gap-2 px-6 py-3.5 bg-slate-800 text-slate-400 rounded-2xl font-bold hover:bg-slate-700 hover:text-white transition-colors cursor-pointer"
                     >
                         <X className="w-5 h-5" />
                         Cancelar

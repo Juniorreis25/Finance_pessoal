@@ -217,16 +217,16 @@ export default function DashboardPage() {
             {/* Header with Asymmetry */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                 <div>
-                    <h1 className="text-4xl font-extrabold tracking-tighter text-slate-900 dark:text-white">
+                    <h1 className="text-4xl font-extrabold tracking-tighter text-white">
                         Visão<span className="text-brand-500">Geral</span>
                     </h1>
                     {userProfile.display_name || userProfile.welcome_message ? (
-                        <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
+                        <p className="text-slate-400 font-medium mt-1">
                             {userProfile.display_name && `Olá, ${userProfile.display_name}! `}
                             {userProfile.welcome_message || 'Bem-vindo de volta!'}
                         </p>
                     ) : (
-                        <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
+                        <p className="text-slate-400 font-medium mt-1">
                             Resumo financeiro em tempo real.
                         </p>
                     )}
@@ -237,10 +237,10 @@ export default function DashboardPage() {
                     <MonthSelector currentDate={currentDate} onDateChange={setCurrentDate} />
 
                     <div className="flex gap-2">
-                        <Link href="/transactions" className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Ver transações" title="Ver Histórico de Transações">
+                        <Link href="/transactions" className="p-3 bg-slate-800 text-slate-300 rounded-2xl hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Ver transações" title="Ver Histórico de Transações">
                             <BarChart3 className="w-5 h-5" />
                         </Link>
-                        <Link href="/cards" className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Ver cartões" title="Gerenciar Meus Cartões">
+                        <Link href="/cards" className="p-3 bg-slate-800 text-slate-300 rounded-2xl hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Ver cartões" title="Gerenciar Meus Cartões">
                             <CreditCard className="w-5 h-5" />
                         </Link>
                         <Link href="/transactions/new" className="flex items-center gap-2 px-5 py-3 bg-brand-500 text-slate-950 font-bold rounded-2xl hover:scale-105 transition-transform shadow-lg shadow-brand-500/20 cursor-pointer" title="Adicionar Nova Transação">
@@ -343,10 +343,10 @@ export default function DashboardPage() {
 
                     {/* Charts Section */}
                     <div className="grid md:grid-cols-2 gap-6">
-                        <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div className="bg-slate-900 rounded-[2rem] p-6 border border-slate-800 shadow-sm">
                             <OverviewChart data={overviewData} />
                         </div>
-                        <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div className="bg-slate-900 rounded-[2rem] p-6 border border-slate-800 shadow-sm">
                             <CategoryChart data={categoryData} />
                         </div>
                     </div>

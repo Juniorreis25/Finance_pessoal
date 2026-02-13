@@ -71,8 +71,8 @@ export default function TransactionsPage() {
             {/* Header with Search and Date Filter */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Transações</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Gerencie suas entradas e saídas.</p>
+                    <h1 className="text-3xl font-bold text-white tracking-tight">Transações</h1>
+                    <p className="text-slate-400">Gerencie suas entradas e saídas.</p>
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
@@ -84,7 +84,7 @@ export default function TransactionsPage() {
                             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                             <input
                                 placeholder="Buscar por descrição ou categoria..."
-                                className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all"
+                                className="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all text-white placeholder:text-slate-500"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -112,7 +112,7 @@ export default function TransactionsPage() {
                     filteredTransactions.map((tx) => (
                         <div
                             key={tx.id}
-                            className="relative group bg-white dark:bg-slate-900 p-5 rounded-2xl flex items-center justify-between border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:border-brand-500/30 hover:bg-slate-50 dark:hover:bg-slate-800/80"
+                            className="relative group bg-slate-900 p-5 rounded-2xl flex items-center justify-between border border-slate-800 shadow-sm hover:shadow-md transition-all hover:border-brand-500/30 hover:bg-slate-800/80"
                         >
                             {/* Left: Icon & Info */}
                             <div className="flex items-center gap-5">
@@ -123,9 +123,9 @@ export default function TransactionsPage() {
                                     {tx.type === 'income' ? <ArrowUpRight className="w-6 h-6" /> : <ArrowDownRight className="w-6 h-6" />}
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-slate-900 dark:text-white text-lg">{tx.description}</h3>
+                                    <h3 className="font-bold text-white text-lg">{tx.description}</h3>
                                     <div className="flex items-center gap-3 mt-1">
-                                        <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                                        <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
                                             {tx.category}
                                         </span>
                                         <span className="text-sm text-slate-400">
@@ -137,7 +137,7 @@ export default function TransactionsPage() {
 
                             {/* Right: Amount & Actions */}
                             <div className="flex items-center gap-8">
-                                <span className={`text-lg font-bold tracking-tight ${tx.type === 'income' ? 'text-emerald-500' : 'text-slate-900 dark:text-white'
+                                <span className={`text-lg font-bold tracking-tight ${tx.type === 'income' ? 'text-emerald-500' : 'text-white'
                                     }`}>
                                     {tx.type === 'expense' && '- '}
                                     R$ {tx.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -156,12 +156,12 @@ export default function TransactionsPage() {
                         </div>
                     ))
                 ) : (
-                    <div className="p-16 text-center flex flex-col items-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 border-dashed">
-                        <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-full mb-4">
+                    <div className="p-16 text-center flex flex-col items-center bg-slate-900 rounded-3xl border border-slate-800 border-dashed">
+                        <div className="p-4 bg-slate-800 rounded-full mb-4">
                             <ArrowRightLeft className="w-8 h-8 text-slate-400" />
                         </div>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Sem transações em {format(currentDate, 'MMMM', { locale: ptBR })}</h3>
-                        <p className="text-slate-500 dark:text-slate-400 mb-6 max-w-sm mx-auto">
+                        <h3 className="text-xl font-bold text-white mb-2">Sem transações em {format(currentDate, 'MMMM', { locale: ptBR })}</h3>
+                        <p className="text-slate-400 mb-6 max-w-sm mx-auto">
                             Nenhuma movimentação encontrada para este mês.
                         </p>
                         <Link

@@ -76,8 +76,8 @@ export default function RecurringExpensesPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Transações Recorrentes</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Gerencie seus ganhos e pagamentos fixos mensais.</p>
+                    <h1 className="text-3xl font-bold text-white tracking-tight">Transações Recorrentes</h1>
+                    <p className="text-slate-400">Gerencie seus ganhos e pagamentos fixos mensais.</p>
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
@@ -86,7 +86,7 @@ export default function RecurringExpensesPage() {
                         <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                         <input
                             placeholder="Buscar por descrição..."
-                            className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all"
+                            className="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -114,22 +114,22 @@ export default function RecurringExpensesPage() {
                         {filteredExpenses.map((expense) => (
                             <div
                                 key={expense.id}
-                                className={`relative group bg-white dark:bg-slate-900 p-5 rounded-2xl flex items-center justify-between border ${!expense.active ? 'border-dashed border-slate-300 dark:border-slate-700 opacity-70' : 'border-slate-100 dark:border-slate-800'} shadow-sm hover:shadow-md transition-all`}
+                                className={`relative group bg-slate-900 p-5 rounded-2xl flex items-center justify-between border ${!expense.active ? 'border-dashed border-slate-700 opacity-70' : 'border-slate-800'} shadow-sm hover:shadow-md transition-all`}
                             >
                                 <div className="flex items-center gap-5">
                                     <div className={`p-3 rounded-full ${expense.type === 'income' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'} ${!expense.active ? 'grayscale opacity-50' : ''}`}>
                                         <Repeat className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-slate-900 dark:text-white text-lg">{expense.description}</h3>
+                                        <h3 className="font-bold text-white text-lg">{expense.description}</h3>
                                         <div className="flex items-center gap-3 mt-1">
                                             <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md border ${expense.type === 'income' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/10'}`}>
                                                 {expense.type === 'income' ? 'Receita' : 'Despesa'}
                                             </span>
-                                            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                                            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
                                                 {expense.category}
                                             </span>
-                                            <span className="text-sm text-slate-500 font-medium whitespace-nowrap">
+                                            <span className="text-sm text-slate-400 font-medium whitespace-nowrap">
                                                 Dia {expense.day_of_month}
                                             </span>
                                         </div>
@@ -137,7 +137,7 @@ export default function RecurringExpensesPage() {
                                 </div>
 
                                 <div className="flex items-center gap-8">
-                                    <span className={`text-xl font-bold tracking-tight ${expense.type === 'income' ? 'text-emerald-500' : 'text-slate-900 dark:text-white'}`}>
+                                    <span className={`text-xl font-bold tracking-tight ${expense.type === 'income' ? 'text-emerald-500' : 'text-white'}`}>
                                         {expense.type === 'income' ? '+' : '-'} R$ {expense.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                     </span>
 

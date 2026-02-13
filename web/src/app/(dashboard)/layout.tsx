@@ -38,7 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     ]
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex text-slate-900 dark:text-slate-100">
+        <div className="min-h-screen bg-slate-950 flex text-slate-100">
 
             {/* Mobile Sidebar Overlay */}
             {isSidebarOpen && (
@@ -50,14 +50,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Sidebar */}
             <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700
+        fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800
         transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:flex-shrink-0
         h-screen
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
                 <div className="h-full flex flex-col">
-                    <div className="p-4 border-b border-slate-100 dark:border-slate-700">
-                        <Link href="/dashboard" className="flex items-center justify-center gap-2 w-full hover:bg-slate-50 dark:hover:bg-slate-700/50 p-2 rounded-xl transition-all group" title="Ir para Visão Geral">
+                    <div className="p-4 border-b border-slate-800">
+                        <Link href="/dashboard" className="flex items-center justify-center gap-2 w-full hover:bg-slate-800/50 p-2 rounded-xl transition-all group" title="Ir para Visão Geral">
                             <Logo className="w-10 h-10" textSize="text-2xl" />
                         </Link>
                     </div>
@@ -67,8 +67,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`)
                             // Special case for dashboard root match
                             const activeClass = isActive
-                                ? 'bg-brand-50 text-brand-600 dark:bg-brand-900/20 dark:text-brand-400'
-                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                                ? 'bg-brand-900/20 text-brand-400'
+                                : 'text-slate-400 hover:bg-slate-800/50'
 
                             return (
                                 <Link
@@ -84,10 +84,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         })}
                     </nav>
 
-                    <div className="p-4 border-t border-slate-100 dark:border-slate-700">
+                    <div className="p-4 border-t border-slate-800">
                         <button
                             onClick={handleLogout}
-                            className="flex w-full items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors cursor-pointer"
+                            className="flex w-full items-center gap-3 px-4 py-3 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
                             aria-label="Sair da conta"
                         >
                             <LogOut className="w-5 h-5" />
@@ -100,13 +100,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Mobile Header */}
-                <header className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                    <Link href="/dashboard" className="flex items-center p-1 -ml-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors" title="Ir para Visão Geral">
+                <header className="lg:hidden flex items-center justify-between p-4 bg-slate-900 border-b border-slate-800">
+                    <Link href="/dashboard" className="flex items-center p-1 -ml-1 rounded-lg hover:bg-slate-800/50 transition-colors" title="Ir para Visão Geral">
                         <Logo className="w-8 h-8" textSize="text-xl" />
                     </Link>
                     <button
                         onClick={() => setIsSidebarOpen(true)}
-                        className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"
+                        className="p-2 text-slate-400 hover:bg-slate-800 rounded-lg"
                     >
                         <Menu className="w-6 h-6" />
                     </button>

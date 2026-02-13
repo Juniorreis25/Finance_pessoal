@@ -41,13 +41,13 @@ export default function RegisterPage() {
 
     if (success) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-background p-4">
-                <div className="w-full max-w-sm space-y-6 rounded-2xl bg-white p-8 shadow-xl dark:bg-slate-800 text-center">
-                    <div className="mx-auto w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mb-4">
+            <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
+                <div className="w-full max-w-sm space-y-6 rounded-2xl bg-slate-900 p-8 shadow-xl border border-slate-800 text-center">
+                    <div className="mx-auto w-12 h-12 bg-emerald-900/30 text-emerald-400 rounded-full flex items-center justify-center mb-4">
                         <Mail className="w-6 h-6" />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Verifique seu email</h2>
-                    <p className="text-slate-500 dark:text-slate-400">
+                    <h2 className="text-2xl font-bold text-white">Verifique seu email</h2>
+                    <p className="text-slate-400">
                         Enviamos um link de confirmação para <strong>{email}</strong>.
                     </p>
                     <div className="pt-4">
@@ -62,14 +62,14 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background p-4">
-            <div className="w-full max-w-sm space-y-6 rounded-2xl bg-white p-8 shadow-xl dark:bg-slate-800">
+        <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
+            <div className="w-full max-w-sm space-y-6 rounded-2xl bg-slate-900 p-8 shadow-xl border border-slate-800">
                 <div className="text-center">
                     <div className="flex justify-center mb-6">
                         <Logo className="w-12 h-12" textSize="text-3xl" />
                     </div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Crie sua Conta</h1>
-                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Comece a controlar suas finanças hoje</p>
+                    <h1 className="text-3xl font-bold text-white">Crie sua Conta</h1>
+                    <p className="mt-2 text-sm text-slate-400">Comece a controlar suas finanças hoje</p>
                 </div>
 
                 {error && (
@@ -80,7 +80,7 @@ export default function RegisterPage() {
 
                 <form onSubmit={handleRegister} className="space-y-4">
                     <div className="space-y-2">
-                        <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
+                        <label htmlFor="email" className="text-sm font-medium text-slate-300">Email</label>
                         <div className="relative">
                             <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                             <input
@@ -89,14 +89,14 @@ export default function RegisterPage() {
                                 placeholder="seu@email.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-slate-900 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white transition-all"
+                                className="w-full rounded-xl border border-slate-800 bg-slate-950 py-2.5 pl-10 pr-4 text-white outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder:text-slate-600"
                                 required
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">Senha</label>
+                        <label htmlFor="password" className="text-sm font-medium text-slate-300">Senha</label>
                         <div className="relative">
                             <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                             <input
