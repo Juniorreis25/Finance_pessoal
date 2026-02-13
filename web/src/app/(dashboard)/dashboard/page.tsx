@@ -72,7 +72,7 @@ export default function DashboardPage() {
                 )
 
                 // Calculate Totals for Selected Month
-                const income = monthTransactions
+                let income = monthTransactions
                     .filter(t => t.type === 'income')
                     .reduce((acc, curr) => acc + curr.amount, 0)
 
@@ -80,11 +80,19 @@ export default function DashboardPage() {
                     .filter(t => t.type === 'expense')
                     .reduce((acc, curr) => acc + curr.amount, 0)
 
-                // Add recurring expenses to current month
-                const recurringExpenseTotal = (recurringExpenses || [])
+                // Add recurring items to current month
+                const recurringItems = (recurringExpenses || [])
                     .filter(re => !selectedCategory || re.category === selectedCategory)
+
+                const recurringIncomeTotal = recurringItems
+                    .filter(re => re.type === 'income')
                     .reduce((acc, curr) => acc + curr.amount, 0)
 
+                const recurringExpenseTotal = recurringItems
+                    .filter(re => re.type !== 'income') // default to expense
+                    .reduce((acc, curr) => acc + curr.amount, 0)
+
+                income += recurringIncomeTotal
                 expense += recurringExpenseTotal
 
                 setStats({
@@ -122,8 +130,9 @@ export default function DashboardPage() {
                     }
                 })
 
-                // Add recurring expenses to ALL months in the year
+                // Add recurring items to ALL months in the year
                 Object.keys(monthlyData).forEach(monthName => {
+                    monthlyData[monthName].income += recurringIncomeTotal
                     monthlyData[monthName].expense += recurringExpenseTotal
                 })
 
@@ -142,8 +151,9 @@ export default function DashboardPage() {
                         catMap[t.category] = (catMap[t.category] || 0) + t.amount
                     })
 
-                    // Add recurring expenses to category breakdown
+                    // Add recurring items to category breakdown (expenses only for the pie chart)
                     ; (recurringExpenses || [])
+                        .filter(re => re.type !== 'income')
                         .filter(re => !selectedCategory || re.category === selectedCategory)
                         .forEach(re => {
                             catMap[re.category] = (catMap[re.category] || 0) + re.amount
@@ -168,7 +178,7 @@ export default function DashboardPage() {
 
                 let nextMonthExpense = nextMonthTransactions.reduce((acc, curr) => acc + curr.amount, 0)
 
-                // Add recurring expenses to next month
+                // Add recurring items to next month
                 nextMonthExpense += recurringExpenseTotal
 
                 setNextMonthStats({

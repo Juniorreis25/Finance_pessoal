@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2, Save, ArrowUpCircle, ArrowDownCircle, X, CalendarClock, Calculator } from 'lucide-react'
+import { Loader2, Save, ArrowUpCircle, ArrowDownCircle, X, CalendarClock, Calculator, Repeat } from 'lucide-react'
 import { addMonths, format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -38,6 +38,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
 
     const [type, setType] = useState<'income' | 'expense'>(initialData?.type || 'expense')
     const [isInstallment, setIsInstallment] = useState(!!initialData?.installment_id)
+    const [isRecurring, setIsRecurring] = useState(false)
     const [installments, setInstallments] = useState(initialData?.total_installments || 2)
 
     // Helper to format currency on init
@@ -167,21 +168,38 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                     amount: amountValue,
                 }
 
-                if (initialData?.id) {
+                if (isRecurring && type === 'income') {
+                    const dayOfMonth = new Date(formData.date).getUTCDate()
+
+                    const { error: insertError } = await supabase
+                        .from('recurring_expenses')
+                        .insert({
+                            user_id: userId,
+                            description: formData.description,
+                            amount: amountValue,
+                            category: formData.category,
+                            day_of_month: dayOfMonth,
+                            type: 'income',
+                            active: true
+                        })
+                    if (insertError) throw insertError
+
+                    router.push('/recurring')
+                } else if (initialData?.id) {
                     const { error: updateError } = await supabase
                         .from('transactions')
                         .update(payload)
                         .eq('id', initialData.id)
                     if (updateError) throw updateError
+                    router.push('/transactions')
                 } else {
                     const { error: insertError } = await supabase
                         .from('transactions')
                         .insert(payload)
                     if (insertError) throw insertError
+                    router.push('/transactions')
                 }
             }
-
-            router.push('/transactions')
             router.refresh()
         } catch (err: any) {
             setError(err.message)
@@ -234,6 +252,27 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                     Receita
                 </button>
             </div>
+
+            {type === 'income' && (
+                <div className="flex items-center justify-between p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl animate-in fade-in slide-in-from-top-2">
+                    <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg ${isRecurring ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>
+                            <Repeat className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-slate-900 dark:text-white text-sm">Receita Recorrente?</p>
+                            <p className="text-xs text-slate-500">Gera esta receita automaticamente todos os meses</p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setIsRecurring(!isRecurring)}
+                        className={`w-12 h-6 rounded-full transition-colors relative ${isRecurring ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`}
+                    >
+                        <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-transform ${isRecurring ? 'left-7' : 'left-1'}`} />
+                    </button>
+                </div>
+            )}
 
             {error && (
                 <div className="bg-rose-500/10 text-rose-500 p-4 rounded-xl text-sm font-medium border border-rose-500/20">

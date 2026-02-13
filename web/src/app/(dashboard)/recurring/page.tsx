@@ -15,6 +15,7 @@ type RecurringExpense = {
     category: string
     day_of_month: number
     active: boolean
+    type: 'income' | 'expense'
     last_processed_date?: string
 }
 
@@ -75,8 +76,8 @@ export default function RecurringExpensesPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Despesas Recorrentes</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Gerencie seus pagamentos fixos mensais.</p>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Transações Recorrentes</h1>
+                    <p className="text-slate-500 dark:text-slate-400">Gerencie seus ganhos e pagamentos fixos mensais.</p>
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
@@ -116,16 +117,19 @@ export default function RecurringExpensesPage() {
                                 className={`relative group bg-white dark:bg-slate-900 p-5 rounded-2xl flex items-center justify-between border ${!expense.active ? 'border-dashed border-slate-300 dark:border-slate-700 opacity-70' : 'border-slate-100 dark:border-slate-800'} shadow-sm hover:shadow-md transition-all`}
                             >
                                 <div className="flex items-center gap-5">
-                                    <div className={`p-3 rounded-full ${expense.active ? 'bg-brand-500/10 text-brand-500' : 'bg-slate-200 text-slate-400 dark:bg-slate-800'}`}>
+                                    <div className={`p-3 rounded-full ${expense.type === 'income' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'} ${!expense.active ? 'grayscale opacity-50' : ''}`}>
                                         <Repeat className="w-6 h-6" />
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-slate-900 dark:text-white text-lg">{expense.description}</h3>
                                         <div className="flex items-center gap-3 mt-1">
+                                            <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md border ${expense.type === 'income' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/10'}`}>
+                                                {expense.type === 'income' ? 'Receita' : 'Despesa'}
+                                            </span>
                                             <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                                                 {expense.category}
                                             </span>
-                                            <span className="text-sm text-slate-500">
+                                            <span className="text-sm text-slate-500 font-medium whitespace-nowrap">
                                                 Dia {expense.day_of_month}
                                             </span>
                                         </div>
@@ -133,8 +137,8 @@ export default function RecurringExpensesPage() {
                                 </div>
 
                                 <div className="flex items-center gap-8">
-                                    <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-                                        R$ {expense.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                    <span className={`text-xl font-bold tracking-tight ${expense.type === 'income' ? 'text-emerald-500' : 'text-slate-900 dark:text-white'}`}>
+                                        {expense.type === 'income' ? '+' : '-'} R$ {expense.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                     </span>
 
                                     <div className="flex gap-2">
@@ -145,10 +149,10 @@ export default function RecurringExpensesPage() {
                                         >
                                             {expense.active ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                                         </button>
-                                        <Link href={`/recurring/${expense.id}/edit`} className="p-2 text-slate-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors cursor-pointer" title="Editar Despesa">
+                                        <Link href={`/recurring/${expense.id}/edit`} className="p-2 text-slate-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors cursor-pointer" title="Editar Recorrência">
                                             <Edit2 className="w-4 h-4" />
                                         </Link>
-                                        <button onClick={() => handleDelete(expense.id)} className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors cursor-pointer" title="Excluir Despesa">
+                                        <button onClick={() => handleDelete(expense.id)} className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors cursor-pointer" title="Excluir Recorrência">
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                     </div>
@@ -161,9 +165,9 @@ export default function RecurringExpensesPage() {
                         <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-full mb-4">
                             <Repeat className="w-8 h-8 text-slate-400" />
                         </div>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Sem despesas recorrentes</h3>
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Sem transações recorrentes</h3>
                         <p className="text-slate-500 dark:text-slate-400 mb-6 max-w-sm mx-auto">
-                            Cadastre suas contas fixas (aluguel, internet, streaming) para não esquecer.
+                            Cadastre seus ganhos ou contas fixas (aluguel, internet, streaming) para não esquecer.
                         </p>
                         <Link
                             href="/recurring/new"
@@ -174,6 +178,6 @@ export default function RecurringExpensesPage() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     )
 }
