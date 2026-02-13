@@ -216,26 +216,21 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
     const incomeCategories = ['Freelance', 'Investimentos', 'Salário', 'Outros']
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-800 max-w-2xl mx-auto">
-
-            {/* Form is titled in the parent page to avoid redundancy */}
-
+        <form onSubmit={handleSubmit} className="space-y-8 bg-brand-deep-sea/80 backdrop-blur-2xl p-10 rounded-[2.5rem] shadow-2xl border border-white/5 max-w-2xl mx-auto relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent/5 blur-[80px] rounded-full pointer-events-none" />
 
             {/* Type Toggle - Neo Style */}
-            <div className="flex gap-2 p-1.5 bg-slate-100 dark:bg-slate-950 rounded-2xl max-w-md mx-auto">
+            <div className="flex gap-2 p-1.5 bg-brand-nav/50 backdrop-blur-md rounded-2xl max-w-md mx-auto border border-white/5">
                 <button
                     type="button"
-                    onClick={() => {
-                        setType('expense')
-                        // Reset installment if switching to income (optional, but safer)
-                    }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${type === 'expense'
-                        ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/30'
-                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                    onClick={() => setType('expense')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${type === 'expense'
+                        ? 'bg-white text-black shadow-lg'
+                        : 'text-brand-gray hover:text-white'
                         }`}
                 >
-                    <ArrowDownCircle className="w-5 h-5" />
-                    Despesa
+                    <ArrowDownCircle className={`w-4 h-4 ${type === 'expense' ? 'text-black' : 'text-brand-gray'}`} />
+                    Cash Out
                 </button>
                 <button
                     type="button"
@@ -243,47 +238,47 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                         setType('income')
                         setIsInstallment(false)
                     }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${type === 'income'
-                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${type === 'income'
+                        ? 'bg-brand-success text-black shadow-lg shadow-brand-success/20'
+                        : 'text-brand-gray hover:text-white'
                         }`}
                 >
-                    <ArrowUpCircle className="w-5 h-5" />
-                    Receita
+                    <ArrowUpCircle className={`w-4 h-4 ${type === 'income' ? 'text-black' : 'text-brand-gray'}`} />
+                    Cash In
                 </button>
             </div>
 
             {type === 'income' && (
-                <div className="flex items-center justify-between p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl animate-in fade-in slide-in-from-top-2">
-                    <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${isRecurring ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>
+                <div className="bg-brand-success/5 p-6 rounded-[2rem] border border-brand-success/10 flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+                    <div className="flex items-center gap-4">
+                        <div className={`p-3 rounded-2xl ${isRecurring ? 'bg-brand-success text-black' : 'bg-white/5 text-brand-gray'}`}>
                             <Repeat className="w-5 h-5" />
                         </div>
                         <div>
-                            <p className="font-bold text-slate-900 dark:text-white text-sm">Receita Recorrente?</p>
-                            <p className="text-xs text-slate-500">Gera esta receita automaticamente todos os meses</p>
+                            <p className="font-black text-white text-xs uppercase tracking-widest">Recurring?</p>
+                            <p className="text-[10px] text-brand-gray font-bold uppercase opacity-60">Generate every month</p>
                         </div>
                     </div>
                     <button
                         type="button"
                         onClick={() => setIsRecurring(!isRecurring)}
-                        className={`w-12 h-6 rounded-full transition-colors relative ${isRecurring ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`}
+                        className={`w-14 h-8 rounded-full transition-all relative ${isRecurring ? 'bg-brand-success' : 'bg-white/10'}`}
                     >
-                        <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-transform ${isRecurring ? 'left-7' : 'left-1'}`} />
+                        <div className={`w-6 h-6 bg-white rounded-full absolute top-1 transition-all shadow-xl ${isRecurring ? 'left-7' : 'left-1'}`} />
                     </button>
                 </div>
             )}
 
             {error && (
-                <div className="bg-rose-500/10 text-rose-500 p-4 rounded-xl text-sm font-medium border border-rose-500/20">
+                <div className="bg-rose-500/10 text-rose-500 p-4 rounded-2xl text-xs font-bold border border-rose-500/20 uppercase tracking-tight">
                     {error}
                 </div>
             )}
 
-            <div className="space-y-6">
-                <div>
-                    <label htmlFor="amount" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                        Valor {isInstallment ? 'Total' : ''} (R$)
+            <div className="space-y-6 relative z-10">
+                <div className="bg-brand-nav/30 p-6 rounded-3xl border border-white/5">
+                    <label htmlFor="amount" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-3 opacity-60">
+                        Value {isInstallment ? 'Total' : ''} (BRL)
                     </label>
                     <input
                         id="amount"
@@ -292,76 +287,75 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                         inputMode="numeric"
                         required
                         placeholder="R$ 0,00"
-                        className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-bold text-2xl text-slate-900 dark:text-white placeholder:text-slate-400"
+                        className="w-full bg-transparent border-0 p-0 focus:ring-0 transition-all font-bold text-4xl text-white placeholder:text-white/10 tracking-tighter"
                         value={formData.amount}
                         onChange={handleAmountChange}
-                    />
-                </div>
-
-                <div>
-                    <label htmlFor="description" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                        Descrição
-                    </label>
-                    <input
-                        id="description"
-                        name="description"
-                        required
-                        placeholder={type === 'expense' ? "Ex: Supermercado" : "Ex: Salário Mensal"}
-                        className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
-                        value={formData.description}
-                        onChange={handleChange}
+                        autoFocus
                     />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                        <label htmlFor="description" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
+                            Description
+                        </label>
+                        <input
+                            id="description"
+                            name="description"
+                            required
+                            placeholder={type === 'expense' ? "e.g. Shopping" : "e.g. Monthly Salary"}
+                            className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30"
+                            value={formData.description}
+                            onChange={handleChange}
+                        />
+                    </div>
+
                     <div>
-                        <label htmlFor="category" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                            Categoria
+                        <label htmlFor="category" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
+                            Category
                         </label>
                         <select
                             id="category"
                             name="category"
                             required
-                            className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white dark:[color-scheme:dark]"
+                            className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white appearance-none cursor-pointer"
                             value={formData.category}
                             onChange={handleChange}
                         >
-                            <option value="">Selecione...</option>
+                            <option value="" className="bg-brand-deep-sea">Select...</option>
                             {(type === 'expense' ? expenseCategories : incomeCategories).map(cat => (
-                                <option key={cat} value={cat}>{cat}</option>
+                                <option key={cat} value={cat} className="bg-brand-deep-sea">{cat}</option>
                             ))}
                         </select>
                     </div>
 
-                    {/* Dynamic Date Container */}
-                    <div className={isInstallment ? "col-span-1 md:col-span-2 grid grid-cols-2 gap-6" : "col-span-1"}>
+                    <div className={isInstallment ? "grid grid-cols-2 gap-4" : ""}>
                         {isInstallment && (
                             <div>
-                                <label htmlFor="purchaseDate" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                                    Data da Compra
+                                <label htmlFor="purchaseDate" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
+                                    Purchase
                                 </label>
                                 <input
                                     id="purchaseDate"
                                     name="purchaseDate"
                                     type="date"
                                     required={isInstallment}
-                                    className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white dark:[color-scheme:dark]"
+                                    className="w-full px-4 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white [color-scheme:dark] text-sm"
                                     value={formData.purchaseDate}
                                     onChange={handleChange}
                                 />
                             </div>
                         )}
-
-                        <div className={isInstallment ? "" : "w-full"}>
-                            <label htmlFor="date" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                                {isInstallment ? 'Data da 1ª Parcela' : 'Data'}
+                        <div>
+                            <label htmlFor="date" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
+                                {isInstallment ? '1st Due' : 'Date'}
                             </label>
                             <input
                                 id="date"
                                 name="date"
                                 type="date"
                                 required
-                                className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white dark:[color-scheme:dark]"
+                                className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white [color-scheme:dark]"
                                 value={formData.date}
                                 onChange={handleChange}
                             />
@@ -371,77 +365,74 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
 
                 {type === 'expense' && (
                     <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
-                        {/* Card Selection */}
                         <div>
-                            <label htmlFor="card_id" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                                Cartão (Opcional)
+                            <label htmlFor="card_id" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
+                                Payment Method
                             </label>
                             <select
                                 id="card_id"
                                 name="card_id"
-                                className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white dark:[color-scheme:dark]"
+                                className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white appearance-none cursor-pointer"
                                 value={formData.card_id || ''}
                                 onChange={handleChange}
                             >
-                                <option value="">Nenhum (Dinheiro/Débito)</option>
+                                <option value="" className="bg-brand-deep-sea">Cash / Debit</option>
                                 {cards.map(card => (
-                                    <option key={card.id} value={card.id}>{card.name}</option>
+                                    <option key={card.id} value={card.id} className="bg-brand-deep-sea">{card.name}</option>
                                 ))}
                             </select>
                         </div>
 
-                        {/* Installment Toggle & Logic */}
-                        {/* Installment Toggle & Logic */}
-                        <div className="bg-slate-50 dark:bg-slate-950/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
+                        <div className="bg-white/5 p-6 rounded-[2rem] border border-white/5">
                             <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-lg ${isInstallment ? 'bg-brand-500 text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>
+                                <div className="flex items-center gap-4">
+                                    <div className={`p-3 rounded-2xl ${isInstallment ? 'bg-brand-accent text-black' : 'bg-white/5 text-brand-gray'}`}>
                                         <CalendarClock className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <p className="font-bold text-slate-900 dark:text-white text-sm">Transação Parcelada?</p>
-                                        <p className="text-xs text-slate-500">Divide o valor em meses futuros</p>
+                                        <p className="font-black text-white text-xs uppercase tracking-widest">Installments?</p>
+                                        <p className="text-[10px] text-brand-gray font-bold uppercase opacity-60">Spread across future months</p>
                                     </div>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => setIsInstallment(!isInstallment)}
-                                    className={`w-12 h-6 rounded-full transition-colors relative ${isInstallment ? 'bg-brand-500' : 'bg-slate-300 dark:bg-slate-700'}`}
+                                    className={`w-14 h-8 rounded-full transition-all relative ${isInstallment ? 'bg-brand-accent' : 'bg-white/10'}`}
                                 >
-                                    <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-transform ${isInstallment ? 'left-7' : 'left-1'}`} />
+                                    <div className={`w-6 h-6 bg-white rounded-full absolute top-1 transition-all shadow-xl ${isInstallment ? 'left-7' : 'left-1'}`} />
                                 </button>
                             </div>
 
                             {isInstallment && (
-                                <div className="mt-5 space-y-4 animate-in fade-in slide-in-from-top-2">
+                                <div className="mt-8 space-y-6 animate-in fade-in slide-in-from-top-2">
                                     <div>
-                                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                                            Número de Parcelas
+                                        <label className="block text-[10px] font-black uppercase tracking-widest text-brand-gray mb-4 opacity-60">
+                                            Number of Payments
                                         </label>
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-6">
                                             <input
                                                 type="range"
                                                 min="2"
                                                 max="24"
                                                 value={installments}
                                                 onChange={(e) => setInstallments(parseInt(e.target.value))}
-                                                className="flex-1 h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500"
+                                                className="flex-1 h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-brand-accent"
                                             />
-                                            <div className="w-16 h-12 flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-lg">
+                                            <div className="w-16 h-12 flex items-center justify-center bg-brand-nav border border-white/5 rounded-2xl font-black text-white text-lg tracking-tighter">
                                                 {installments}x
                                             </div>
                                         </div>
                                     </div>
 
                                     {installmentSummary && (
-                                        <div className="bg-brand-500/10 border border-brand-500/20 rounded-xl p-4 flex flex-col gap-2">
-                                            <div className="flex justify-between items-center text-sm">
-                                                <span className="text-slate-600 dark:text-slate-400">Mensalidade:</span>
-                                                <span className="font-bold text-brand-600 dark:text-brand-400">{installmentSummary.monthlyValue}</span>
+                                        <div className="bg-brand-accent/5 border border-brand-accent/10 rounded-2xl p-5 flex flex-col gap-3">
+                                            <div className="flex justify-between items-center text-xs">
+                                                <span className="text-brand-gray font-bold uppercase tracking-widest">Monthly:</span>
+                                                <span className="font-black text-brand-accent text-sm tracking-tighter">{installmentSummary.monthlyValue}</span>
                                             </div>
-                                            <div className="flex justify-between items-center text-sm">
-                                                <span className="text-slate-600 dark:text-slate-400">Última parcela:</span>
-                                                <span className="font-bold text-slate-900 dark:text-white">{installmentSummary.lastDate}</span>
+                                            <div className="flex justify-between items-center text-xs">
+                                                <span className="text-brand-gray font-bold uppercase tracking-widest">Final Payment:</span>
+                                                <span className="font-black text-white text-sm tracking-tighter uppercase">{installmentSummary.lastDate}</span>
                                             </div>
                                         </div>
                                     )}
@@ -452,22 +443,22 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                 )}
             </div>
 
-            <div className="pt-6 flex justify-end gap-3">
+            <div className="pt-8 flex flex-col sm:flex-row gap-4">
                 <button
                     type="button"
                     onClick={() => router.back()}
-                    className="flex items-center gap-2 px-6 py-3.5 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-white/5 text-brand-gray rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all border border-white/5"
                 >
-                    <X className="w-5 h-5" />
-                    Cancelar
+                    <X className="w-4 h-4" />
+                    Cancel
                 </button>
                 <button
                     type="submit"
                     disabled={loading}
-                    className="flex items-center gap-2 px-8 py-3.5 bg-brand-500 text-slate-950 rounded-2xl font-bold hover:bg-brand-400 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 transition-all shadow-lg shadow-brand-500/20"
+                    className="flex-[2] flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-black rounded-2xl font-black uppercase tracking-tighter text-xs hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 transition-all shadow-[0_8px_25px_rgba(0,240,255,0.3)]"
                 >
-                    {loading ? <Loader2 className="animate-spin w-5 h-5" /> : <Save className="w-5 h-5" />}
-                    {initialData ? 'Atualizar Transação' : 'Salvar Transação'}
+                    {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
+                    {initialData ? 'Update Transaction' : 'Confirm Transaction'}
                 </button>
             </div>
         </form>

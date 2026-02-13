@@ -89,28 +89,29 @@ export default function NewRecurringExpensePage() {
     const categories = ['Alimentação', 'Assinaturas', 'Educação', 'Empréstimo', 'Financiamento', 'Lazer', 'Moradia', 'Saúde', 'Transporte', 'Outros']
 
     return (
-        <div className="max-w-2xl mx-auto">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Nova Despesa Recorrente</h1>
-                <p className="text-slate-500 dark:text-slate-400">Cadastre suas contas fixas para automação e controle.</p>
+        <div className="max-w-2xl mx-auto py-8">
+            <div className="mb-10 px-4">
+                <h1 className="text-4xl font-extrabold text-white tracking-tighter uppercase mb-2">
+                    Nova <span className="text-brand-accent">Recorrência</span>
+                </h1>
+                <p className="text-brand-gray text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Automação de Fluxo de Caixa</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-800">
-
+            <form onSubmit={handleSubmit} className="space-y-8 bg-brand-deep-sea/80 backdrop-blur-2xl p-10 rounded-[2.5rem] shadow-2xl border border-white/5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent/5 blur-[80px] rounded-full pointer-events-none" />
 
                 {error && (
-                    <div className="bg-rose-500/10 text-rose-500 p-4 rounded-xl text-sm font-medium border border-rose-500/20">
+                    <div className="bg-rose-500/10 text-rose-500 p-4 rounded-2xl text-xs font-bold border border-rose-500/20 uppercase tracking-tight">
                         {error}
                     </div>
                 )}
 
-                <div className="space-y-6">
-                    <div>
-                        <label htmlFor="amount" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                            Valor Mensal (R$)
+                <div className="space-y-6 relative z-10">
+                    <div className="bg-brand-nav/30 p-6 rounded-3xl border border-white/5">
+                        <label htmlFor="amount" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-3 opacity-60">
+                            Monthly Value (BRL)
                         </label>
                         <div className="relative">
-                            <DollarSign className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                             <input
                                 id="amount"
                                 name="amount"
@@ -118,25 +119,25 @@ export default function NewRecurringExpensePage() {
                                 inputMode="numeric"
                                 required
                                 placeholder="R$ 0,00"
-                                className="w-full pl-12 pr-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-bold text-2xl text-slate-900 dark:text-white placeholder:text-slate-400"
+                                className="w-full bg-transparent border-0 p-0 focus:ring-0 transition-all font-bold text-4xl text-white placeholder:text-white/10 tracking-tighter"
                                 value={formData.amount}
                                 onChange={handleAmountChange}
+                                autoFocus
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label htmlFor="description" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                            Descrição
+                        <label htmlFor="description" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
+                            Description
                         </label>
                         <div className="relative">
-                            <FileText className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                             <input
                                 id="description"
                                 name="description"
                                 required
-                                placeholder="Ex: Netflix, Aluguel, Internet"
-                                className="w-full pl-12 pr-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
+                                placeholder="e.g. Netflix, Rent, Gym"
+                                className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30"
                                 value={formData.description}
                                 onChange={handleChange}
                             />
@@ -145,33 +146,31 @@ export default function NewRecurringExpensePage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label htmlFor="category" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                                Categoria
+                            <label htmlFor="category" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
+                                Category
                             </label>
                             <div className="relative">
-                                <Tag className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                                 <select
                                     id="category"
                                     name="category"
                                     required
-                                    className="w-full pl-12 pr-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white appearance-none cursor-pointer dark:[color-scheme:dark]"
+                                    className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white appearance-none cursor-pointer"
                                     value={formData.category}
                                     onChange={handleChange}
                                 >
-                                    <option value="">Selecione...</option>
+                                    <option value="" className="bg-brand-deep-sea">Select...</option>
                                     {categories.map(cat => (
-                                        <option key={cat} value={cat}>{cat}</option>
+                                        <option key={cat} value={cat} className="bg-brand-deep-sea">{cat}</option>
                                     ))}
                                 </select>
                             </div>
                         </div>
 
                         <div>
-                            <label htmlFor="day_of_month" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                                Dia do Vencimento
+                            <label htmlFor="day_of_month" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
+                                Due Day
                             </label>
                             <div className="relative">
-                                <Calendar className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                                 <input
                                     id="day_of_month"
                                     name="day_of_month"
@@ -179,7 +178,7 @@ export default function NewRecurringExpensePage() {
                                     min="1"
                                     max="31"
                                     required
-                                    className="w-full pl-12 pr-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
+                                    className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white text-center"
                                     value={formData.day_of_month}
                                     onChange={handleChange}
                                 />
@@ -188,22 +187,22 @@ export default function NewRecurringExpensePage() {
                     </div>
                 </div>
 
-                <div className="pt-6 flex justify-end gap-3">
+                <div className="pt-8 flex flex-col sm:flex-row gap-4">
                     <button
                         type="button"
                         onClick={() => router.back()}
-                        className="flex items-center gap-2 px-6 py-3.5 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
+                        className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-white/5 text-brand-gray rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all border border-white/5"
                     >
-                        <X className="w-5 h-5" />
-                        Cancelar
+                        <X className="w-4 h-4" />
+                        Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={loading}
-                        className="flex items-center gap-2 px-8 py-3.5 bg-brand-500 text-slate-950 rounded-2xl font-bold hover:bg-brand-400 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 transition-all shadow-lg shadow-brand-500/20"
+                        className="flex-[2] flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-black rounded-2xl font-black uppercase tracking-tighter text-xs hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 transition-all shadow-[0_8px_25px_rgba(0,240,255,0.3)]"
                     >
-                        {loading ? <Loader2 className="animate-spin w-5 h-5" /> : <Save className="w-5 h-5" />}
-                        Salvar Recorrência
+                        {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
+                        Confirm Rule
                     </button>
                 </div>
             </form>

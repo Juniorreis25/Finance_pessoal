@@ -56,8 +56,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
                 <div className="h-full flex flex-col">
-                    <div className="p-4 border-b border-slate-800">
-                        <Link href="/dashboard" className="flex items-center justify-center gap-2 w-full hover:bg-slate-800/50 p-2 rounded-xl transition-all group" title="Ir para Visão Geral">
+                    <div className="p-4 border-b border-white/5">
+                        <Link href="/dashboard" className="flex items-center justify-center gap-2 w-full hover:bg-white/5 p-2 rounded-2xl transition-all group" title="Ir para Visão Geral">
                             <Logo className="w-10 h-10" textSize="text-2xl" />
                         </Link>
                     </div>
@@ -83,10 +83,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         })}
                     </nav>
 
-                    <div className="p-4 border-t border-slate-800">
+                    <div className="p-4 border-t border-white/5">
                         <button
                             onClick={handleLogout}
-                            className="flex w-full items-center gap-3 px-4 py-3 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                            className="flex w-full items-center gap-3 px-4 py-3 text-brand-gray hover:text-red-500 hover:bg-red-500/10 rounded-2xl transition-colors cursor-pointer"
                             aria-label="Sair da conta"
                         >
                             <LogOut className="w-5 h-5" />

@@ -124,34 +124,34 @@ export function CardForm({ initialData }: CardFormProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-800 max-w-2xl mx-auto">
-            {/* Form is titled in the parent page to avoid redundancy */}
-
+        <form onSubmit={handleSubmit} className="space-y-8 bg-brand-deep-sea/80 backdrop-blur-2xl p-10 rounded-[2.5rem] shadow-2xl border border-white/5 max-w-2xl mx-auto relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent/5 blur-[80px] rounded-full pointer-events-none" />
 
             {error && (
-                <div className="bg-rose-500/10 text-rose-500 p-4 rounded-xl text-sm font-medium border border-rose-500/20">
+                <div className="bg-rose-500/10 text-rose-500 p-4 rounded-2xl text-xs font-bold border border-rose-500/20 uppercase tracking-tight">
                     {error}
                 </div>
             )}
 
-            <div className="space-y-6">
+            <div className="space-y-6 relative z-10">
                 <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                        Nome do Cartão
+                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
+                        Card Name
                     </label>
                     <input
                         name="name"
                         required
-                        placeholder="Ex: Nubank, Visa Platinum"
-                        className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
+                        placeholder="e.g. Nubank Black, Visa Infinite"
+                        className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30"
                         value={formData.name}
                         onChange={handleChange}
+                        autoFocus
                     />
                 </div>
 
-                <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                        Limite (R$)
+                <div className="bg-brand-nav/30 p-6 rounded-3xl border border-white/5">
+                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-3 opacity-60">
+                        Credit Limit (BRL)
                     </label>
                     <input
                         name="limit_amount"
@@ -159,7 +159,7 @@ export function CardForm({ initialData }: CardFormProps) {
                         inputMode="numeric"
                         required
                         placeholder="R$ 0,00"
-                        className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-bold text-lg text-slate-900 dark:text-white placeholder:text-slate-400"
+                        className="w-full bg-transparent border-0 p-0 focus:ring-0 transition-all font-bold text-4xl text-white placeholder:text-white/10 tracking-tighter"
                         value={formData.limit_amount}
                         onChange={handleAmountChange}
                     />
@@ -167,8 +167,8 @@ export function CardForm({ initialData }: CardFormProps) {
 
                 <div className="grid grid-cols-2 gap-6">
                     <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                            Dia Fechamento
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
+                            Closing Day
                         </label>
                         <input
                             name="closing_day"
@@ -177,14 +177,14 @@ export function CardForm({ initialData }: CardFormProps) {
                             max="31"
                             required
                             placeholder="10"
-                            className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400 text-center"
+                            className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white text-center"
                             value={formData.closing_day}
                             onChange={handleChange}
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                            Dia Vencimento
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
+                            Due Day
                         </label>
                         <input
                             name="due_day"
@@ -193,7 +193,7 @@ export function CardForm({ initialData }: CardFormProps) {
                             max="31"
                             required
                             placeholder="17"
-                            className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400 text-center"
+                            className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white text-center"
                             value={formData.due_day}
                             onChange={handleChange}
                         />
@@ -201,22 +201,22 @@ export function CardForm({ initialData }: CardFormProps) {
                 </div>
             </div>
 
-            <div className="pt-6 flex justify-end gap-3">
+            <div className="pt-8 flex flex-col sm:flex-row gap-4">
                 <button
                     type="button"
                     onClick={() => router.back()}
-                    className="flex items-center gap-2 px-6 py-3.5 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-colors dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-white/5 text-brand-gray rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all border border-white/5"
                 >
-                    <X className="w-5 h-5" />
-                    Cancelar
+                    <X className="w-4 h-4" />
+                    Cancel
                 </button>
                 <button
                     type="submit"
                     disabled={loading}
-                    className="flex items-center gap-2 px-8 py-3.5 bg-brand-500 text-slate-950 rounded-2xl font-bold hover:bg-brand-400 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 transition-all shadow-lg shadow-brand-500/20"
+                    className="flex-[2] flex items-center justify-center gap-2 px-8 py-4 bg-white text-black rounded-2xl font-black uppercase tracking-tighter text-xs hover:bg-brand-accent transition-all shadow-xl"
                 >
-                    {loading ? <Loader2 className="animate-spin w-5 h-5" /> : <Save className="w-5 h-5" />}
-                    {initialData ? 'Atualizar Cartão' : 'Salvar Cartão'}
+                    {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
+                    {initialData ? 'Update Card' : 'Connect Card'}
                 </button>
             </div>
         </form>

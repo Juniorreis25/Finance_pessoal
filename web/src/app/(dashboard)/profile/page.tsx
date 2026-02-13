@@ -189,136 +189,133 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-white tracking-tight">Meu Perfil</h1>
-                <p className="text-slate-400">Personalize sua experiência</p>
+        <div className="max-w-2xl mx-auto py-8">
+            <div className="mb-10 px-4">
+                <h1 className="text-4xl font-extrabold text-white tracking-tighter uppercase mb-2">
+                    Meu <span className="text-brand-accent">Perfil</span>
+                </h1>
+                <p className="text-brand-gray text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Personalização de Experiência</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-8 bg-slate-900 p-8 rounded-[2rem] shadow-2xl border border-slate-800">
+            <form onSubmit={handleSubmit} className="space-y-10 bg-brand-deep-sea/80 backdrop-blur-2xl p-10 rounded-[2.5rem] shadow-2xl border border-white/5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent/5 blur-[80px] rounded-full pointer-events-none" />
 
                 {error && (
-                    <div className="bg-rose-500/10 text-rose-500 p-4 rounded-xl text-sm font-medium border border-rose-500/20">
+                    <div className="bg-rose-500/10 text-rose-500 p-4 rounded-2xl text-xs font-bold border border-rose-500/20 uppercase tracking-tight">
                         {error}
                     </div>
                 )}
 
                 {success && (
-                    <div className="bg-emerald-500/10 text-emerald-500 p-4 rounded-xl text-sm font-medium border border-emerald-500/20">
-                        ✓ Perfil atualizado com sucesso! Redirecionando...
+                    <div className="bg-brand-success/10 text-brand-success p-4 rounded-2xl text-xs font-bold border border-brand-success/20 uppercase tracking-tight">
+                        ✓ Perfil atualizado com sucesso!
                     </div>
                 )}
 
-                {/* Avatar Upload */}
-                <div className="flex flex-col items-center gap-4">
-                    <div className="relative">
-                        <div className="w-32 h-32 rounded-full overflow-hidden bg-slate-800 border-4 border-slate-700 shadow-xl">
-                            {avatarPreview ? (
-                                <Image
-                                    src={avatarPreview}
-                                    alt="Avatar"
-                                    width={128}
-                                    height={128}
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-slate-400">
-                                    <User className="w-16 h-16" />
+                <div className="space-y-8 relative z-10">
+                    {/* Avatar Upload - Premium Style */}
+                    <div className="flex flex-col items-center gap-6">
+                        <div className="relative group">
+                            <div className="w-40 h-40 rounded-full p-1 bg-gradient-to-tr from-brand-accent/50 via-white/5 to-white/5 shadow-2xl">
+                                <div className="w-full h-full rounded-full overflow-hidden bg-brand-nav relative">
+                                    {avatarPreview ? (
+                                        <Image
+                                            src={avatarPreview}
+                                            alt="Avatar"
+                                            width={160}
+                                            height={160}
+                                            className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-brand-gray">
+                                            <User className="w-20 h-20 opacity-20" strokeWidth={1} />
+                                        </div>
+                                    )}
+                                    {uploading && (
+                                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                            <Loader2 className="w-8 h-8 animate-spin text-brand-accent" />
+                                        </div>
+                                    )}
                                 </div>
+                            </div>
+                            {avatarPreview && (
+                                <button
+                                    type="button"
+                                    onClick={handleRemoveAvatar}
+                                    className="absolute top-2 right-2 p-3 bg-white text-black rounded-full hover:scale-110 transition-all shadow-xl z-20"
+                                    title="Remover Foto"
+                                >
+                                    <X className="w-4 h-4" strokeWidth={3} />
+                                </button>
                             )}
                         </div>
-                        {avatarPreview && (
-                            <button
-                                type="button"
-                                onClick={handleRemoveAvatar}
-                                className="absolute -top-2 -right-2 p-2 bg-rose-500 text-white rounded-full hover:bg-rose-600 transition-colors shadow-lg cursor-pointer"
-                                aria-label="Remover avatar"
-                                title="Remover Foto de Perfil"
-                            >
-                                <X className="w-4 h-4" />
-                            </button>
-                        )}
+
+                        <label className="cursor-pointer group">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleAvatarUpload}
+                                className="hidden"
+                                disabled={uploading}
+                            />
+                            <div className="flex items-center gap-3 px-8 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] group-hover:bg-white group-hover:text-black transition-all">
+                                <Camera className="w-4 h-4" />
+                                {uploading ? 'Enviando...' : 'Alterar Avatar'}
+                            </div>
+                        </label>
                     </div>
 
-                    <label className="cursor-pointer">
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleAvatarUpload}
-                            className="hidden"
-                            disabled={uploading}
-                        />
-                        <div className="flex items-center gap-2 px-6 py-3 bg-slate-800 text-slate-300 rounded-2xl font-bold hover:bg-slate-700 transition-colors cursor-pointer">
-                            {uploading ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                    Enviando...
-                                </>
-                            ) : (
-                                <>
-                                    <Camera className="w-5 h-5" />
-                                    Alterar Foto
-                                </>
-                            )}
+                    <div className="space-y-6">
+                        {/* Display Name */}
+                        <div>
+                            <label htmlFor="display_name" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
+                                Nome de Exibição
+                            </label>
+                            <input
+                                id="display_name"
+                                name="display_name"
+                                type="text"
+                                placeholder="Seu nome ou apelido"
+                                className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30"
+                                value={formData.display_name || ''}
+                                onChange={handleChange}
+                            />
                         </div>
-                    </label>
-                    <p className="text-xs text-slate-500">JPG, PNG ou WEBP. Máximo 2MB.</p>
-                </div>
 
-                {/* Display Name */}
-                <div>
-                    <label htmlFor="display_name" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                        Nome de Exibição
-                    </label>
-                    <div className="relative">
-                        <User className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
-                        <input
-                            id="display_name"
-                            name="display_name"
-                            type="text"
-                            placeholder="Como gostaria de ser chamado?"
-                            className="w-full pl-12 pr-5 py-3.5 bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-white placeholder:text-slate-500"
-                            value={formData.display_name || ''}
-                            onChange={handleChange}
-                        />
+                        {/* Welcome Message */}
+                        <div>
+                            <label htmlFor="welcome_message" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
+                                Mensagem de Boas-Vindas
+                            </label>
+                            <textarea
+                                id="welcome_message"
+                                name="welcome_message"
+                                rows={3}
+                                placeholder="Frase personalizada para o seu Dashboard"
+                                className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30 resize-none"
+                                value={formData.welcome_message || ''}
+                                onChange={handleChange}
+                            />
+                        </div>
                     </div>
                 </div>
 
-                {/* Welcome Message */}
-                <div>
-                    <label htmlFor="welcome_message" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 ml-1">
-                        Mensagem de Boas-Vindas
-                    </label>
-                    <div className="relative">
-                        <MessageSquare className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
-                        <textarea
-                            id="welcome_message"
-                            name="welcome_message"
-                            rows={3}
-                            placeholder="Mensagem que aparecerá no Dashboard"
-                            className="w-full pl-12 pr-5 py-3.5 bg-slate-950 border-0 rounded-2xl focus:ring-2 focus:ring-brand-500 transition-all font-medium text-white placeholder:text-slate-500 resize-none"
-                            value={formData.welcome_message || ''}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-
-                <div className="pt-6 flex justify-end gap-3">
+                <div className="pt-8 flex flex-col sm:flex-row gap-4">
                     <button
                         type="button"
                         onClick={() => router.back()}
-                        className="flex items-center gap-2 px-6 py-3.5 bg-slate-800 text-slate-400 rounded-2xl font-bold hover:bg-slate-700 hover:text-white transition-colors cursor-pointer"
+                        className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-white/5 text-brand-gray rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all border border-white/5"
                     >
-                        <X className="w-5 h-5" />
+                        <X className="w-4 h-4" />
                         Cancelar
                     </button>
                     <button
                         type="submit"
                         disabled={saving}
-                        className="flex items-center gap-2 px-8 py-3.5 bg-brand-500 text-slate-950 rounded-2xl font-bold hover:bg-brand-400 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 transition-all shadow-lg shadow-brand-500/20 cursor-pointer"
+                        className="flex-[2] flex items-center justify-center gap-2 px-8 py-4 bg-white text-black rounded-2xl font-black uppercase tracking-tighter text-xs hover:bg-brand-accent transition-all shadow-xl"
                     >
-                        {saving ? <Loader2 className="animate-spin w-5 h-5" /> : <Save className="w-5 h-5" />}
-                        Salvar Perfil
+                        {saving ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
+                        Confirmar Alterações
                     </button>
                 </div>
             </form>
