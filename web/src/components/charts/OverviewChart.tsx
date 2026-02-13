@@ -15,46 +15,45 @@ export function OverviewChart({ data }: { data: OverviewData[] }) {
 
     return (
         <div className="h-[300px] w-full">
-            <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white tracking-tight">Balanço Mensal</h3>
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={data}
-                    margin={{ top: 20, right: 10, left: -20, bottom: 20 }}
+                    margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
                 >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.5} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff" opacity={0.05} />
                     <XAxis
                         dataKey="name"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 500 }}
+                        tick={{ fill: '#8E8E93', fontSize: 10, fontWeight: 700 }}
                         dy={10}
                     />
                     <YAxis
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 500 }}
-                        tickFormatter={(value) => `R$${value}`}
+                        tick={{ fill: '#8E8E93', fontSize: 10, fontWeight: 700 }}
+                        tickFormatter={(value) => `R$${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`}
                     />
                     <Tooltip
-                        cursor={{ fill: 'rgba(51, 65, 85, 0.2)' }}
-                        formatter={(value: any) => `R$ ${Number(value).toFixed(2)}`}
+                        cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+                        formatter={(value: any) => `R$ ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                         contentStyle={{
-                            backgroundColor: '#1e293b',
-                            borderColor: '#334155',
-                            borderRadius: '12px',
-                            color: '#f8fafc',
-                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.3)'
+                            backgroundColor: '#0A0A0A',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderRadius: '16px',
+                            color: '#FFFFFF',
+                            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)'
                         }}
-                        itemStyle={{ color: '#f8fafc' }}
                     />
                     <Legend
                         verticalAlign="top"
                         align="right"
-                        wrapperStyle={{ paddingBottom: '20px' }}
-                        formatter={(value) => <span className="text-slate-600 dark:text-slate-400 font-medium">{value}</span>}
+                        wrapperStyle={{ paddingBottom: '30px' }}
+                        formatter={(value) => <span className="text-[10px] font-black uppercase tracking-widest text-[#8E8E93] mr-2">{value}</span>}
                     />
-                    <Bar dataKey="receita" name="Receitas" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={20} />
-                    <Bar dataKey="despesa" name="Despesas" fill="#f97316" radius={[4, 4, 0, 0]} barSize={20} />
+                    <Bar dataKey="receita" name="Ganhos" fill="#00FF94" radius={[6, 6, 0, 0]} barSize={12} />
+                    <Bar dataKey="despesa" name="Gastos" fill="#FFFFFF" radius={[6, 6, 0, 0]} barSize={12} />
                 </BarChart>
             </ResponsiveContainer>
         </div>

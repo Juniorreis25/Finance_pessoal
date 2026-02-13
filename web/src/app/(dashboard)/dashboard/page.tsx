@@ -237,15 +237,15 @@ export default function DashboardPage() {
                     <MonthSelector currentDate={currentDate} onDateChange={setCurrentDate} />
 
                     <div className="flex gap-2">
-                        <Link href="/transactions" className="p-3 bg-slate-800 text-slate-300 rounded-2xl hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Ver transações" title="Ver Histórico de Transações">
+                        <Link href="/transactions" className="p-3 bg-brand-deep-sea text-brand-gray rounded-2xl border border-white/5 hover:bg-white/5 transition-all cursor-pointer" aria-label="Ver transações" title="Ver Histórico de Transações">
                             <BarChart3 className="w-5 h-5" />
                         </Link>
-                        <Link href="/cards" className="p-3 bg-slate-800 text-slate-300 rounded-2xl hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Ver cartões" title="Gerenciar Meus Cartões">
+                        <Link href="/cards" className="p-3 bg-brand-deep-sea text-brand-gray rounded-2xl border border-white/5 hover:bg-white/5 transition-all cursor-pointer" aria-label="Ver cartões" title="Gerenciar Meus Cartões">
                             <CreditCard className="w-5 h-5" />
                         </Link>
-                        <Link href="/transactions/new" className="flex items-center gap-2 px-5 py-3 bg-brand-500 text-slate-950 font-bold rounded-2xl hover:scale-105 transition-transform shadow-lg shadow-brand-500/20 cursor-pointer" title="Adicionar Nova Transação">
-                            <Plus className="w-5 h-5" />
-                            Nova Transação
+                        <Link href="/transactions/new" className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-black font-black uppercase tracking-tighter text-xs rounded-2xl hover:scale-105 transition-transform shadow-[0_8px_20px_rgba(0,240,255,0.3)] cursor-pointer" title="Adicionar Nova Transação">
+                            <Plus className="w-5 h-5" strokeWidth={3} />
+                            Novo
                         </Link>
                     </div>
                 </div>
@@ -261,16 +261,16 @@ export default function DashboardPage() {
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
                         {/* Master Balance Card (Span 12) - Split Layout */}
-                        <div className="md:col-span-12 relative overflow-hidden bg-gradient-to-br from-slate-900 to-slate-950 rounded-[2rem] border border-slate-800 shadow-2xl">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 blur-[100px] rounded-full pointer-events-none" />
+                        <div className="md:col-span-12 relative overflow-hidden bg-brand-deep-sea rounded-[2.5rem] border border-white/5 shadow-2xl">
+                            <div className="absolute top-0 right-0 w-80 h-80 bg-brand-accent/5 blur-[120px] rounded-full pointer-events-none" />
 
                             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 p-8">
                                 {/* Current Month - Main Section (8 cols) */}
                                 <div className="lg:col-span-8 flex flex-col justify-between min-h-[240px]">
                                     <div className="flex justify-between items-start">
-                                        <div className="flex items-center gap-3 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700/50 w-fit backdrop-blur-md">
-                                            <Wallet className="w-4 h-4 text-brand-500" />
-                                            <span className="text-xs font-bold text-brand-500 uppercase tracking-widest">Saldo Mensal</span>
+                                        <div className="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-full border border-white/10 w-fit backdrop-blur-md">
+                                            <Wallet className="w-4 h-4 text-brand-accent" />
+                                            <span className="text-xs font-bold text-brand-gray uppercase tracking-widest">Digital Card • Balance</span>
                                         </div>
                                         <button
                                             onClick={toggleVisibility}
@@ -286,32 +286,37 @@ export default function DashboardPage() {
                                         </button>
                                     </div>
 
-                                    <div className="mt-8">
-                                        <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tighter">
+                                    <div className="mt-8 flex items-baseline gap-2">
+                                        <h2 className="text-4xl md:text-[52px] font-bold text-brand-accent tracking-tighter glow-cyan">
                                             <MaskedValue value={stats.balance} prefix={isValuesVisible ? "R$ " : ""} />
                                         </h2>
+                                        {/* Percentage Badge */}
+                                        <div className="flex items-center gap-1 px-3 py-1 bg-[#003D2B] rounded-full border border-[#00FF94]/20 ml-2">
+                                            <ArrowUpRight className="w-3 h-3 text-brand-success" />
+                                            <span className="text-[10px] font-black text-brand-success tracking-tighter">+2.4%</span>
+                                        </div>
                                     </div>
 
                                     <div className="mt-8 flex gap-6">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-emerald-500/10 rounded-full text-emerald-400">
-                                                <ArrowUpRight className="w-5 h-5" />
+                                        <div className="flex items-center gap-3 group">
+                                            <div className="p-3 bg-brand-success/10 rounded-2xl text-brand-success border border-brand-success/10 group-hover:bg-brand-success/20 transition-all">
+                                                <ArrowUpRight className="w-5 h-5 font-bold" />
                                             </div>
                                             <div>
-                                                <p className="text-xs text-slate-500 font-medium">Receitas</p>
-                                                <p className="text-lg font-bold text-emerald-400">
+                                                <p className="text-[11px] text-brand-gray font-bold uppercase tracking-wider">Ganhos</p>
+                                                <p className="text-xl font-bold text-brand-success">
                                                     <MaskedValue value={stats.income} />
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="w-px h-10 bg-slate-800" />
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-rose-500/10 rounded-full text-rose-400">
-                                                <ArrowDownRight className="w-5 h-5" />
+                                        <div className="w-px h-12 bg-white/5" />
+                                        <div className="flex items-center gap-3 group">
+                                            <div className="p-3 bg-white/5 rounded-2xl text-white border border-white/10 group-hover:bg-white/10 transition-all">
+                                                <ArrowDownRight className="w-5 h-5 font-bold" />
                                             </div>
                                             <div>
-                                                <p className="text-xs text-slate-500 font-medium">Despesas</p>
-                                                <p className="text-lg font-bold text-rose-400">
+                                                <p className="text-[11px] text-brand-gray font-bold uppercase tracking-wider">Gastos</p>
+                                                <p className="text-xl font-bold text-white">
                                                     <MaskedValue value={stats.expense} />
                                                 </p>
                                             </div>
@@ -320,19 +325,19 @@ export default function DashboardPage() {
                                 </div>
 
                                 {/* Next Month Preview - Right Section (4 cols on desktop, full width on mobile) */}
-                                <div className="lg:col-span-4 flex flex-col justify-center lg:border-l lg:border-slate-800/50 lg:pl-8">
-                                    <div className="bg-slate-800/30 backdrop-blur-sm rounded-2xl p-5 border border-slate-700/30">
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Próximo Mês</span>
+                                <div className="lg:col-span-4 flex flex-col justify-center lg:border-l lg:border-white/5 lg:pl-8 mt-8 lg:mt-0">
+                                    <div className="bg-white/5 backdrop-blur-sm rounded-[2rem] p-6 border border-white/5">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <div className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)] animate-pulse" />
+                                            <span className="text-[10px] font-black text-brand-gray uppercase tracking-widest">Projection • Next Month</span>
                                         </div>
-                                        <p className="text-sm text-slate-500 mb-2 capitalize">{format(addMonths(currentDate, 1), "MMMM 'de' yyyy", { locale: ptBR })}</p>
+                                        <p className="text-xs text-brand-gray mb-1 capitalize">{format(addMonths(currentDate, 1), "MMMM 'de' yyyy", { locale: ptBR })}</p>
                                         <div className="flex items-baseline gap-2">
-                                            <span className="text-2xl font-bold text-amber-400">
+                                            <span className="text-3xl font-bold text-white tracking-tighter">
                                                 <MaskedValue value={nextMonthStats.expense} prefix={isValuesVisible ? "R$ " : ""} />
                                             </span>
                                         </div>
-                                        <p className="text-xs text-slate-500 mt-2">Despesas previstas</p>
+                                        <p className="text-[10px] font-bold text-brand-gray mt-4 tracking-tight uppercase opacity-50">Estimated Outflow</p>
                                     </div>
                                 </div>
                             </div>
@@ -342,13 +347,21 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Charts Section */}
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <div className="bg-slate-900 rounded-[2rem] p-6 border border-slate-800 shadow-sm">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <section className="bg-brand-deep-sea rounded-[2.5rem] p-8 border border-white/5 shadow-xl">
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-lg font-semibold text-white">Análise Anual</h3>
+                                <span className="text-xs text-brand-gray font-medium">Jan — Dez 2024</span>
+                            </div>
                             <OverviewChart data={overviewData} />
-                        </div>
-                        <div className="bg-slate-900 rounded-[2rem] p-6 border border-slate-800 shadow-sm">
+                        </section>
+                        <section className="bg-brand-deep-sea rounded-[2.5rem] p-8 border border-white/5 shadow-xl">
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-lg font-semibold text-white">Distribuição</h3>
+                                <div className="text-[10px] font-black bg-white/5 px-2 py-1 rounded text-brand-gray uppercase tracking-widest">Top Categorias</div>
+                            </div>
                             <CategoryChart data={categoryData} />
-                        </div>
+                        </section>
                     </div>
                 </>
             )}

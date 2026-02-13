@@ -30,21 +30,23 @@ export default function CardsPage() {
     }, [])
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-white">Meus Cartões</h1>
+                <div>
+                    <h1 className="text-3xl font-extrabold text-white tracking-tighter uppercase">Meus <span className="text-brand-accent">Cartões</span></h1>
+                    <p className="text-brand-gray text-xs font-bold uppercase tracking-widest opacity-60">Gerenciamento de Crédito</p>
+                </div>
                 <Link
                     href="/cards/new"
-                    className="flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-lg hover:bg-brand-500 transition shadow-sm shadow-brand-600/20"
+                    className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_4px_15px_rgba(0,240,255,0.3)]"
                 >
-                    <Plus className="w-4 h-4" />
-                    Novo Cartão
+                    <Plus className="w-6 h-6" strokeWidth={3} />
                 </Link>
             </div>
 
             {loading ? (
-                <div className="flex h-40 items-center justify-center">
-                    <Loader2 className="animate-spin text-brand-600 w-8 h-8" />
+                <div className="flex h-60 items-center justify-center w-full">
+                    <Loader2 className="animate-spin text-brand-accent w-10 h-10" />
                 </div>
             ) : cards.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -53,17 +55,18 @@ export default function CardsPage() {
                     ))}
                 </div>
             ) : (
-                <div className="p-8 bg-slate-900 rounded-xl shadow-sm border border-slate-800 text-center flex flex-col items-center">
-                    <div className="p-4 bg-slate-800 rounded-full mb-4">
-                        <Plus className="w-8 h-8 text-slate-500" />
+                <div className="p-16 bg-brand-deep-sea rounded-[2.5rem] border border-white/5 text-center flex flex-col items-center shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent/5 blur-[80px] rounded-full pointer-events-none" />
+                    <div className="p-6 bg-white/5 rounded-3xl mb-6 border border-white/10">
+                        <Plus className="w-10 h-10 text-brand-gray" strokeWidth={1} />
                     </div>
-                    <h3 className="text-lg font-medium text-white mb-1">Nenhum cartão cadastrado</h3>
-                    <p className="text-slate-400 mb-6 max-w-sm">Cadastre seus cartões de crédito para acompanhar faturas e limites.</p>
+                    <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-tight">Vazio por aqui</h3>
+                    <p className="text-brand-gray text-sm mb-8 max-w-[240px] font-medium">Você ainda não conectou nenhum cartão de crédito ao seu dashboard.</p>
                     <Link
                         href="/cards/new"
-                        className="bg-brand-900/30 text-brand-300 px-4 py-2 rounded-lg hover:bg-brand-900/50 transition font-medium"
+                        className="bg-white text-black px-8 py-3 rounded-2xl hover:bg-brand-accent transition-all font-black uppercase tracking-tighter text-xs"
                     >
-                        Cadastrar agora
+                        Conectar Cartão
                     </Link>
                 </div>
             )}

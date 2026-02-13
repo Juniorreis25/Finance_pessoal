@@ -75,26 +75,25 @@ export default function TransactionsPage() {
                     <p className="text-slate-400">Gerencie suas entradas e saídas.</p>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
+                <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto items-center">
                     <MonthSelector currentDate={currentDate} onDateChange={setCurrentDate} />
 
                     <div className="flex gap-3 w-full md:w-auto">
                         {/* Search Bar */}
-                        <div className="relative flex-1 md:w-64">
-                            <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                        <div className="relative flex-1 md:w-72">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-gray" />
                             <input
-                                placeholder="Buscar por descrição ou categoria..."
-                                className="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all text-white placeholder:text-slate-500"
+                                placeholder="Search transactions..."
+                                className="w-full pl-11 pr-4 py-3 bg-brand-deep-sea border border-white/5 rounded-2xl text-sm focus:border-brand-accent/50 outline-none transition-all text-white placeholder:text-brand-gray/50"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
                         <Link
                             href="/transactions/new"
-                            className="flex items-center gap-2 bg-brand-500 text-slate-950 px-5 py-2 rounded-xl font-bold hover:bg-brand-400 transition hover:scale-105 shadow-lg shadow-brand-500/20 whitespace-nowrap"
+                            className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_4px_15px_rgba(0,240,255,0.3)]"
                         >
-                            <Plus className="w-4 h-4" />
-                            Nova
+                            <Plus className="w-6 h-6" strokeWidth={3} />
                         </Link>
                     </div>
                 </div>
@@ -112,24 +111,24 @@ export default function TransactionsPage() {
                     filteredTransactions.map((tx) => (
                         <div
                             key={tx.id}
-                            className="relative group bg-slate-900 p-5 rounded-2xl flex items-center justify-between border border-slate-800 shadow-sm hover:shadow-md transition-all hover:border-brand-500/30 hover:bg-slate-800/80"
+                            className="relative group bg-brand-deep-sea/80 backdrop-blur-sm p-6 rounded-[2rem] flex items-center justify-between border border-white/5 shadow-xl hover:bg-brand-deep-sea transition-all"
                         >
                             {/* Left: Icon & Info */}
                             <div className="flex items-center gap-5">
-                                <div className={`p-3 rounded-full ${tx.type === 'income'
-                                    ? 'bg-emerald-500/10 text-emerald-500'
-                                    : 'bg-rose-500/10 text-rose-500'
+                                <div className={`p-4 rounded-2xl border ${tx.type === 'income'
+                                    ? 'bg-brand-success/10 text-brand-success border-brand-success/10'
+                                    : 'bg-white/5 text-white border-white/10'
                                     }`}>
-                                    {tx.type === 'income' ? <ArrowUpRight className="w-6 h-6" /> : <ArrowDownRight className="w-6 h-6" />}
+                                    {tx.type === 'income' ? <ArrowUpRight className="w-6 h-6 font-bold" /> : <ArrowDownRight className="w-6 h-6 font-bold" />}
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-white text-lg">{tx.description}</h3>
-                                    <div className="flex items-center gap-3 mt-1">
-                                        <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+                                    <h3 className="font-bold text-white text-lg tracking-tight leading-none mb-2">{tx.description}</h3>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-white/5 text-brand-gray border border-white/5">
                                             {tx.category}
                                         </span>
-                                        <span className="text-sm text-slate-400">
-                                            {format(new Date(tx.date), "d 'de' MMM, yyyy", { locale: ptBR })}
+                                        <span className="text-xs font-bold text-brand-gray uppercase tracking-widest opacity-60">
+                                            {format(new Date(tx.date), "d 'de' MMM", { locale: ptBR })}
                                         </span>
                                     </div>
                                 </div>
@@ -137,18 +136,18 @@ export default function TransactionsPage() {
 
                             {/* Right: Amount & Actions */}
                             <div className="flex items-center gap-8">
-                                <span className={`text-lg font-bold tracking-tight ${tx.type === 'income' ? 'text-emerald-500' : 'text-white'
+                                <span className={`text-xl font-black tracking-tighter ${tx.type === 'income' ? 'text-brand-success' : 'text-white'
                                     }`}>
                                     {tx.type === 'expense' && '- '}
                                     R$ {tx.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                 </span>
 
-                                {/* Actions - Always Visible but subtle */}
-                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0">
-                                    <Link href={`/transactions/${tx.id}/edit`} className="p-2 text-slate-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors cursor-pointer" title="Editar Transação">
+                                {/* Actions */}
+                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+                                    <Link href={`/transactions/${tx.id}/edit`} className="p-2 text-brand-gray hover:text-brand-accent hover:bg-white/5 rounded-xl transition-all" title="Editar">
                                         <Edit2 className="w-4 h-4" />
                                     </Link>
-                                    <button onClick={() => handleDelete(tx.id)} className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors cursor-pointer" title="Excluir Transação">
+                                    <button onClick={() => handleDelete(tx.id)} className="p-2 text-brand-gray hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer" title="Excluir">
                                         <Trash2 className="w-4 h-4" />
                                     </button>
                                 </div>

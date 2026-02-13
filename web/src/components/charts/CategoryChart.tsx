@@ -13,32 +13,27 @@ export function CategoryChart({ data }: { data: CategoryData[] }) {
         return <div className="h-full flex items-center justify-center text-slate-500 font-medium">Sem dados para exibir</div>
     }
 
-    // Neo-Fintech Palette
+    // Neo-Dark Hybrid Banking Palette
     const NEO_PALETTE = [
-        '#a3e635', // lime-400
-        '#34d399', // emerald-400
-        '#38bdf8', // sky-400
-        '#fb7185', // rose-400
-        '#c084fc', // purple-400 (Just one accent allowed? "Purple Ban" says NO purple. Let's use Violet or Orange)
-        // Wait, Purple Ban says "No purple, violet, indigo or magenta as PRIMARY". Accent is ok? 
-        // "NEVER use purple... unless EXPLICITLY requested."
-        // Better replace purple with Orange/Yellow
-        '#facc15', // yellow-400
-        '#fb923c', // orange-400
+        '#00F0FF', // Cyan
+        '#00FF94', // Emerald
+        '#FFFFFF', // White
+        '#8E8E93', // Gray
+        '#003D2B', // Dark Emerald
+        '#141C24', // Deep Sea
     ]
 
     return (
         <div className="h-[300px] w-full">
-            <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white tracking-tight">Gastos por Categoria</h3>
             <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     <Pie
                         data={data}
-                        cx="50%"
+                        cx="40%"
                         cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={5}
+                        innerRadius={65}
+                        outerRadius={85}
+                        paddingAngle={8}
                         dataKey="value"
                         stroke="none"
                     >
@@ -47,23 +42,23 @@ export function CategoryChart({ data }: { data: CategoryData[] }) {
                         ))}
                     </Pie>
                     <Tooltip
-                        formatter={(value: any) => `R$ ${Number(value).toFixed(2)}`}
+                        formatter={(value: any) => `R$ ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                         contentStyle={{
-                            backgroundColor: '#1e293b',
-                            borderColor: '#334155',
-                            borderRadius: '12px',
-                            color: '#f8fafc',
-                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.3)'
+                            backgroundColor: '#0A0A0A',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderRadius: '16px',
+                            color: '#FFFFFF',
+                            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)'
                         }}
-                        itemStyle={{ color: '#f8fafc' }}
                     />
                     <Legend
                         verticalAlign="middle"
                         align="right"
                         layout="vertical"
                         iconType="circle"
-                        wrapperStyle={{ fontSize: '12px' }}
-                        formatter={(value) => <span className="text-slate-600 dark:text-slate-400 font-medium ml-1">{value}</span>}
+                        wrapperStyle={{ fontSize: '10px' }}
+                        formatter={(value) => <span className="text-[10px] font-black uppercase tracking-widest text-[#8E8E93] ml-2">{value}</span>}
                     />
                 </PieChart>
             </ResponsiveContainer>
