@@ -124,34 +124,48 @@ export function CardForm({ initialData }: CardFormProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-brand-deep-sea/80 backdrop-blur-2xl p-10 rounded-[2.5rem] shadow-2xl border border-white/5 max-w-2xl mx-auto relative overflow-hidden">
+        <form onSubmit={handleSubmit} className="space-y-8 bg-brand-deep-sea p-10 rounded-[2.5rem] shadow-2xl border border-white/5 max-w-2xl mx-auto relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent/5 blur-[80px] rounded-full pointer-events-none" />
 
+            <div className="flex items-center gap-4 mb-2">
+                <div className="p-3 bg-brand-accent/10 rounded-2xl">
+                    <CreditCard className="w-6 h-6 text-brand-accent" />
+                </div>
+                <div>
+                    <h2 className="text-xl font-black text-white uppercase tracking-tighter">
+                        {initialData ? 'Editar Cartão' : 'Novo Cartão'}
+                    </h2>
+                    <p className="text-[10px] text-brand-gray font-bold uppercase tracking-widest opacity-60">
+                        Gerencie seu limite e datas de fechamento
+                    </p>
+                </div>
+            </div>
+
             {error && (
-                <div className="bg-rose-500/10 text-rose-500 p-4 rounded-2xl text-xs font-bold border border-rose-500/20 uppercase tracking-tight">
+                <div className="bg-rose-500/10 text-rose-500 p-4 rounded-2xl text-[10px] font-black border border-rose-500/20 uppercase tracking-widest text-center">
                     {error}
                 </div>
             )}
 
-            <div className="space-y-6 relative z-10">
+            <div className="space-y-6 relative z-10 font-sans">
                 <div>
-                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
-                        Card Name
+                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
+                        NOME DO CARTÃO
                     </label>
                     <input
                         name="name"
                         required
-                        placeholder="e.g. Nubank Black, Visa Infinite"
-                        className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30"
+                        placeholder="Ex: Nubank Black, Visa Infinite"
+                        className="w-full px-5 py-4 bg-brand-nav border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30"
                         value={formData.name}
                         onChange={handleChange}
                         autoFocus
                     />
                 </div>
 
-                <div className="bg-brand-nav/30 p-6 rounded-3xl border border-white/5">
+                <div className="bg-brand-nav p-8 rounded-[2rem] border border-white/5">
                     <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-3 opacity-60">
-                        Credit Limit (BRL)
+                        LIMITE DE CRÉDITO (R$)
                     </label>
                     <input
                         name="limit_amount"
@@ -159,7 +173,7 @@ export function CardForm({ initialData }: CardFormProps) {
                         inputMode="numeric"
                         required
                         placeholder="R$ 0,00"
-                        className="w-full bg-transparent border-0 p-0 focus:ring-0 transition-all font-bold text-4xl text-white placeholder:text-white/10 tracking-tighter"
+                        className="w-full bg-transparent border-0 p-0 focus:ring-0 transition-all font-bold text-5xl text-brand-accent placeholder:text-brand-accent/10 tracking-tighter"
                         value={formData.limit_amount}
                         onChange={handleAmountChange}
                     />
@@ -167,8 +181,8 @@ export function CardForm({ initialData }: CardFormProps) {
 
                 <div className="grid grid-cols-2 gap-6">
                     <div>
-                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
-                            Closing Day
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
+                            DIA DO FECHAMENTO
                         </label>
                         <input
                             name="closing_day"
@@ -177,14 +191,14 @@ export function CardForm({ initialData }: CardFormProps) {
                             max="31"
                             required
                             placeholder="10"
-                            className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white text-center"
+                            className="w-full px-5 py-4 bg-brand-nav border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white text-center"
                             value={formData.closing_day}
                             onChange={handleChange}
                         />
                     </div>
                     <div>
-                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
-                            Due Day
+                        <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
+                            DIA DO VENCIMENTO
                         </label>
                         <input
                             name="due_day"
@@ -193,7 +207,7 @@ export function CardForm({ initialData }: CardFormProps) {
                             max="31"
                             required
                             placeholder="17"
-                            className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white text-center"
+                            className="w-full px-5 py-4 bg-brand-nav border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white text-center"
                             value={formData.due_day}
                             onChange={handleChange}
                         />
@@ -201,22 +215,30 @@ export function CardForm({ initialData }: CardFormProps) {
                 </div>
             </div>
 
-            <div className="pt-8 flex flex-col sm:flex-row gap-4">
-                <button
-                    type="button"
-                    onClick={() => router.back()}
-                    className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-white/5 text-brand-gray rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all border border-white/5"
-                >
-                    <X className="w-4 h-4" />
-                    Cancel
-                </button>
+            <div className="pt-8">
                 <button
                     type="submit"
                     disabled={loading}
-                    className="flex-[2] flex items-center justify-center gap-2 px-8 py-4 bg-white text-black rounded-2xl font-black uppercase tracking-tighter text-xs hover:bg-brand-accent transition-all shadow-xl"
+                    className="w-full flex items-center justify-center gap-2 px-8 py-5 bg-brand-accent text-black rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(0,240,255,0.3)] disabled:opacity-50"
                 >
-                    {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
-                    {initialData ? 'Update Card' : 'Connect Card'}
+                    {loading ? (
+                        <Loader2 className="animate-spin w-5 h-5" />
+                    ) : (
+                        <>
+                            <span>{initialData ? 'Atualizar Cartão' : 'Conectar Cartão'}</span>
+                            <div className="w-6 h-6 rounded-full bg-black/10 flex items-center justify-center">
+                                <Save className="w-3 h-3" strokeWidth={4} />
+                            </div>
+                        </>
+                    )}
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => router.back()}
+                    className="w-full mt-4 flex items-center justify-center gap-2 px-8 py-3 bg-white/5 text-brand-gray/50 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:text-white transition-all"
+                >
+                    Cancelar Operação
                 </button>
             </div>
         </form>

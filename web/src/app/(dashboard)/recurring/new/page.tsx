@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2, Save, X, Calendar, DollarSign, Tag, FileText } from 'lucide-react'
+import { Loader2, Save, X, Calendar, DollarSign, Tag, FileText, ArrowDownCircle } from 'lucide-react'
 
 export default function NewRecurringExpensePage() {
     const router = useRouter()
@@ -97,80 +97,79 @@ export default function NewRecurringExpensePage() {
                 <p className="text-brand-gray text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Automação de Fluxo de Caixa</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-8 bg-brand-deep-sea/80 backdrop-blur-2xl p-10 rounded-[2.5rem] shadow-2xl border border-white/5 relative overflow-hidden">
+            <form onSubmit={handleSubmit} className="space-y-8 bg-brand-deep-sea p-10 rounded-[2.5rem] shadow-2xl border border-white/5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent/5 blur-[80px] rounded-full pointer-events-none" />
 
                 {error && (
-                    <div className="bg-rose-500/10 text-rose-500 p-4 rounded-2xl text-xs font-bold border border-rose-500/20 uppercase tracking-tight">
+                    <div className="bg-rose-500/10 text-rose-500 p-4 rounded-2xl text-[10px] font-black border border-rose-500/20 uppercase tracking-widest text-center">
                         {error}
                     </div>
                 )}
 
-                <div className="space-y-6 relative z-10">
-                    <div className="bg-brand-nav/30 p-6 rounded-3xl border border-white/5">
+                <div className="space-y-6 relative z-10 font-sans">
+                    <div className="bg-brand-nav p-8 rounded-[2rem] border border-white/5">
                         <label htmlFor="amount" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-3 opacity-60">
-                            Monthly Value (BRL)
+                            VALOR MENSAL (R$)
                         </label>
-                        <div className="relative">
-                            <input
-                                id="amount"
-                                name="amount"
-                                type="text"
-                                inputMode="numeric"
-                                required
-                                placeholder="R$ 0,00"
-                                className="w-full bg-transparent border-0 p-0 focus:ring-0 transition-all font-bold text-4xl text-white placeholder:text-white/10 tracking-tighter"
-                                value={formData.amount}
-                                onChange={handleAmountChange}
-                                autoFocus
-                            />
-                        </div>
+                        <input
+                            id="amount"
+                            name="amount"
+                            type="text"
+                            inputMode="numeric"
+                            required
+                            placeholder="R$ 0,00"
+                            className="w-full bg-transparent border-0 p-0 focus:ring-0 transition-all font-bold text-5xl text-brand-accent placeholder:text-brand-accent/10 tracking-tighter"
+                            value={formData.amount}
+                            onChange={handleAmountChange}
+                            autoFocus
+                        />
                     </div>
 
-                    <div>
-                        <label htmlFor="description" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
-                            Description
-                        </label>
-                        <div className="relative">
+                    <div className="space-y-6">
+                        <div>
+                            <label htmlFor="description" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
+                                DESCRIÇÃO
+                            </label>
                             <input
                                 id="description"
                                 name="description"
                                 required
-                                placeholder="e.g. Netflix, Rent, Gym"
-                                className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30"
+                                placeholder="Ex: Netflix, Aluguel, Academia"
+                                className="w-full px-5 py-4 bg-brand-nav border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30"
                                 value={formData.description}
                                 onChange={handleChange}
                             />
                         </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label htmlFor="category" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
-                                Category
-                            </label>
-                            <div className="relative">
-                                <select
-                                    id="category"
-                                    name="category"
-                                    required
-                                    className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white appearance-none cursor-pointer"
-                                    value={formData.category}
-                                    onChange={handleChange}
-                                >
-                                    <option value="" className="bg-brand-deep-sea">Select...</option>
-                                    {categories.map(cat => (
-                                        <option key={cat} value={cat} className="bg-brand-deep-sea">{cat}</option>
-                                    ))}
-                                </select>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label htmlFor="category" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
+                                    CATEGORIA
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        id="category"
+                                        name="category"
+                                        required
+                                        className="w-full px-5 py-4 bg-brand-nav border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white appearance-none cursor-pointer"
+                                        value={formData.category}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="" className="bg-brand-deep-sea">Selecione...</option>
+                                        {categories.map(cat => (
+                                            <option key={cat} value={cat} className="bg-brand-deep-sea">{cat}</option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-brand-accent">
+                                        <ArrowDownCircle className="w-4 h-4 opacity-50" />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <label htmlFor="day_of_month" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
-                                Due Day
-                            </label>
-                            <div className="relative">
+                            <div>
+                                <label htmlFor="day_of_month" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
+                                    DIA DO VENCIMENTO
+                                </label>
                                 <input
                                     id="day_of_month"
                                     name="day_of_month"
@@ -178,7 +177,8 @@ export default function NewRecurringExpensePage() {
                                     min="1"
                                     max="31"
                                     required
-                                    className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white text-center"
+                                    placeholder="05"
+                                    className="w-full px-5 py-4 bg-brand-nav border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white text-center"
                                     value={formData.day_of_month}
                                     onChange={handleChange}
                                 />
@@ -187,22 +187,30 @@ export default function NewRecurringExpensePage() {
                     </div>
                 </div>
 
-                <div className="pt-8 flex flex-col sm:flex-row gap-4">
-                    <button
-                        type="button"
-                        onClick={() => router.back()}
-                        className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-white/5 text-brand-gray rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all border border-white/5"
-                    >
-                        <X className="w-4 h-4" />
-                        Cancel
-                    </button>
+                <div className="pt-8">
                     <button
                         type="submit"
                         disabled={loading}
-                        className="flex-[2] flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-black rounded-2xl font-black uppercase tracking-tighter text-xs hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 transition-all shadow-[0_8px_25px_rgba(0,240,255,0.3)]"
+                        className="w-full flex items-center justify-center gap-2 px-8 py-5 bg-brand-accent text-black rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(0,240,255,0.3)] disabled:opacity-50"
                     >
-                        {loading ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
-                        Confirm Rule
+                        {loading ? (
+                            <Loader2 className="animate-spin w-5 h-5" />
+                        ) : (
+                            <>
+                                <span>Criar Regra de Recorrência</span>
+                                <div className="w-6 h-6 rounded-full bg-black/10 flex items-center justify-center">
+                                    <Save className="w-3 h-3" strokeWidth={4} />
+                                </div>
+                            </>
+                        )}
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => router.back()}
+                        className="w-full mt-4 flex items-center justify-center gap-2 px-8 py-3 bg-white/5 text-brand-gray/50 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:text-white transition-all"
+                    >
+                        Cancelar Operação
                     </button>
                 </div>
             </form>

@@ -197,22 +197,22 @@ export default function ProfilePage() {
                 <p className="text-brand-gray text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Personalização de Experiência</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-10 bg-brand-deep-sea/80 backdrop-blur-2xl p-10 rounded-[2.5rem] shadow-2xl border border-white/5 relative overflow-hidden">
+            <form onSubmit={handleSubmit} className="space-y-10 bg-brand-deep-sea p-10 rounded-[2.5rem] shadow-2xl border border-white/5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent/5 blur-[80px] rounded-full pointer-events-none" />
 
                 {error && (
-                    <div className="bg-rose-500/10 text-rose-500 p-4 rounded-2xl text-xs font-bold border border-rose-500/20 uppercase tracking-tight">
+                    <div className="bg-rose-500/10 text-rose-500 p-4 rounded-2xl text-[10px] font-black border border-rose-500/20 uppercase tracking-widest text-center">
                         {error}
                     </div>
                 )}
 
                 {success && (
-                    <div className="bg-brand-success/10 text-brand-success p-4 rounded-2xl text-xs font-bold border border-brand-success/20 uppercase tracking-tight">
+                    <div className="bg-brand-success/10 text-brand-success p-4 rounded-2xl text-[10px] font-black border border-brand-success/20 uppercase tracking-widest text-center">
                         ✓ Perfil atualizado com sucesso!
                     </div>
                 )}
 
-                <div className="space-y-8 relative z-10">
+                <div className="space-y-8 relative z-10 font-sans">
                     {/* Avatar Upload - Premium Style */}
                     <div className="flex flex-col items-center gap-6">
                         <div className="relative group">
@@ -258,7 +258,7 @@ export default function ProfilePage() {
                                 className="hidden"
                                 disabled={uploading}
                             />
-                            <div className="flex items-center gap-3 px-8 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] group-hover:bg-white group-hover:text-black transition-all">
+                            <div className="flex items-center gap-3 px-8 py-4 bg-brand-nav border border-white/10 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] group-hover:bg-white group-hover:text-black transition-all">
                                 <Camera className="w-4 h-4" />
                                 {uploading ? 'Enviando...' : 'Alterar Avatar'}
                             </div>
@@ -269,14 +269,14 @@ export default function ProfilePage() {
                         {/* Display Name */}
                         <div>
                             <label htmlFor="display_name" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
-                                Nome de Exibição
+                                NOME DE EXIBIÇÃO
                             </label>
                             <input
                                 id="display_name"
                                 name="display_name"
                                 type="text"
                                 placeholder="Seu nome ou apelido"
-                                className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30"
+                                className="w-full px-5 py-4 bg-brand-nav border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30"
                                 value={formData.display_name || ''}
                                 onChange={handleChange}
                             />
@@ -285,14 +285,14 @@ export default function ProfilePage() {
                         {/* Welcome Message */}
                         <div>
                             <label htmlFor="welcome_message" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
-                                Mensagem de Boas-Vindas
+                                MENSAGEM DE BOAS-VINDAS
                             </label>
                             <textarea
                                 id="welcome_message"
                                 name="welcome_message"
                                 rows={3}
                                 placeholder="Frase personalizada para o seu Dashboard"
-                                className="w-full px-5 py-4 bg-brand-nav/50 border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30 resize-none"
+                                className="w-full px-5 py-4 bg-brand-nav border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30 resize-none"
                                 value={formData.welcome_message || ''}
                                 onChange={handleChange}
                             />
@@ -300,22 +300,30 @@ export default function ProfilePage() {
                     </div>
                 </div>
 
-                <div className="pt-8 flex flex-col sm:flex-row gap-4">
-                    <button
-                        type="button"
-                        onClick={() => router.back()}
-                        className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-white/5 text-brand-gray rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all border border-white/5"
-                    >
-                        <X className="w-4 h-4" />
-                        Cancelar
-                    </button>
+                <div className="pt-4">
                     <button
                         type="submit"
                         disabled={saving}
-                        className="flex-[2] flex items-center justify-center gap-2 px-8 py-4 bg-white text-black rounded-2xl font-black uppercase tracking-tighter text-xs hover:bg-brand-accent transition-all shadow-xl"
+                        className="w-full flex items-center justify-center gap-2 px-8 py-5 bg-brand-accent text-black rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(0,240,255,0.3)] disabled:opacity-50"
                     >
-                        {saving ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
-                        Confirmar Alterações
+                        {saving ? (
+                            <Loader2 className="animate-spin w-5 h-5" />
+                        ) : (
+                            <>
+                                <span>Salvar Perfil</span>
+                                <div className="w-6 h-6 rounded-full bg-black/10 flex items-center justify-center">
+                                    <Save className="w-3 h-3" strokeWidth={4} />
+                                </div>
+                            </>
+                        )}
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => router.back()}
+                        className="w-full mt-4 flex items-center justify-center gap-2 px-8 py-3 bg-white/5 text-brand-gray/50 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:text-white transition-all"
+                    >
+                        Voltar ao Dashboard
                     </button>
                 </div>
             </form>
