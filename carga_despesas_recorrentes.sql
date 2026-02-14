@@ -42,7 +42,7 @@ VALUES
   ('2570dd74-a1d1-4e77-a7d9-0662636d1b5f', 'Material', 200.00, 'Educação', 5, TRUE),
   ('2570dd74-a1d1-4e77-a7d9-0662636d1b5f', 'RDC', 299.00, 'Serviços', 10, TRUE),
   ('2570dd74-a1d1-4e77-a7d9-0662636d1b5f', 'COOPERFORT', 540.00, 'Serviços', 10, TRUE),
-  ('2570dd74-a1d1-4e77-a7d9-0662636d1b5f', 'CARRO', 2500.00, 'Transporte', 15, TRUE),
+  ('2570dd74-a1d1-4e77-a7d9-0662636d1b5f', 'CARRO', 2500.00, 'Financiamento', 15, TRUE),
   ('2570dd74-a1d1-4e77-a7d9-0662636d1b5f', 'Empréstimo Biel', 625.00, 'Empréstimos', 20, TRUE),
   ('2570dd74-a1d1-4e77-a7d9-0662636d1b5f', 'INTERNET', 200.00, 'Casa', 8, TRUE),
   ('2570dd74-a1d1-4e77-a7d9-0662636d1b5f', 'MARTA', 1300.00, 'Casa', 5, TRUE),

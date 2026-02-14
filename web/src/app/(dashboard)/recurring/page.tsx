@@ -71,6 +71,14 @@ export default function RecurringExpensesPage() {
             expense.category.toLowerCase().includes(searchTerm.toLowerCase())
     })
 
+    const totalRecurringExpense = filteredExpenses
+        .filter(ex => ex.type === 'expense' && ex.active)
+        .reduce((acc, ex) => acc + ex.amount, 0)
+
+    const totalRecurringIncome = filteredExpenses
+        .filter(ex => ex.type === 'income' && ex.active)
+        .reduce((acc, ex) => acc + ex.amount, 0)
+
     return (
         <div className="space-y-8 max-w-5xl mx-auto">
             {/* Header */}
@@ -112,6 +120,41 @@ export default function RecurringExpensesPage() {
                     router.refresh()
                 }}
             />
+
+            {/* Summary Cards (Totalizers) */}
+            <div className="flex flex-wrap gap-6 items-stretch">
+                <div className="bg-brand-deep-sea/40 border border-white/5 p-8 rounded-[2rem] shadow-xl min-w-[300px] flex-1 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-success/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-brand-success/10 transition-all pointer-events-none" />
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 bg-brand-success/10 rounded-xl text-brand-success">
+                            <Plus className="w-4 h-4" />
+                        </div>
+                        <p className="text-[10px] font-black text-brand-success uppercase tracking-widest opacity-60">Ganhos Estimados</p>
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-3xl font-black text-white tracking-tighter">
+                            R$ {totalRecurringIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </p>
+                        <p className="text-[9px] font-bold text-brand-gray uppercase tracking-widest opacity-40">Receitas fixas ativas</p>
+                    </div>
+                </div>
+
+                <div className="bg-brand-deep-sea/40 border border-white/5 p-8 rounded-[2rem] shadow-xl min-w-[300px] flex-1 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-brand-accent/10 transition-all pointer-events-none" />
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 bg-brand-accent/10 rounded-xl text-brand-accent">
+                            <Repeat className="w-4 h-4" />
+                        </div>
+                        <p className="text-[10px] font-black text-brand-accent uppercase tracking-widest opacity-60">Comprometimento Mensal</p>
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-3xl font-black text-white tracking-tighter">
+                            R$ {totalRecurringExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </p>
+                        <p className="text-[9px] font-bold text-brand-gray uppercase tracking-widest opacity-40">Total de despesas ativas</p>
+                    </div>
+                </div>
+            </div>
 
             {/* List */}
             <div className="space-y-4">

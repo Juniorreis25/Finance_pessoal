@@ -105,6 +105,10 @@ export default function TransactionsPage() {
         .filter(tx => tx.type === 'expense')
         .reduce((acc, tx) => acc + tx.amount, 0)
 
+    const totalCardExpense = filteredTransactions
+        .filter(tx => tx.type === 'expense' && tx.card_id)
+        .reduce((acc, tx) => acc + tx.amount, 0)
+
     const balance = totalIncome - totalExpense
 
     return (
@@ -162,13 +166,44 @@ export default function TransactionsPage() {
                 </div>
             </div>
 
-            {/* Summary Card (Totalizer) */}
-            <div className="flex justify-start">
-                <div className="bg-brand-deep-sea/40 border border-white/5 p-8 rounded-[2rem] shadow-xl min-w-[280px] relative overflow-hidden group">
+            {/* Summary Cards (Totalizers) */}
+            <div className="flex flex-wrap gap-6 items-stretch">
+                <div className="bg-brand-deep-sea/40 border border-white/5 p-8 rounded-[2rem] shadow-xl min-w-[280px] flex-1 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-success/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-brand-success/10 transition-all pointer-events-none" />
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 bg-brand-success/10 rounded-xl text-brand-success">
+                            <ArrowUpRight className="w-4 h-4" />
+                        </div>
+                        <p className="text-[10px] font-black text-brand-success uppercase tracking-widest opacity-60">Total Receitas</p>
+                    </div>
+                    <h3 className="text-3xl font-black text-white tracking-tighter">
+                        + R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </h3>
+                </div>
+
+                <div className="bg-brand-deep-sea/40 border border-white/5 p-8 rounded-[2rem] shadow-xl min-w-[280px] flex-1 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-white/10 transition-all pointer-events-none" />
-                    <p className="text-[10px] font-black text-brand-gray uppercase tracking-widest mb-2 opacity-60">Total em Saídas</p>
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 bg-white/5 rounded-xl text-brand-gray">
+                            <ArrowDownRight className="w-4 h-4" />
+                        </div>
+                        <p className="text-[10px] font-black text-brand-gray uppercase tracking-widest opacity-60">Total em Saídas</p>
+                    </div>
                     <h3 className="text-3xl font-black text-white tracking-tighter">
                         - R$ {totalExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </h3>
+                </div>
+
+                <div className="bg-brand-deep-sea/40 border border-white/5 p-8 rounded-[2rem] shadow-xl min-w-[280px] flex-1 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-brand-accent/10 transition-all pointer-events-none" />
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 bg-brand-accent/10 rounded-xl text-brand-accent">
+                            <CreditCard className="w-4 h-4" />
+                        </div>
+                        <p className="text-[10px] font-black text-brand-accent uppercase tracking-widest opacity-60">Total Cartões</p>
+                    </div>
+                    <h3 className="text-3xl font-black text-white tracking-tighter">
+                        - R$ {totalCardExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </h3>
                 </div>
             </div>

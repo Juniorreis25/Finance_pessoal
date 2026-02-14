@@ -5,6 +5,8 @@ import { ArrowUpRight, ArrowDownRight, Wallet, Loader2, Plus, CreditCard, BarCha
 import { createClient } from '@/lib/supabase/client'
 import { OverviewChart } from '@/components/charts/OverviewChart'
 import { CategoryChart } from '@/components/charts/CategoryChart'
+import { FixedVsCardChart } from '@/components/charts/FixedVsCardChart'
+import { CardDistributionChart } from '@/components/charts/CardDistributionChart'
 import { MonthSelector } from '@/components/ui/MonthSelector'
 import { CategorySelector } from '@/components/ui/CategorySelector'
 import Link from 'next/link'
@@ -35,6 +37,8 @@ export default function DashboardPage() {
     })
     const [overviewData, setOverviewData] = useState<any[]>([])
     const [categoryData, setCategoryData] = useState<any[]>([])
+    const [fixedVsCardData, setFixedVsCardData] = useState<any[]>([])
+    const [cardDistributionData, setCardDistributionData] = useState<any[]>([])
     const [userProfile, setUserProfile] = useState<{ display_name: string | null, welcome_message: string | null }>({
         display_name: null,
         welcome_message: null
@@ -46,9 +50,10 @@ export default function DashboardPage() {
             setLoading(true)
 
             // Fetch regular transactions
+            // Fetch regular transactions with card info
             const { data: transactions } = await supabase
                 .from('transactions')
-                .select('*')
+                .select('*, cards(name)')
                 .order('date', { ascending: true })
 
             // Fetch active recurring expenses
@@ -165,6 +170,31 @@ export default function DashboardPage() {
                     color: '' // Handled in component
                 }))
                 setCategoryData(pieData)
+
+                // 1. Fixed vs Card Ratio (Selected Month)
+                const cardExpenseTotal = monthTransactions
+                    .filter(t => t.type === 'expense' && t.card_id)
+                    .reduce((acc, curr) => acc + curr.amount, 0)
+
+                setFixedVsCardData([
+                    { name: 'Recorrentes', value: recurringExpenseTotal },
+                    { name: 'Cartões', value: cardExpenseTotal }
+                ])
+
+                // 2. Card Distribution (Selected Month)
+                const cardMap: Record<string, number> = {}
+                monthTransactions
+                    .filter(t => t.type === 'expense' && t.card_id)
+                    .forEach(t => {
+                        const cardName = (t as any).cards?.name || 'Cartão Indefinido'
+                        cardMap[cardName] = (cardMap[cardName] || 0) + t.amount
+                    })
+
+                const cardDistData = Object.entries(cardMap).map(([name, value]) => ({
+                    name,
+                    valor: value
+                }))
+                setCardDistributionData(cardDistData)
 
                 // Calculate NEXT MONTH projected expenses
                 const nextMonth = new Date(currentDate)
@@ -341,21 +371,39 @@ export default function DashboardPage() {
 
                     </div>
 
-                    {/* Charts Section */}
+                    {/* Charts Section - Row 1 */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <section className="bg-brand-deep-sea rounded-[2.5rem] p-8 border border-white/5 shadow-xl">
                             <div className="flex items-center justify-between mb-8">
                                 <h3 className="text-lg font-semibold text-white">Análise Anual</h3>
-                                <span className="text-xs text-brand-gray font-medium">Jan — Dez 2024</span>
+                                <div className="text-[10px] font-black bg-white/5 px-2 py-1 rounded text-brand-gray uppercase tracking-widest">Fluxo de Caixa</div>
                             </div>
                             <OverviewChart data={overviewData} />
                         </section>
                         <section className="bg-brand-deep-sea rounded-[2.5rem] p-8 border border-white/5 shadow-xl">
                             <div className="flex items-center justify-between mb-8">
-                                <h3 className="text-lg font-semibold text-white">Distribuição</h3>
+                                <h3 className="text-lg font-semibold text-white">Distribuição por Categoria</h3>
                                 <div className="text-[10px] font-black bg-white/5 px-2 py-1 rounded text-brand-gray uppercase tracking-widest">Top Categorias</div>
                             </div>
                             <CategoryChart data={categoryData} />
+                        </section>
+                    </div>
+
+                    {/* Charts Section - Row 2 */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <section className="bg-brand-deep-sea rounded-[2.5rem] p-8 border border-white/5 shadow-xl">
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-lg font-semibold text-white">Recorrentes vs Cartões</h3>
+                                <div className="text-[10px] font-black bg-white/5 px-2 py-1 rounded text-brand-gray uppercase tracking-widest">Controle de Peso</div>
+                            </div>
+                            <FixedVsCardChart data={fixedVsCardData} />
+                        </section>
+                        <section className="bg-brand-deep-sea rounded-[2.5rem] p-8 border border-white/5 shadow-xl">
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-lg font-semibold text-white">Gasto por Cartão</h3>
+                                <div className="text-[10px] font-black bg-white/5 px-2 py-1 rounded text-brand-gray uppercase tracking-widest">Faturas do Mês</div>
+                            </div>
+                            <CardDistributionChart data={cardDistributionData} />
                         </section>
                     </div>
                 </>
