@@ -3,9 +3,9 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Plus, ArrowDownRight, ArrowUpRight, ArrowRightLeft, Edit2, Trash2, Search, Filter } from 'lucide-react'
+import { Plus, ArrowDownRight, ArrowUpRight, ArrowRightLeft, Edit2, Trash2, Search, Filter, CreditCard, Wallet, CalendarRange, ListTree } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { format, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns'
+import { format, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { MonthSelector } from '@/components/ui/MonthSelector'
 
@@ -16,28 +16,54 @@ type Transaction = {
     type: 'income' | 'expense'
     category: string
     date: string
+    purchase_date: string | null
+    card_id: string | null
+    installment_id: string | null
+    installment_number: number | null
+    total_installments: number | null
+    cards: {
+        name: string
+    } | null
+}
+
+type Card = {
+    id: string
+    name: string
 }
 
 export default function TransactionsPage() {
     const supabase = createClient()
     const [transactions, setTransactions] = useState<Transaction[]>([])
+    const [cards, setCards] = useState<Card[]>([])
     const [loading, setLoading] = useState(true)
     const [currentDate, setCurrentDate] = useState(new Date())
     const [searchTerm, setSearchTerm] = useState('')
+    const [selectedCardId, setSelectedCardId] = useState<string>('all')
 
-    const fetchTransactions = async () => {
+    const fetchData = async () => {
         setLoading(true)
-        const { data } = await supabase
+
+        // Fetch transactions with JOIN
+        const { data: txData } = await supabase
             .from('transactions')
-            .select('*')
+            .select('*, cards(name)')
             .order('date', { ascending: false })
 
-        if (data) setTransactions(data)
+        if (txData) setTransactions(txData)
+
+        // Fetch cards for filter
+        const { data: cardData } = await supabase
+            .from('cards')
+            .select('id, name')
+            .order('name')
+
+        if (cardData) setCards(cardData)
+
         setLoading(false)
     }
 
     useEffect(() => {
-        fetchTransactions()
+        fetchData()
     }, [])
 
     const handleDelete = async (id: string) => {
@@ -47,14 +73,14 @@ export default function TransactionsPage() {
                 alert('Erro ao excluir transação')
                 console.error(error)
             } else {
-                fetchTransactions()
+                fetchData()
             }
         }
     }
 
-    // Filter transactions by selected month and search term
+    // Filter transactions by selected month, search term and card
     const filteredTransactions = transactions.filter(tx => {
-        const txDate = new Date(tx.date)
+        const txDate = parseISO(tx.date)
         const matchesDate = isWithinInterval(txDate, {
             start: startOfMonth(currentDate),
             end: endOfMonth(currentDate)
@@ -63,11 +89,26 @@ export default function TransactionsPage() {
         const matchesSearch = tx.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
             tx.category.toLowerCase().includes(searchTerm.toLowerCase())
 
-        return matchesDate && matchesSearch
+        const matchesCard = selectedCardId === 'all' ||
+            (selectedCardId === 'cash' && !tx.card_id) ||
+            tx.card_id === selectedCardId
+
+        return matchesDate && matchesSearch && matchesCard
     })
 
+    // Calculate totals
+    const totalIncome = filteredTransactions
+        .filter(tx => tx.type === 'income')
+        .reduce((acc, tx) => acc + tx.amount, 0)
+
+    const totalExpense = filteredTransactions
+        .filter(tx => tx.type === 'expense')
+        .reduce((acc, tx) => acc + tx.amount, 0)
+
+    const balance = totalIncome - totalExpense
+
     return (
-        <div className="space-y-8 max-w-5xl mx-auto">
+        <div className="space-y-8 max-w-5xl mx-auto pb-20">
             {/* Header with Search and Date Filter */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
@@ -101,6 +142,37 @@ export default function TransactionsPage() {
                 </div>
             </div>
 
+            {/* Filters Row */}
+            <div className="flex flex-wrap gap-4 items-center">
+                <div className="relative w-full md:w-72">
+                    <select
+                        value={selectedCardId}
+                        onChange={(e) => setSelectedCardId(e.target.value)}
+                        className="w-full pl-5 pr-10 py-3.5 bg-brand-deep-sea border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white appearance-none outline-none focus:border-brand-accent/50 transition-all cursor-pointer shadow-xl"
+                    >
+                        <option value="all" className="bg-brand-deep-sea">Todos os Métodos</option>
+                        <option value="cash" className="bg-brand-deep-sea">Dinheiro/Débito</option>
+                        {cards.map(card => (
+                            <option key={card.id} value={card.id} className="bg-brand-deep-sea">{card.name}</option>
+                        ))}
+                    </select>
+                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-brand-accent">
+                        <Filter className="w-4 h-4 opacity-50" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Summary Card (Totalizer) */}
+            <div className="flex justify-start">
+                <div className="bg-brand-deep-sea/40 border border-white/5 p-8 rounded-[2rem] shadow-xl min-w-[280px] relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-white/10 transition-all pointer-events-none" />
+                    <p className="text-[10px] font-black text-brand-gray uppercase tracking-widest mb-2 opacity-60">Total em Saídas</p>
+                    <h3 className="text-3xl font-black text-white tracking-tighter">
+                        - R$ {totalExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </h3>
+                </div>
+            </div>
+
             {/* Transaction List - Floating Blocks */}
             <div className="space-y-4">
                 {loading ? (
@@ -110,67 +182,122 @@ export default function TransactionsPage() {
                         </div>
                     </div>
                 ) : filteredTransactions.length > 0 ? (
-                    filteredTransactions.map((tx) => (
-                        <div
-                            key={tx.id}
-                            className="relative group bg-brand-deep-sea/80 backdrop-blur-sm p-6 rounded-[2rem] flex items-center justify-between border border-white/5 shadow-xl hover:bg-brand-deep-sea transition-all"
-                        >
-                            {/* Left: Icon & Info */}
-                            <div className="flex items-center gap-5">
-                                <div className={`p-4 rounded-2xl border ${tx.type === 'income'
-                                    ? 'bg-brand-success/10 text-brand-success border-brand-success/10'
-                                    : 'bg-white/5 text-white border-white/10'
-                                    }`}>
-                                    {tx.type === 'income' ? <ArrowUpRight className="w-6 h-6 font-bold" /> : <ArrowDownRight className="w-6 h-6 font-bold" />}
+                    filteredTransactions.map((tx) => {
+                        const isInstallment = tx.installment_id && tx.total_installments && tx.total_installments > 1
+
+                        // Calculate installment dates if applicable
+                        let firstDate: Date | null = null
+                        let lastDate: Date | null = null
+
+                        if (isInstallment && tx.installment_number) {
+                            const txDate = parseISO(tx.date)
+                            firstDate = subMonths(txDate, tx.installment_number - 1)
+                            lastDate = addMonths(firstDate, tx.total_installments! - 1)
+                        }
+
+                        return (
+                            <div
+                                key={tx.id}
+                                className="relative group bg-brand-deep-sea/80 backdrop-blur-sm p-6 rounded-[2rem] flex items-center justify-between border border-white/5 shadow-xl hover:bg-brand-deep-sea transition-all"
+                            >
+                                {/* Left: Icon & Info */}
+                                <div className="flex items-center gap-5">
+                                    <div className={`p-4 rounded-2xl border ${tx.type === 'income'
+                                        ? 'bg-brand-success/10 text-brand-success border-brand-success/10'
+                                        : 'bg-white/5 text-white border-white/10'
+                                        }`}>
+                                        {tx.type === 'income' ? <ArrowUpRight className="w-6 h-6 font-bold" /> : <ArrowDownRight className="w-6 h-6 font-bold" />}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <h3 className="font-bold text-white text-lg tracking-tight leading-none">{tx.description}</h3>
+                                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/5 border border-white/5">
+                                                {tx.card_id ? (
+                                                    <CreditCard className="w-3 h-3 text-brand-accent opacity-70" />
+                                                ) : (
+                                                    <Wallet className="w-3 h-3 text-brand-gray opacity-50" />
+                                                )}
+                                                <span className="text-[9px] font-bold text-brand-gray uppercase tracking-wider">
+                                                    {tx.cards?.name || 'Dinheiro/Débito'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Installment Info */}
+                                        {isInstallment && (
+                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 py-1">
+                                                <div className="flex items-center gap-1.5 text-brand-accent bg-brand-accent/10 px-2 py-0.5 rounded-md border border-brand-accent/10">
+                                                    <ListTree className="w-3 h-3" />
+                                                    <span className="text-[10px] font-black tracking-widest uppercase">
+                                                        Parcela {tx.installment_number}/{tx.total_installments}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5 text-brand-gray opacity-60">
+                                                    <CalendarRange className="w-3 h-3" />
+                                                    <span className="text-[9px] font-bold uppercase tracking-wider">
+                                                        {format(firstDate!, "MMM yy", { locale: ptBR })} ➜ {format(lastDate!, "MMM yy", { locale: ptBR })}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="flex flex-wrap items-center gap-3">
+                                            <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-white/5 text-brand-gray border border-white/5">
+                                                {tx.category}
+                                            </span>
+                                            {!isInstallment && (
+                                                <span className="text-xs font-bold text-brand-gray uppercase tracking-widest opacity-60">
+                                                    {format(parseISO(tx.date), "d 'de' MMM", { locale: ptBR })}
+                                                </span>
+                                            )}
+                                            {tx.purchase_date && (
+                                                <span className={`text-[9px] font-bold text-brand-accent/50 uppercase tracking-widest ${!isInstallment ? 'border-l border-white/10 pl-3' : ''}`}>
+                                                    Dt Compra: {format(parseISO(tx.purchase_date), "dd/MM/yy")}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="font-bold text-white text-lg tracking-tight leading-none mb-2">{tx.description}</h3>
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-white/5 text-brand-gray border border-white/5">
-                                            {tx.category}
-                                        </span>
-                                        <span className="text-xs font-bold text-brand-gray uppercase tracking-widest opacity-60">
-                                            {format(new Date(tx.date), "d 'de' MMM", { locale: ptBR })}
-                                        </span>
+
+                                {/* Right: Amount & Actions */}
+                                <div className="flex items-center gap-8">
+                                    <span className={`text-xl font-black tracking-tighter ${tx.type === 'income' ? 'text-brand-success' : 'text-white'
+                                        }`}>
+                                        {tx.type === 'expense' && '- '}
+                                        R$ {tx.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                    </span>
+
+                                    {/* Actions */}
+                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+                                        <Link href={`/transactions/${tx.id}/edit`} className="p-2 text-brand-gray hover:text-brand-accent hover:bg-white/5 rounded-xl transition-all" title="Editar">
+                                            <Edit2 className="w-4 h-4" />
+                                        </Link>
+                                        <button onClick={() => handleDelete(tx.id)} className="p-2 text-brand-gray hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer" title="Excluir">
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Right: Amount & Actions */}
-                            <div className="flex items-center gap-8">
-                                <span className={`text-xl font-black tracking-tighter ${tx.type === 'income' ? 'text-brand-success' : 'text-white'
-                                    }`}>
-                                    {tx.type === 'expense' && '- '}
-                                    R$ {tx.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                </span>
-
-                                {/* Actions */}
-                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
-                                    <Link href={`/transactions/${tx.id}/edit`} className="p-2 text-brand-gray hover:text-brand-accent hover:bg-white/5 rounded-xl transition-all" title="Editar">
-                                        <Edit2 className="w-4 h-4" />
-                                    </Link>
-                                    <button onClick={() => handleDelete(tx.id)} className="p-2 text-brand-gray hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer" title="Excluir">
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ))
+                        )
+                    })
                 ) : (
                     <div className="p-16 text-center flex flex-col items-center bg-slate-900 rounded-3xl border border-slate-800 border-dashed">
                         <div className="p-4 bg-slate-800 rounded-full mb-4">
                             <ArrowRightLeft className="w-8 h-8 text-slate-400" />
                         </div>
-                        <h3 className="text-xl font-bold text-white mb-2">Sem transações em {format(currentDate, 'MMMM', { locale: ptBR })}</h3>
+                        <h3 className="text-xl font-bold text-white mb-2">Sem transações para este filtro</h3>
                         <p className="text-slate-400 mb-6 max-w-sm mx-auto">
-                            Nenhuma movimentação encontrada para este mês.
+                            Tente ajustar seus filtros ou mude o período selecionado.
                         </p>
-                        <Link
-                            href="/transactions/new"
-                            className="text-brand-500 font-bold hover:underline"
+                        <button
+                            onClick={() => {
+                                setSearchTerm('')
+                                setSelectedCardId('all')
+                            }}
+                            className="text-brand-accent font-bold hover:underline uppercase text-[10px] tracking-widest"
                         >
-                            Criar primeira transação
-                        </Link>
+                            Limpar Filtros
+                        </button>
                     </div>
                 )}
             </div>

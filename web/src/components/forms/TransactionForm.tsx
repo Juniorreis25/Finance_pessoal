@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2, Save, ArrowUpCircle, ArrowDownCircle, X, CalendarClock, Calculator, Repeat } from 'lucide-react'
+import { Loader2, Save, ArrowUpCircle, ArrowDownCircle, X, CalendarClock, Calculator, Repeat, Calendar } from 'lucide-react'
 import { addMonths, format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -48,14 +48,18 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num)
     }
 
+    const getLocalToday = () => {
+        const d = new Date()
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    }
+
     const [formData, setFormData] = useState({
         description: initialData?.description || '',
         amount: initialData?.amount ? formatCurrency(initialData.amount) : '',
         category: initialData?.category || '',
-        date: initialData?.date || new Date().toISOString().split('T')[0],
-        purchaseDate: initialData?.purchase_date || new Date().toISOString().split('T')[0],
+        date: initialData?.purchase_date || initialData?.date || getLocalToday(), // Data da Compra
         card_id: initialData?.card_id || '',
-        first_installment_date: initialData?.date || new Date().toISOString().split('T')[0],
+        first_installment_date: initialData?.date || getLocalToday(), // Data da 1ª Parcela / Pagamento
     })
     const [error, setError] = useState<string | null>(null)
 
@@ -81,14 +85,15 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
 
     // Effect to calculate installment summary
     useEffect(() => {
-        if (!isInstallment || !formData.date || !formData.amount || installments < 2) {
+        const referenceDate = formData.first_installment_date || formData.date
+        if (!isInstallment || !referenceDate || !formData.amount || installments < 2) {
             setInstallmentSummary(null)
             return
         }
 
         try {
-            // Fix timezone issue by appending time or just using parseISO
-            const startDate = parseISO(formData.date)
+            // Fix timezone issue by using parseISO
+            const startDate = parseISO(referenceDate)
             const totalAmount = parseCurrency(formData.amount)
 
             // Calculate last date
@@ -104,7 +109,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
         } catch {
             setInstallmentSummary(null)
         }
-    }, [isInstallment, formData.date, formData.amount, installments])
+    }, [isInstallment, formData.date, formData.first_installment_date, formData.amount, installments])
 
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value
@@ -139,28 +144,39 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                 user_id: userId,
                 type,
                 category: formData.category,
-                date: formData.date,
+                date: formData.first_installment_date, // Effective payout/installment date
                 card_id: type === 'expense' && formData.card_id ? formData.card_id : null,
-                purchase_date: isInstallment ? formData.purchaseDate : null,
+                purchase_date: formData.date, // Real purchase date
                 total_installments: isInstallment ? installments : null
             }
 
-            if (isInstallment && type === 'expense' && !initialData?.id) {
+            if (isInstallment && type === 'expense') {
+                // If editing an existing one, delete it first to recreate as a series
+                if (initialData?.id) {
+                    const { error: delError } = await supabase
+                        .from('transactions')
+                        .delete()
+                        .eq('id', initialData.id)
+
+                    if (delError) throw new Error(`Erro ao preparar parcelamento: ${delError.message}`)
+                }
+
                 // CREATE INSTALLMENTS (RPC Call)
-                // Note: RPC function must be created in Supabase (20240211_add_installments.sql)
                 const { error: rpcError } = await supabase.rpc('create_installment_transaction', {
                     p_user_id: userId,
                     p_description: formData.description,
                     p_amount: amountValue,
                     p_category: formData.category,
-                    p_date: formData.date, // First Installment Date
+                    p_date: formData.first_installment_date, // 1st installment date
                     p_total_installments: installments,
                     p_card_id: formData.card_id || null,
-                    p_purchase_date: formData.purchaseDate // Actual Purchase Date
+                    p_purchase_date: formData.date // Purchase date
                 })
 
                 if (rpcError) throw new Error(`Erro ao criar parcelas: ${rpcError.message}`)
 
+                // Redirect after success
+                router.push('/transactions')
             } else {
                 // STANDARD CREATE / UPDATE
                 const payload = {
@@ -211,7 +227,13 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value })
+        const { name, value } = e.target
+        // Only sync dates automatically for NEW expenses that are NOT installments
+        if (name === 'date' && !isInstallment && !initialData?.id) {
+            setFormData(prev => ({ ...prev, date: value, first_installment_date: value }))
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }))
+        }
     }
 
     const expenseCategories = ['Alimentação', 'Educação', 'Empréstimo', 'Financiamento', 'Lazer', 'Moradia', 'Saúde', 'Transporte', 'Outros']
@@ -320,30 +342,41 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                             <label htmlFor="date" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
                                 {type === 'income' ? 'DATA' : 'DATA DA COMPRA'}
                             </label>
-                            <input
-                                id="date"
-                                name="date"
-                                type="date"
-                                required
-                                className="w-full px-5 py-3.5 bg-brand-nav border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white [color-scheme:dark]"
-                                value={formData.date}
-                                onChange={handleChange}
-                            />
+                            <div className="relative group/date">
+                                <input
+                                    id="date"
+                                    name="date"
+                                    type="date"
+                                    required
+                                    className="w-full px-5 py-3.5 bg-brand-nav border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white [color-scheme:dark] pr-12 cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4 [&::-webkit-calendar-picker-indicator]:w-6 [&::-webkit-calendar-picker-indicator]:h-6"
+                                    value={formData.date}
+                                    onChange={handleChange}
+                                    onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
+                                />
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand-accent/40 group-focus-within/date:text-brand-accent transition-colors">
+                                    <Calendar className="w-4 h-4" />
+                                </div>
+                            </div>
                         </div>
                         {type === 'expense' && (
                             <div>
                                 <label htmlFor="first_installment_date" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
                                     DATA DA 1ª PARCELA
                                 </label>
-                                <input
-                                    id="first_installment_date"
-                                    name="first_installment_date"
-                                    type="date"
-                                    className="w-full px-5 py-3.5 bg-brand-nav border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white [color-scheme:dark]"
-                                    value={formData.first_installment_date || formData.date}
-                                    onChange={handleChange}
-                                    disabled={!isInstallment}
-                                />
+                                <div className="relative group/date">
+                                    <input
+                                        id="first_installment_date"
+                                        name="first_installment_date"
+                                        type="date"
+                                        className="w-full px-5 py-3.5 bg-brand-nav border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white [color-scheme:dark] pr-12 cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4 [&::-webkit-calendar-picker-indicator]:w-6 [&::-webkit-calendar-picker-indicator]:h-6"
+                                        value={formData.first_installment_date}
+                                        onChange={handleChange}
+                                        onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
+                                    />
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand-accent/40 group-focus-within/date:text-brand-accent transition-colors">
+                                        <Calendar className="w-4 h-4" />
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -351,7 +384,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                     {type === 'expense' && (
                         <div>
                             <label htmlFor="card_id" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
-                                CARTÃO (OPCIONAL)
+                                MÉTODO DE COMPRA
                             </label>
                             <div className="relative">
                                 <select
