@@ -16,7 +16,7 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
-import { Logo } from '@/components/ui/Logo'
+import { LogoDiamond } from '@/components/ui/LogoDiamond'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const supabase = createClient()
@@ -57,8 +57,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       `}>
                 <div className="h-full flex flex-col">
                     <div className="p-4 border-b border-white/5">
-                        <Link href="/dashboard" className="flex items-center justify-center gap-2 w-full hover:bg-white/5 p-2 rounded-2xl transition-all group" title="Ir para Visão Geral">
-                            <Logo className="w-10 h-10" textSize="text-2xl" />
+                        <Link href="/dashboard" className="flex items-center justify-center w-full hover:bg-white/5 p-3 rounded-2xl transition-all group" title="Ir para Visão Geral">
+                            <LogoDiamond size="small" showText={true} animated={false} />
                         </Link>
                     </div>
 
@@ -101,7 +101,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {/* Mobile Header */}
                 <header className="lg:hidden flex items-center justify-between p-4 bg-background border-b border-white/5">
                     <Link href="/dashboard" className="flex items-center p-1 -ml-1 rounded-lg hover:bg-white/5 transition-colors" title="Ir para Visão Geral">
-                        <Logo className="w-8 h-8" textSize="text-xl" />
+                        <LogoDiamond size="small" showText={false} animated={false} />
                     </Link>
                     <div className="flex items-center gap-2">
                         <button

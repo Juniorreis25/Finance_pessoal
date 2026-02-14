@@ -48,15 +48,16 @@ export function LogoDiamond({
 
             {/* Brand Text */}
             {showText && (
-                <div className={`text-center space-y-1 ${animated ? 'animate-in fade-in slide-in-from-bottom-2 duration-700 delay-300' : ''}`}>
-                    <h1 className={`${textSizes[size]} tracking-tight leading-none`}>
+                <div className={`text-center ${animated ? 'animate-in fade-in slide-in-from-bottom-2 duration-700 delay-300' : ''}`}>
+                    <h1 className={`text-[25px] tracking-tight leading-tight`}>
                         <span className="font-bold text-white">Finance</span>
                         {' '}
-                        <span className="font-light text-brand-accent">Pessoal</span>
+                        <span className="font-light text-brand-accent relative inline-block">
+                            Pessoal
+                            {/* Minimalist underline with glow */}
+                            <span className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-brand-accent to-transparent shadow-[0_0_4px_rgba(0,240,255,0.5)]"></span>
+                        </span>
                     </h1>
-                    <p className="text-xs uppercase tracking-[0.3em] text-brand-gray/70 font-medium">
-                        Smart Wealth Management
-                    </p>
                 </div>
             )}
         </div>

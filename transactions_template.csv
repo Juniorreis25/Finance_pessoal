@@ -1,0 +1,11 @@
+user_id,card_id,type,category,amount,description,date
+SUBSTITUA_PELO_SEU_USER_ID,,expense,Alimentação,35.90,Padaria,2024-02-10
+SUBSTITUA_PELO_SEU_USER_ID,,expense,Transporte,4.50,Ônibus,2024-02-10
+SUBSTITUA_PELO_SEU_USER_ID,,expense,Compras,120.00,Supermercado,2024-02-11
+SUBSTITUA_PELO_SEU_USER_ID,,income,Salário,4500.00,Salário fevereiro,2024-02-05
+SUBSTITUA_PELO_SEU_USER_ID,,expense,Lazer,45.00,Netflix,2024-02-08
+SUBSTITUA_PELO_SEU_USER_ID,,expense,Saúde,89.90,Farmácia,2024-02-09
+SUBSTITUA_PELO_SEU_USER_ID,,expense,Casa,150.00,Conta de luz,2024-02-07
+SUBSTITUA_PELO_SEU_USER_ID,,expense,Internet,99.90,Internet fibra,2024-02-07
+SUBSTITUA_PELO_SEU_USER_ID,,expense,Alimentação,28.50,Café da manhã,2024-02-12
+SUBSTITUA_PELO_SEU_USER_ID,,expense,Transporte,15.00,Uber,2024-02-12

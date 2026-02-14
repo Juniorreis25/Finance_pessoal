@@ -51,11 +51,8 @@ export default function LoginPage() {
                     <div className="space-y-6">
                         {/* Logo + Title - Compact */}
                         <div className="text-center space-y-4">
-                            <LogoDiamond size="medium" showText={false} />
-                            <div>
-                                <h1 className="text-xl font-bold text-white">Finance Pessoal</h1>
-                                <p className="text-xs text-brand-gray mt-1">Entre para gerenciar suas finanças</p>
-                            </div>
+                            <LogoDiamond size="medium" showText={true} animated={true} />
+                            <p className="text-xs text-brand-gray">Entre para gerenciar suas finanças</p>
                         </div>
 
                         {/* Error */}
