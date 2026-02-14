@@ -84,7 +84,9 @@ export default function RecurringExpensesPage() {
                     {/* Search Bar */}
                     <div className="relative flex-1 md:w-64">
                         <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                        <label htmlFor="search-recurring" className="sr-only">Buscar por descrição</label>
                         <input
+                            id="search-recurring"
                             placeholder="Buscar por descrição..."
                             className="w-full pl-9 pr-4 py-2 bg-brand-nav border border-white/5 rounded-xl text-sm focus:ring-1 focus:ring-brand-accent/50 outline-none transition-all placeholder:text-brand-gray/30 text-white font-bold"
                             value={searchTerm}

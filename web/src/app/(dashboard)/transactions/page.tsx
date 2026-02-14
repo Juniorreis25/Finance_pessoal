@@ -82,8 +82,10 @@ export default function TransactionsPage() {
                         {/* Search Bar */}
                         <div className="relative flex-1 md:w-72">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-gray" />
+                            <label htmlFor="search-transactions" className="sr-only">Buscar transações</label>
                             <input
-                                placeholder="Search transactions..."
+                                id="search-transactions"
+                                placeholder="Buscar transações..."
                                 className="w-full pl-11 pr-4 py-3 bg-brand-deep-sea border border-white/5 rounded-2xl text-sm focus:border-brand-accent/50 outline-none transition-all text-white placeholder:text-brand-gray/50"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}

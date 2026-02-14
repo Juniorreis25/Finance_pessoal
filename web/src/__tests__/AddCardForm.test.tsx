@@ -42,20 +42,20 @@ describe('CardForm', () => {
 
     it('renders form fields correctly', () => {
         render(<AddCardForm />)
-        expect(screen.getByText(/Salvar Cartão/i)).toBeInTheDocument()
+        expect(screen.getByText(/Conectar Cartão/i)).toBeInTheDocument()
         expect(screen.getByText(/Nome do Cartão/i)).toBeInTheDocument()
-        expect(screen.getByText(/Limite/i)).toBeInTheDocument()
+        expect(screen.getByText(/Limite de Crédito/i)).toBeInTheDocument()
     })
 
     it('submits form successfully', async () => {
         render(<AddCardForm />)
 
-        fireEvent.change(screen.getByPlaceholderText(/Ex: Nubank/i), { target: { value: 'My Card' } })
+        fireEvent.change(screen.getByPlaceholderText(/Ex: Nubank Black/i), { target: { value: 'My Card' } })
         fireEvent.change(screen.getByPlaceholderText(/R\$ 0,00/i), { target: { value: '100000' } })
         fireEvent.change(screen.getByPlaceholderText(/10/i), { target: { value: '10' } })
         fireEvent.change(screen.getByPlaceholderText(/17/i), { target: { value: '17' } })
 
-        fireEvent.click(screen.getByText(/Salvar Cartão/i))
+        fireEvent.click(screen.getByText(/Conectar Cartão/i))
 
         await waitFor(() => {
             expect(insertMock).toHaveBeenCalledWith({

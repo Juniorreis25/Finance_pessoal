@@ -17,6 +17,13 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Finance Pessoal",
   description: "Gerencie suas finanças de forma simples e eficiente",
+  openGraph: {
+    title: "Finance Pessoal",
+    description: "Gerencie suas finanças de forma simples e eficiente",
+    type: "website",
+    locale: "pt_BR",
+    siteName: "Finance Pessoal",
+  },
 };
 
 export default function RootLayout({
