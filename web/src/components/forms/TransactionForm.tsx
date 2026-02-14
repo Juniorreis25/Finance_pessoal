@@ -101,7 +101,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                 lastDate: format(finalDate, "MMMM 'de' yyyy", { locale: ptBR }),
                 monthlyValue: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(monthly)
             })
-        } catch (e) {
+        } catch {
             setInstallmentSummary(null)
         }
     }, [isInstallment, formData.date, formData.amount, installments])
@@ -202,8 +202,9 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                 }
             }
             router.refresh()
-        } catch (err: any) {
-            setError(err.message)
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Ocorreu um erro inesperado'
+            setError(message)
         } finally {
             setLoading(false)
         }
@@ -314,10 +315,10 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className={type === 'income' ? 'w-full' : 'grid grid-cols-2 gap-6'}>
                         <div>
                             <label htmlFor="date" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
-                                DATA DA COMPRA
+                                {type === 'income' ? 'DATA' : 'DATA DA COMPRA'}
                             </label>
                             <input
                                 id="date"
@@ -329,99 +330,123 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                                 onChange={handleChange}
                             />
                         </div>
-                        <div>
-                            <label htmlFor="first_installment_date" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
-                                DATA DA 1ª PARCELA
-                            </label>
-                            <input
-                                id="first_installment_date"
-                                name="first_installment_date"
-                                type="date"
-                                className="w-full px-5 py-3.5 bg-brand-nav border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white [color-scheme:dark]"
-                                value={formData.first_installment_date || formData.date}
-                                onChange={handleChange}
-                                disabled={!isInstallment}
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label htmlFor="card_id" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
-                            CARTÃO (OPCIONAL)
-                        </label>
-                        <div className="relative">
-                            <select
-                                id="card_id"
-                                name="card_id"
-                                className="w-full px-5 py-3.5 bg-brand-nav border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white appearance-none cursor-pointer"
-                                value={formData.card_id || ''}
-                                onChange={handleChange}
-                            >
-                                <option value="" className="bg-brand-deep-sea">Nenhum (Dinheiro/Débito)</option>
-                                {cards.map(card => (
-                                    <option key={card.id} value={card.id} className="bg-brand-deep-sea">{card.name}</option>
-                                ))}
-                            </select>
-                            <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-brand-accent">
-                                <ArrowDownCircle className="w-4 h-4 opacity-50" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-brand-nav p-5 rounded-[1.5rem] border border-white/5">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-xl transition-all ${isInstallment ? 'bg-brand-accent text-black' : 'bg-white/5 text-brand-gray'}`}>
-                                    <CalendarClock className="w-4 h-4" />
-                                </div>
-                                <p className="font-black text-white text-[9px] uppercase tracking-[0.2em] opacity-80">Transação Parcelada?</p>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setIsInstallment(!isInstallment)}
-                                className={`w-12 h-7 rounded-full transition-all relative ${isInstallment ? 'bg-brand-accent' : 'bg-white/10'}`}
-                            >
-                                <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all shadow-xl ${isInstallment ? 'left-6' : 'left-1'}`} />
-                            </button>
-                        </div>
-
-                        {isInstallment && type === 'expense' && (
-                            <div className="pt-4 mt-4 border-t border-white/5 animate-in fade-in slide-in-from-top-2 duration-300">
-                                <label htmlFor="installments" className="block text-[9px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
-                                    QUANTIDADE DE PARCELAS
+                        {type === 'expense' && (
+                            <div>
+                                <label htmlFor="first_installment_date" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
+                                    DATA DA 1ª PARCELA
                                 </label>
-                                <div className="relative">
-                                    <input
-                                        id="installments"
-                                        name="installments"
-                                        type="number"
-                                        min="2"
-                                        max="48"
-                                        required
-                                        className="w-full px-4 py-3 bg-brand-deep-sea border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white text-center"
-                                        value={installments}
-                                        onChange={(e) => setInstallments(parseInt(e.target.value))}
-                                    />
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand-accent">
-                                        <Calculator className="w-4 h-4 opacity-30" />
-                                    </div>
-                                </div>
-                                {installmentSummary && (
-                                    <p className="mt-3 text-[9px] font-bold text-brand-accent/60 uppercase tracking-widest text-center">
-                                        {installments}x de {installmentSummary.monthlyValue} • Final em {installmentSummary.lastDate}
-                                    </p>
-                                )}
+                                <input
+                                    id="first_installment_date"
+                                    name="first_installment_date"
+                                    type="date"
+                                    className="w-full px-5 py-3.5 bg-brand-nav border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white [color-scheme:dark]"
+                                    value={formData.first_installment_date || formData.date}
+                                    onChange={handleChange}
+                                    disabled={!isInstallment}
+                                />
                             </div>
                         )}
                     </div>
+
+                    {type === 'expense' && (
+                        <div>
+                            <label htmlFor="card_id" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 ml-1 opacity-60">
+                                CARTÃO (OPCIONAL)
+                            </label>
+                            <div className="relative">
+                                <select
+                                    id="card_id"
+                                    name="card_id"
+                                    className="w-full px-5 py-3.5 bg-brand-nav border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white appearance-none cursor-pointer"
+                                    value={formData.card_id || ''}
+                                    onChange={handleChange}
+                                >
+                                    <option value="" className="bg-brand-deep-sea">Nenhum (Dinheiro/Débito)</option>
+                                    {cards.map(card => (
+                                        <option key={card.id} value={card.id} className="bg-brand-deep-sea">{card.name}</option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-brand-accent">
+                                    <ArrowDownCircle className="w-4 h-4 opacity-50" />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {type === 'expense' ? (
+                        <div className="bg-brand-nav p-5 rounded-[1.5rem] border border-white/5">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-xl transition-all ${isInstallment ? 'bg-brand-accent text-black' : 'bg-white/5 text-brand-gray'}`}>
+                                        <CalendarClock className="w-4 h-4" />
+                                    </div>
+                                    <p className="font-black text-white text-[9px] uppercase tracking-[0.2em] opacity-80">Transação Parcelada?</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsInstallment(!isInstallment)}
+                                    className={`w-12 h-7 rounded-full transition-all relative ${isInstallment ? 'bg-brand-accent' : 'bg-white/10'}`}
+                                >
+                                    <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all shadow-xl ${isInstallment ? 'left-6' : 'left-1'}`} />
+                                </button>
+                            </div>
+
+                            {isInstallment && (
+                                <div className="pt-4 mt-4 border-t border-white/5 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <label htmlFor="installments" className="block text-[9px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
+                                        QUANTIDADE DE PARCELAS
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            id="installments"
+                                            name="installments"
+                                            type="number"
+                                            min="2"
+                                            max="48"
+                                            required
+                                            className="w-full px-4 py-3 bg-brand-deep-sea border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white text-center"
+                                            value={installments}
+                                            onChange={(e) => setInstallments(parseInt(e.target.value))}
+                                        />
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand-accent">
+                                            <Calculator className="w-4 h-4 opacity-30" />
+                                        </div>
+                                    </div>
+                                    {installmentSummary && (
+                                        <p className="mt-3 text-[9px] font-bold text-brand-accent/60 uppercase tracking-widest text-center">
+                                            {installments}x de {installmentSummary.monthlyValue} • Final em {installmentSummary.lastDate}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="bg-brand-nav p-5 rounded-[1.5rem] border border-white/5">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-xl transition-all ${isRecurring ? 'bg-brand-success text-black' : 'bg-white/5 text-brand-gray'}`}>
+                                        <Repeat className="w-4 h-4" />
+                                    </div>
+                                    <p className="font-black text-white text-[9px] uppercase tracking-[0.2em] opacity-80">Receita Recorrente?</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsRecurring(!isRecurring)}
+                                    className={`w-12 h-7 rounded-full transition-all relative ${isRecurring ? 'bg-brand-success' : 'bg-white/10'}`}
+                                >
+                                    <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all shadow-xl ${isRecurring ? 'left-6' : 'left-1'}`} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            <div className="pt-8">
+            <div className="pt-8 flex flex-col sm:flex-row gap-4">
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full flex items-center justify-center gap-2 px-8 py-5 bg-brand-accent text-black rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(0,240,255,0.3)] disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-2 px-8 py-5 bg-brand-accent text-black rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(0,240,255,0.3)] disabled:opacity-50"
                 >
                     {loading ? (
                         <Loader2 className="animate-spin w-5 h-5" />
@@ -433,6 +458,14 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                             </div>
                         </>
                     )}
+                </button>
+                <button
+                    type="button"
+                    onClick={() => router.push('/transactions')}
+                    className="flex-1 flex items-center justify-center gap-2 px-8 py-5 bg-white/5 text-brand-gray rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-white/10 hover:text-white transition-all border border-white/5"
+                >
+                    <X className="w-4 h-4 italic" />
+                    <span>Cancelar</span>
                 </button>
             </div>
         </form>
