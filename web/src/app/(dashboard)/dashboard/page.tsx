@@ -270,7 +270,7 @@ export default function DashboardPage() {
                                     <div className="flex justify-between items-start">
                                         <div className="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-full border border-white/10 w-fit backdrop-blur-md">
                                             <Wallet className="w-4 h-4 text-brand-accent" />
-                                            <span className="text-xs font-bold text-brand-gray uppercase tracking-widest">Digital Card • Balance</span>
+                                            <span className="text-xs font-bold text-brand-gray uppercase tracking-widest">Saldo Disponível</span>
                                         </div>
                                         <button
                                             onClick={toggleVisibility}
@@ -290,11 +290,6 @@ export default function DashboardPage() {
                                         <h2 className="text-4xl md:text-[52px] font-bold text-brand-accent tracking-tighter glow-cyan">
                                             <MaskedValue value={stats.balance} prefix={isValuesVisible ? "R$ " : ""} />
                                         </h2>
-                                        {/* Percentage Badge */}
-                                        <div className="flex items-center gap-1 px-3 py-1 bg-[#003D2B] rounded-full border border-[#00FF94]/20 ml-2">
-                                            <ArrowUpRight className="w-3 h-3 text-brand-success" />
-                                            <span className="text-[10px] font-black text-brand-success tracking-tighter">+2.4%</span>
-                                        </div>
                                     </div>
 
                                     <div className="mt-8 flex gap-6">
@@ -329,7 +324,7 @@ export default function DashboardPage() {
                                     <div className="bg-white/5 backdrop-blur-sm rounded-[2rem] p-6 border border-white/5">
                                         <div className="flex items-center gap-2 mb-4">
                                             <div className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)] animate-pulse" />
-                                            <span className="text-[10px] font-black text-brand-gray uppercase tracking-widest">Projection • Next Month</span>
+                                            <span className="text-[10px] font-black text-brand-gray uppercase tracking-widest">Previsão • Próximo Mês</span>
                                         </div>
                                         <p className="text-xs text-brand-gray mb-1 capitalize">{format(addMonths(currentDate, 1), "MMMM 'de' yyyy", { locale: ptBR })}</p>
                                         <div className="flex items-baseline gap-2">
@@ -337,7 +332,7 @@ export default function DashboardPage() {
                                                 <MaskedValue value={nextMonthStats.expense} prefix={isValuesVisible ? "R$ " : ""} />
                                             </span>
                                         </div>
-                                        <p className="text-[10px] font-bold text-brand-gray mt-4 tracking-tight uppercase opacity-50">Estimated Outflow</p>
+                                        <p className="text-[10px] font-bold text-brand-gray mt-4 tracking-tight uppercase opacity-50">Fluxo Estimado</p>
                                     </div>
                                 </div>
                             </div>

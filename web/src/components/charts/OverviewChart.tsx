@@ -38,13 +38,15 @@ export function OverviewChart({ data }: { data: OverviewData[] }) {
                         cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                         formatter={(value: any) => `R$ ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                         contentStyle={{
-                            backgroundColor: '#0A0A0A',
+                            backgroundColor: '#141C24',
                             borderColor: 'rgba(255, 255, 255, 0.1)',
                             borderRadius: '16px',
-                            color: '#FFFFFF',
                             boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)'
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            padding: '12px'
                         }}
+                        itemStyle={{ color: '#FFFFFF', fontSize: '12px', fontWeight: 'bold' }}
+                        labelStyle={{ color: '#FFFFFF', marginBottom: '4px', fontWeight: 'bold' }}
                     />
                     <Legend
                         verticalAlign="top"
