@@ -8,6 +8,8 @@ import { createClient } from '@/lib/supabase/client'
 import { format, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { MonthSelector } from '@/components/ui/MonthSelector'
+import { usePrivacy } from '@/providers/PrivacyProvider'
+import { MaskedValue } from '@/components/ui/MaskedValue'
 
 type Transaction = {
     id: string
@@ -34,11 +36,13 @@ type Card = {
 export default function TransactionsPage() {
     const supabase = createClient()
     const [transactions, setTransactions] = useState<Transaction[]>([])
+    const [recurringExpenses, setRecurringExpenses] = useState<any[]>([])
     const [cards, setCards] = useState<Card[]>([])
     const [loading, setLoading] = useState(true)
     const [currentDate, setCurrentDate] = useState(new Date())
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedCardId, setSelectedCardId] = useState<string>('all')
+    const { isValuesVisible, toggleVisibility } = usePrivacy()
 
     const fetchData = async () => {
         setLoading(true)
@@ -58,6 +62,14 @@ export default function TransactionsPage() {
             .order('name')
 
         if (cardData) setCards(cardData)
+
+        // Fetch recurring expenses
+        const { data: recData } = await supabase
+            .from('recurring_expenses')
+            .select('*')
+            .eq('active', true)
+
+        if (recData) setRecurringExpenses(recData)
 
         setLoading(false)
     }
@@ -97,10 +109,15 @@ export default function TransactionsPage() {
     })
 
     // Calculate totals
+    // Calculate totals including recurring items
     const totalIncome = filteredTransactions
         .filter(tx => tx.type === 'income')
-        .reduce((acc, tx) => acc + tx.amount, 0)
+        .reduce((acc, tx) => acc + tx.amount, 0) +
+        recurringExpenses
+            .filter(re => re.type === 'income')
+            .reduce((acc, re) => acc + re.amount, 0)
 
+    // Total Expense considera APENAS as transações pontuais da lista (conforme solicitado)
     const totalExpense = filteredTransactions
         .filter(tx => tx.type === 'expense')
         .reduce((acc, tx) => acc + tx.amount, 0)
@@ -109,7 +126,8 @@ export default function TransactionsPage() {
         .filter(tx => tx.type === 'expense' && tx.card_id)
         .reduce((acc, tx) => acc + tx.amount, 0)
 
-    const balance = totalIncome - totalExpense
+    const projectedBalance = totalIncome - totalExpense
+
 
     return (
         <div className="space-y-8 max-w-5xl mx-auto pb-20">
@@ -166,45 +184,79 @@ export default function TransactionsPage() {
                 </div>
             </div>
 
-            {/* Summary Cards (Totalizers) */}
-            <div className="flex flex-wrap gap-6 items-stretch">
-                <div className="bg-brand-deep-sea/40 border border-white/5 p-8 rounded-[2rem] shadow-xl min-w-[280px] flex-1 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-success/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-brand-success/10 transition-all pointer-events-none" />
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 bg-brand-success/10 rounded-xl text-brand-success">
-                            <ArrowUpRight className="w-4 h-4" />
-                        </div>
-                        <p className="text-[10px] font-black text-brand-success uppercase tracking-widest opacity-60">Total Receitas</p>
-                    </div>
-                    <h3 className="text-3xl font-black text-white tracking-tighter">
-                        + R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </h3>
-                </div>
+            {/* Master Summary Card - Inspired by Dashboard minimal style */}
+            <div className="relative overflow-hidden bg-brand-deep-sea rounded-[2.5rem] border border-white/5 shadow-2xl">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-brand-accent/5 blur-[120px] rounded-full pointer-events-none" />
 
-                <div className="bg-brand-deep-sea/40 border border-white/5 p-8 rounded-[2rem] shadow-xl min-w-[280px] flex-1 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-white/10 transition-all pointer-events-none" />
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 bg-white/5 rounded-xl text-brand-gray">
-                            <ArrowDownRight className="w-4 h-4" />
+                <div className="relative z-10 p-8">
+                    <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-full border border-white/10 w-fit backdrop-blur-md">
+                            <Wallet className="w-4 h-4 text-brand-accent" />
+                            <span className="text-xs font-bold text-brand-gray uppercase tracking-widest">Saldo Projetado</span>
                         </div>
-                        <p className="text-[10px] font-black text-brand-gray uppercase tracking-widest opacity-60">Total em Saídas</p>
+                        <button
+                            onClick={toggleVisibility}
+                            className="p-2 text-slate-500 hover:text-white transition-colors cursor-pointer"
+                            aria-label={isValuesVisible ? "Ocultar valores" : "Mostrar valores"}
+                        >
+                            {isValuesVisible ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" /><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" /><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" /><line x1="2" x2="22" y1="2" y2="22" /></svg>
+                            )}
+                        </button>
                     </div>
-                    <h3 className="text-3xl font-black text-white tracking-tighter">
-                        - R$ {totalExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </h3>
-                </div>
 
-                <div className="bg-brand-deep-sea/40 border border-white/5 p-8 rounded-[2rem] shadow-xl min-w-[280px] flex-1 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-brand-accent/10 transition-all pointer-events-none" />
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 bg-brand-accent/10 rounded-xl text-brand-accent">
-                            <CreditCard className="w-4 h-4" />
-                        </div>
-                        <p className="text-[10px] font-black text-brand-accent uppercase tracking-widest opacity-60">Total Cartões</p>
+                    <div className="mt-8 flex items-baseline gap-2">
+                        <h2 className={`text-4xl md:text-[52px] font-bold tracking-tighter glow-cyan ${projectedBalance >= 0 ? 'text-brand-accent' : 'text-rose-500'}`}>
+                            <MaskedValue value={projectedBalance} prefix={isValuesVisible ? "R$ " : ""} />
+                        </h2>
                     </div>
-                    <h3 className="text-3xl font-black text-white tracking-tighter">
-                        - R$ {totalCardExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </h3>
+
+                    <div className="mt-10 flex flex-wrap gap-8 md:gap-12">
+                        {/* Income */}
+                        <div className="flex items-center gap-3 group">
+                            <div className="p-3 bg-brand-success/10 rounded-2xl text-brand-success border border-brand-success/10 group-hover:bg-brand-success/20 transition-all">
+                                <ArrowUpRight className="w-5 h-5 font-bold" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] text-brand-gray font-bold uppercase tracking-wider">Receitas</p>
+                                <p className="text-lg font-bold text-brand-success">
+                                    <MaskedValue value={totalIncome} prefix={isValuesVisible ? "+ R$ " : ""} />
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="hidden md:block w-px h-10 bg-white/5 self-center" />
+
+                        {/* Regular Expenses */}
+                        <div className="flex items-center gap-3 group">
+                            <div className="p-3 bg-white/5 rounded-2xl text-white border border-white/10 group-hover:bg-white/10 transition-all">
+                                <ArrowDownRight className="w-5 h-5 font-bold" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] text-brand-gray font-bold uppercase tracking-wider">Saídas</p>
+                                <p className="text-lg font-bold text-white">
+                                    <MaskedValue value={totalExpense} prefix={isValuesVisible ? "- R$ " : ""} />
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="hidden md:block w-px h-10 bg-white/5 self-center" />
+
+                        {/* Card Expenses */}
+                        <div className="flex items-center gap-3 group">
+                            <div className="p-2.5 bg-brand-accent/10 rounded-2xl text-brand-accent border border-brand-accent/10 group-hover:bg-brand-accent/20 transition-all">
+                                <CreditCard className="w-5 h-5 font-bold" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] text-brand-gray font-bold uppercase tracking-wider">Cartões</p>
+                                <p className="text-lg font-bold text-white">
+                                    <MaskedValue value={totalCardExpense} prefix={isValuesVisible ? "- R$ " : ""} />
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

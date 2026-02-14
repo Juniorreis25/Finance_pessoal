@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Plus, Edit2, Trash2, Repeat, CheckCircle, XCircle, Search } from 'lucide-react'
+import { Plus, Edit2, Trash2, Repeat, CheckCircle, XCircle, Search, Wallet, ArrowUpRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { RecurringModal } from '@/components/modals/RecurringModal'
+import { usePrivacy } from '@/providers/PrivacyProvider'
+import { MaskedValue } from '@/components/ui/MaskedValue'
 
 type RecurringExpense = {
     id: string
@@ -25,6 +27,7 @@ export default function RecurringExpensesPage() {
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const { isValuesVisible, toggleVisibility } = usePrivacy()
 
     const fetchExpenses = useCallback(async () => {
         setLoading(true)
@@ -79,6 +82,8 @@ export default function RecurringExpensesPage() {
         .filter(ex => ex.type === 'income' && ex.active)
         .reduce((acc, ex) => acc + ex.amount, 0)
 
+    const recurringBalance = totalRecurringIncome - totalRecurringExpense
+
     return (
         <div className="space-y-8 max-w-5xl mx-auto">
             {/* Header */}
@@ -121,37 +126,63 @@ export default function RecurringExpensesPage() {
                 }}
             />
 
-            {/* Summary Cards (Totalizers) */}
-            <div className="flex flex-wrap gap-6 items-stretch">
-                <div className="bg-brand-deep-sea/40 border border-white/5 p-8 rounded-[2rem] shadow-xl min-w-[300px] flex-1 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-success/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-brand-success/10 transition-all pointer-events-none" />
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 bg-brand-success/10 rounded-xl text-brand-success">
-                            <Plus className="w-4 h-4" />
-                        </div>
-                        <p className="text-[10px] font-black text-brand-success uppercase tracking-widest opacity-60">Ganhos Estimados</p>
-                    </div>
-                    <div className="space-y-1">
-                        <p className="text-3xl font-black text-white tracking-tighter">
-                            R$ {totalRecurringIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </p>
-                        <p className="text-[9px] font-bold text-brand-gray uppercase tracking-widest opacity-40">Receitas fixas ativas</p>
-                    </div>
-                </div>
+            {/* Master Summary Card - Inspired by Dashboard minimal style */}
+            <div className="relative overflow-hidden bg-brand-deep-sea rounded-[2.5rem] border border-white/5 shadow-2xl">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-brand-accent/5 blur-[120px] rounded-full pointer-events-none" />
 
-                <div className="bg-brand-deep-sea/40 border border-white/5 p-8 rounded-[2rem] shadow-xl min-w-[300px] flex-1 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-brand-accent/10 transition-all pointer-events-none" />
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 bg-brand-accent/10 rounded-xl text-brand-accent">
-                            <Repeat className="w-4 h-4" />
+                <div className="relative z-10 p-8">
+                    <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-full border border-white/10 w-fit backdrop-blur-md">
+                            <Wallet className="w-4 h-4 text-brand-accent" />
+                            <span className="text-xs font-bold text-brand-gray uppercase tracking-widest">Sobra Mensal Garantida</span>
                         </div>
-                        <p className="text-[10px] font-black text-brand-accent uppercase tracking-widest opacity-60">Comprometimento Mensal</p>
+                        <button
+                            onClick={toggleVisibility}
+                            className="p-2 text-slate-500 hover:text-white transition-colors cursor-pointer"
+                            aria-label={isValuesVisible ? "Ocultar valores" : "Mostrar valores"}
+                        >
+                            {isValuesVisible ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" /><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" /><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" /><line x1="2" x2="22" y1="2" y2="22" /></svg>
+                            )}
+                        </button>
                     </div>
-                    <div className="space-y-1">
-                        <p className="text-3xl font-black text-white tracking-tighter">
-                            R$ {totalRecurringExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </p>
-                        <p className="text-[9px] font-bold text-brand-gray uppercase tracking-widest opacity-40">Total de despesas ativas</p>
+
+                    <div className="mt-8 flex items-baseline gap-2">
+                        <h2 className={`text-4xl md:text-[52px] font-bold tracking-tighter glow-cyan ${recurringBalance >= 0 ? 'text-brand-accent' : 'text-rose-500'}`}>
+                            <MaskedValue value={recurringBalance} prefix={isValuesVisible ? "R$ " : ""} />
+                        </h2>
+                    </div>
+
+                    <div className="mt-10 flex flex-wrap gap-8 md:gap-12">
+                        {/* Income */}
+                        <div className="flex items-center gap-3 group">
+                            <div className="p-3 bg-brand-success/10 rounded-2xl text-brand-success border border-brand-success/10 group-hover:bg-brand-success/20 transition-all">
+                                <ArrowUpRight className="w-5 h-5 font-bold" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] text-brand-gray font-bold uppercase tracking-wider">Ganhos Fixos</p>
+                                <p className="text-lg font-bold text-brand-success">
+                                    <MaskedValue value={totalRecurringIncome} prefix={isValuesVisible ? "+ R$ " : ""} />
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="hidden md:block w-px h-10 bg-white/5 self-center" />
+
+                        {/* Regular Expenses */}
+                        <div className="flex items-center gap-3 group">
+                            <div className="p-3 bg-brand-accent/10 rounded-2xl text-brand-accent border border-brand-accent/10 group-hover:bg-brand-accent/20 transition-all">
+                                <Repeat className="w-5 h-5 font-bold" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] text-brand-gray font-bold uppercase tracking-wider">Contas Fixas</p>
+                                <p className="text-lg font-bold text-white">
+                                    <MaskedValue value={totalRecurringExpense} prefix={isValuesVisible ? "- R$ " : ""} />
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
