@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Plus, Edit2, Trash2, Repeat, CheckCircle, XCircle, Search } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
 import { useRouter } from 'next/navigation'
+import { RecurringModal } from '@/components/modals/RecurringModal'
 
 type RecurringExpense = {
     id: string
@@ -25,8 +24,9 @@ export default function RecurringExpensesPage() {
     const [expenses, setExpenses] = useState<RecurringExpense[]>([])
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
+    const [isModalOpen, setIsModalOpen] = useState(false)
 
-    const fetchExpenses = async () => {
+    const fetchExpenses = useCallback(async () => {
         setLoading(true)
         const { data } = await supabase
             .from('recurring_expenses')
@@ -35,11 +35,11 @@ export default function RecurringExpensesPage() {
 
         if (data) setExpenses(data)
         setLoading(false)
-    }
+    }, [supabase])
 
     useEffect(() => {
         fetchExpenses()
-    }, [])
+    }, [fetchExpenses])
 
     const handleDelete = async (id: string) => {
         if (window.confirm('Tem certeza que deseja excluir esta despesa recorrente?')) {
@@ -86,20 +86,30 @@ export default function RecurringExpensesPage() {
                         <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                         <input
                             placeholder="Buscar por descrição..."
-                            className="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all"
+                            className="w-full pl-9 pr-4 py-2 bg-brand-nav border border-white/5 rounded-xl text-sm focus:ring-1 focus:ring-brand-accent/50 outline-none transition-all placeholder:text-brand-gray/30 text-white font-bold"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <Link
-                        href="/recurring/new"
-                        className="flex items-center gap-2 bg-brand-500 text-slate-950 px-5 py-2 rounded-xl font-bold hover:bg-brand-400 transition hover:scale-105 shadow-lg shadow-brand-500/20 whitespace-nowrap"
+
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex items-center justify-center w-10 h-10 bg-brand-accent text-black rounded-xl hover:scale-110 active:scale-95 transition-all shadow-lg shadow-brand-accent/20 cursor-pointer"
+                        title="Nova Recorrência"
                     >
-                        <Plus className="w-4 h-4" />
-                        Nova Recorrente
-                    </Link>
+                        <Plus className="w-6 h-6" strokeWidth={3} />
+                    </button>
                 </div>
             </div>
+
+            <RecurringModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSuccess={() => {
+                    fetchExpenses()
+                    router.refresh()
+                }}
+            />
 
             {/* List */}
             <div className="space-y-4">
