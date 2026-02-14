@@ -1,45 +1,45 @@
 /**
- * Logo Diamond - Inspirado no Stitch Design
- * Design premium com formato de diamante rotacionado e efeito neon
+ * Logo Diamond - Minimalist Version
+ * Compact design with subtle neon accent
  */
 export function LogoDiamond({
-    size = 'large',
+    size = 'medium',
     showText = true,
-    animated = true
+    animated = false
 }: {
     size?: 'small' | 'medium' | 'large',
     showText?: boolean,
     animated?: boolean
 }) {
     const sizes = {
-        small: 'w-16 h-16',
-        medium: 'w-24 h-24',
-        large: 'w-32 h-32'
+        small: 'w-12 h-12',
+        medium: 'w-14 h-14',
+        large: 'w-16 h-16'
     }
 
     const textSizes = {
-        small: 'text-xl',
-        medium: 'text-2xl',
-        large: 'text-3xl'
+        small: 'text-sm',
+        medium: 'text-base',
+        large: 'text-lg'
     }
 
     return (
-        <div className={`flex flex-col items-center space-y-6 ${animated ? 'animate-in fade-in duration-700' : ''}`}>
-            {/* Logo Diamante */}
+        <div className={`flex flex-col items-center gap-3 ${animated ? 'animate-in fade-in duration-500' : ''}`}>
+            {/* Logo Diamante Compacto */}
             <div className="relative">
-                {/* Glow background */}
-                <div className="absolute -inset-4 bg-brand-accent/5 rounded-full blur-2xl opacity-50" />
+                {/* Subtle glow */}
+                <div className="absolute -inset-2 bg-brand-accent/5 rounded-full blur-xl opacity-40" />
 
-                {/* Diamond frame */}
+                {/* Diamond frame - Smaller */}
                 <div
-                    className={`${sizes[size]} relative rotate-45 border-[4px] border-brand-accent rounded-sm 
-                    shadow-[0_0_15px_rgba(0,240,255,0.4),inset_0_0_8px_rgba(0,240,255,0.2)]
-                    flex items-center justify-center transition-all duration-500
-                    hover:scale-110 hover:shadow-[0_0_25px_rgba(0,240,255,0.6)]`}
+                    className={`${sizes[size]} relative rotate-45 border-2 border-brand-accent/80 rounded-sm 
+                    shadow-[0_0_8px_rgba(0,240,255,0.3)]
+                    flex items-center justify-center transition-all duration-300
+                    hover:border-brand-accent hover:shadow-[0_0_12px_rgba(0,240,255,0.5)]`}
                 >
-                    {/* FP Text inside diamond */}
+                    {/* FP Text */}
                     <div className="-rotate-45">
-                        <span className={`${textSizes[size]} font-extrabold tracking-tighter text-white`}>
+                        <span className={`${textSizes[size]} font-bold tracking-tight text-white`}>
                             FP
                         </span>
                     </div>

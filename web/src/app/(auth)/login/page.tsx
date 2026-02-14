@@ -37,125 +37,106 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-            {/* Ambient glow effects */}
-            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-accent/10 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-brand-accent/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+            {/* Subtle ambient glow */}
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-brand-accent/8 rounded-full blur-[100px] pointer-events-none" />
 
-            {/* Main container */}
-            <div className="w-full max-w-md z-10 space-y-8">
-                {/* Logo Section */}
-                <div className="flex justify-center">
-                    <LogoDiamond size="large" showText={true} animated={true} />
-                </div>
-
-                {/* Login Form */}
-                <div className="bg-brand-deep-sea/50 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/5 relative overflow-hidden">
-                    {/* Decorative gradient */}
-                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent/50 to-transparent" />
+            {/* Compact centered container */}
+            <div className="w-full max-w-sm z-10">
+                {/* Logo + Form Card */}
+                <div className="bg-brand-deep-sea/40 backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/5 relative">
+                    {/* Top accent line */}
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-accent/40 to-transparent" />
 
                     <div className="space-y-6">
-                        {/* Header */}
-                        <div className="text-center space-y-2">
-                            <h1 className="text-2xl font-bold text-white">Bem-vindo de volta</h1>
-                            <p className="text-sm text-brand-gray">Entre para gerenciar suas finanças</p>
+                        {/* Logo + Title - Compact */}
+                        <div className="text-center space-y-4">
+                            <LogoDiamond size="medium" showText={false} />
+                            <div>
+                                <h1 className="text-xl font-bold text-white">Finance Pessoal</h1>
+                                <p className="text-xs text-brand-gray mt-1">Entre para gerenciar suas finanças</p>
+                            </div>
                         </div>
 
-                        {/* Error Message */}
+                        {/* Error */}
                         {error && (
-                            <div className="rounded-xl bg-rose-500/10 p-4 text-sm text-rose-400 text-center border border-rose-500/20 backdrop-blur-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                            <div className="rounded-xl bg-rose-500/10 p-3 text-xs text-rose-400 text-center border border-rose-500/20 animate-in fade-in">
                                 {error}
                             </div>
                         )}
 
-                        {/* Form */}
-                        <form onSubmit={handleLogin} className="space-y-5">
-                            {/* Email Field */}
-                            <div className="space-y-2">
-                                <label htmlFor="email" className="text-sm font-semibold text-white/90">
+                        {/* Form - Compact */}
+                        <form onSubmit={handleLogin} className="space-y-4">
+                            {/* Email */}
+                            <div className="space-y-1.5">
+                                <label htmlFor="email" className="text-xs font-semibold text-white/90">
                                     Email
                                 </label>
                                 <div className="relative group">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-brand-gray/50 group-focus-within:text-brand-accent transition-colors" />
+                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-gray/50 group-focus-within:text-brand-accent transition-colors" />
                                     <input
                                         id="email"
                                         type="email"
                                         placeholder="seu@email.com"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full rounded-2xl border border-white/10 bg-slate-950/50 py-3.5 pl-12 pr-4 text-white outline-none 
+                                        className="w-full rounded-xl border border-white/10 bg-slate-950/50 py-2.5 pl-10 pr-4 text-sm text-white outline-none 
                                         focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/20 
-                                        transition-all placeholder:text-brand-gray/40 backdrop-blur-sm
-                                        hover:border-white/20"
+                                        transition-all placeholder:text-brand-gray/40 backdrop-blur-sm hover:border-white/20"
                                         required
                                     />
                                 </div>
                             </div>
 
-                            {/* Password Field */}
-                            <div className="space-y-2">
-                                <label htmlFor="password" className="text-sm font-semibold text-white/90">
+                            {/* Password */}
+                            <div className="space-y-1.5">
+                                <label htmlFor="password" className="text-xs font-semibold text-white/90">
                                     Senha
                                 </label>
                                 <div className="relative group">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-brand-gray/50 group-focus-within:text-brand-accent transition-colors" />
+                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-gray/50 group-focus-within:text-brand-accent transition-colors" />
                                     <input
                                         id="password"
                                         type="password"
                                         placeholder="••••••••"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full rounded-2xl border border-white/10 bg-slate-950/50 py-3.5 pl-12 pr-4 text-white outline-none 
+                                        className="w-full rounded-xl border border-white/10 bg-slate-950/50 py-2.5 pl-10 pr-4 text-sm text-white outline-none 
                                         focus:border-brand-accent/50 focus:ring-2 focus:ring-brand-accent/20 
-                                        transition-all placeholder:text-brand-gray/40 backdrop-blur-sm
-                                        hover:border-white/20"
+                                        transition-all placeholder:text-brand-gray/40 backdrop-blur-sm hover:border-white/20"
                                         required
                                     />
                                 </div>
                             </div>
 
-                            {/* Submit Button */}
+                            {/* Submit - Compact */}
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full rounded-2xl bg-gradient-to-r from-brand-accent to-brand-accent/80 py-4 font-bold text-black
-                                transition-all hover:shadow-lg hover:shadow-brand-accent/30 hover:scale-[1.02]
+                                className="w-full rounded-xl bg-gradient-to-r from-brand-accent to-brand-accent/90 py-3 font-bold text-sm text-black
+                                transition-all hover:shadow-lg hover:shadow-brand-accent/25 hover:scale-[1.01]
                                 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
-                                flex items-center justify-center gap-3 transform active:scale-95
-                                relative overflow-hidden group"
+                                flex items-center justify-center gap-2 transform active:scale-95"
                             >
-                                {/* Button glow effect */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-
                                 {loading ? (
-                                    <Loader2 className="animate-spin h-5 w-5" />
+                                    <Loader2 className="animate-spin h-4 w-4" />
                                 ) : (
                                     <>
-                                        <LogIn className="w-5 h-5" />
+                                        <LogIn className="w-4 h-4" />
                                         <span>Entrar</span>
-                                        <ArrowRight className="w-5 h-5 ml-auto" />
+                                        <ArrowRight className="w-4 h-4" />
                                     </>
                                 )}
                             </button>
                         </form>
 
-                        {/* Divider */}
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-white/5" />
-                            </div>
-                            <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-brand-deep-sea px-3 text-brand-gray/50">ou</span>
-                            </div>
-                        </div>
-
-                        {/* Register Link */}
-                        <div className="text-center">
-                            <p className="text-sm text-brand-gray">
+                        {/* Register Link - Minimal */}
+                        <div className="pt-2 border-t border-white/5">
+                            <p className="text-xs text-center text-brand-gray">
                                 Não tem uma conta?{' '}
                                 <Link
                                     href="/register"
-                                    className="text-brand-accent font-bold hover:underline hover:text-brand-accent/80 transition-colors inline-flex items-center gap-1"
+                                    className="text-brand-accent font-semibold hover:underline transition-colors inline-flex items-center gap-0.5"
                                 >
                                     Cadastre-se
                                     <ArrowRight className="w-3 h-3" />
@@ -165,11 +146,11 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                {/* Footer pulse indicator */}
-                <div className="flex justify-center space-x-1.5 opacity-30">
-                    <div className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse" />
-                    <div className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse [animation-delay:0.2s]" />
-                    <div className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse [animation-delay:0.4s]" />
+                {/* Minimal pulse indicator */}
+                <div className="flex justify-center space-x-1.5 mt-4 opacity-20">
+                    <div className="w-1 h-1 rounded-full bg-brand-accent animate-pulse" />
+                    <div className="w-1 h-1 rounded-full bg-brand-accent animate-pulse [animation-delay:0.2s]" />
+                    <div className="w-1 h-1 rounded-full bg-brand-accent animate-pulse [animation-delay:0.4s]" />
                 </div>
             </div>
         </div>
