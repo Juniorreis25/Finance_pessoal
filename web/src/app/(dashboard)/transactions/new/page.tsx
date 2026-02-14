@@ -4,10 +4,12 @@ import { TransactionForm } from '@/components/forms/TransactionForm'
 
 export default function NewTransactionPage() {
     return (
-        <div className="max-w-2xl mx-auto">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Nova Transação</h1>
-                <p className="text-slate-500 dark:text-slate-400">Registre seus ganhos e gastos para manter o controle.</p>
+        <div className="max-w-xl mx-auto py-4">
+            <div className="mb-6 px-4">
+                <h1 className="text-4xl font-extrabold text-white tracking-tighter uppercase mb-1">
+                    Nova <span className="text-brand-accent">Transação</span>
+                </h1>
+                <p className="text-brand-gray text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Registro de Fluxo Financeiro</p>
             </div>
 
             <TransactionForm />

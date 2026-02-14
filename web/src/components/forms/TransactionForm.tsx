@@ -217,7 +217,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
     const incomeCategories = ['Freelance', 'Investimentos', 'Salário', 'Outros']
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-brand-deep-sea p-10 rounded-[2.5rem] shadow-2xl border border-white/5 max-w-2xl mx-auto relative overflow-hidden">
+        <form onSubmit={handleSubmit} className="space-y-6 bg-brand-deep-sea p-8 rounded-[2rem] shadow-2xl border border-white/5 max-w-xl mx-auto relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-brand-accent/5 blur-[80px] rounded-full pointer-events-none" />
 
             {/* Type Toggle - Neo Style */}
@@ -256,8 +256,8 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
             )}
 
             <div className="space-y-6 relative z-10 font-sans">
-                <div className="bg-brand-nav p-8 rounded-[2rem] border border-white/5">
-                    <label htmlFor="amount" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-3 opacity-60">
+                <div className="bg-brand-nav p-6 rounded-[1.5rem] border border-white/5">
+                    <label htmlFor="amount" className="block text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
                         VALOR TOTAL (R$)
                     </label>
                     <input
@@ -267,7 +267,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                         inputMode="numeric"
                         required
                         placeholder="R$ 0,00"
-                        className="w-full bg-transparent border-0 p-0 focus:ring-0 transition-all font-bold text-5xl text-brand-accent placeholder:text-brand-accent/10 tracking-tighter"
+                        className="w-full bg-transparent border-0 p-0 focus:ring-0 transition-all font-bold text-4xl text-brand-accent placeholder:text-brand-accent/10 tracking-tighter"
                         value={formData.amount}
                         onChange={handleAmountChange}
                         autoFocus
@@ -284,7 +284,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                             name="description"
                             required
                             placeholder={type === 'expense' ? "Ex: Supermercado" : "Ex: Salário Mensal"}
-                            className="w-full px-5 py-4 bg-brand-nav border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white placeholder:text-brand-gray/30"
+                            className="w-full px-5 py-3.5 bg-brand-nav border border-white/5 rounded-xl focus:border-brand-accent/50 shadow-inner outline-none transition-all font-bold text-white placeholder:text-brand-gray/30"
                             value={formData.description}
                             onChange={handleChange}
                         />
@@ -299,7 +299,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                                 id="category"
                                 name="category"
                                 required
-                                className="w-full px-5 py-4 bg-brand-nav border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white appearance-none cursor-pointer"
+                                className="w-full px-5 py-3.5 bg-brand-nav border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white appearance-none cursor-pointer"
                                 value={formData.category}
                                 onChange={handleChange}
                             >
@@ -324,7 +324,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                                 name="date"
                                 type="date"
                                 required
-                                className="w-full px-5 py-4 bg-brand-nav border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white [color-scheme:dark]"
+                                className="w-full px-5 py-3.5 bg-brand-nav border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white [color-scheme:dark]"
                                 value={formData.date}
                                 onChange={handleChange}
                             />
@@ -337,7 +337,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                                 id="first_installment_date"
                                 name="first_installment_date"
                                 type="date"
-                                className="w-full px-5 py-4 bg-brand-nav border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white [color-scheme:dark]"
+                                className="w-full px-5 py-3.5 bg-brand-nav border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white [color-scheme:dark]"
                                 value={formData.first_installment_date || formData.date}
                                 onChange={handleChange}
                                 disabled={!isInstallment}
@@ -353,7 +353,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                             <select
                                 id="card_id"
                                 name="card_id"
-                                className="w-full px-5 py-4 bg-brand-nav border border-white/5 rounded-2xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white appearance-none cursor-pointer"
+                                className="w-full px-5 py-3.5 bg-brand-nav border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white appearance-none cursor-pointer"
                                 value={formData.card_id || ''}
                                 onChange={handleChange}
                             >
@@ -368,22 +368,51 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                         </div>
                     </div>
 
-                    <div className="bg-brand-nav p-6 rounded-[2rem] border border-white/5">
+                    <div className="bg-brand-nav p-5 rounded-[1.5rem] border border-white/5">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className={`p-3 rounded-2xl ${isInstallment ? 'bg-brand-accent text-black' : 'bg-white/5 text-brand-gray'}`}>
-                                    <CalendarClock className="w-5 h-5" />
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-xl transition-all ${isInstallment ? 'bg-brand-accent text-black' : 'bg-white/5 text-brand-gray'}`}>
+                                    <CalendarClock className="w-4 h-4" />
                                 </div>
-                                <p className="font-black text-white text-[10px] uppercase tracking-[0.2em] opacity-80">Transação Parcelada?</p>
+                                <p className="font-black text-white text-[9px] uppercase tracking-[0.2em] opacity-80">Transação Parcelada?</p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setIsInstallment(!isInstallment)}
-                                className={`w-14 h-8 rounded-full transition-all relative ${isInstallment ? 'bg-brand-accent' : 'bg-white/10'}`}
+                                className={`w-12 h-7 rounded-full transition-all relative ${isInstallment ? 'bg-brand-accent' : 'bg-white/10'}`}
                             >
-                                <div className={`w-6 h-6 bg-white rounded-full absolute top-1 transition-all shadow-xl ${isInstallment ? 'left-7' : 'left-1'}`} />
+                                <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all shadow-xl ${isInstallment ? 'left-6' : 'left-1'}`} />
                             </button>
                         </div>
+
+                        {isInstallment && type === 'expense' && (
+                            <div className="pt-4 mt-4 border-t border-white/5 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <label htmlFor="installments" className="block text-[9px] font-black uppercase tracking-[0.2em] text-brand-gray mb-2 opacity-60">
+                                    QUANTIDADE DE PARCELAS
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        id="installments"
+                                        name="installments"
+                                        type="number"
+                                        min="2"
+                                        max="48"
+                                        required
+                                        className="w-full px-4 py-3 bg-brand-deep-sea border border-white/5 rounded-xl focus:border-brand-accent/50 outline-none transition-all font-bold text-white text-center"
+                                        value={installments}
+                                        onChange={(e) => setInstallments(parseInt(e.target.value))}
+                                    />
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand-accent">
+                                        <Calculator className="w-4 h-4 opacity-30" />
+                                    </div>
+                                </div>
+                                {installmentSummary && (
+                                    <p className="mt-3 text-[9px] font-bold text-brand-accent/60 uppercase tracking-widest text-center">
+                                        {installments}x de {installmentSummary.monthlyValue} • Final em {installmentSummary.lastDate}
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
