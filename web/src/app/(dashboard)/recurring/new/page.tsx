@@ -19,7 +19,7 @@ export default function NewRecurringExpensePage() {
     })
 
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value
+        const value = e.target.value
         const numericValue = value.replace(/\D/g, '')
 
         if (!numericValue) {
@@ -75,8 +75,8 @@ export default function NewRecurringExpensePage() {
 
             router.push('/recurring')
             router.refresh()
-        } catch (err: any) {
-            setError(err.message)
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Ocorreu um erro inesperado')
         } finally {
             setLoading(false)
         }

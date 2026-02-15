@@ -51,7 +51,7 @@ export default function ProfilePage() {
                         setAvatarPreview(profile.avatar_url)
                     }
                 }
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('Erro ao carregar perfil:', err)
             } finally {
                 setLoading(false)
@@ -108,8 +108,8 @@ export default function ProfilePage() {
 
             setFormData({ ...formData, avatar_url: publicUrl })
             setAvatarPreview(URL.createObjectURL(file))
-        } catch (err: any) {
-            setError(err.message || 'Erro ao fazer upload da imagem')
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Erro ao fazer upload da imagem')
         } finally {
             setUploading(false)
         }
@@ -169,8 +169,8 @@ export default function ProfilePage() {
                 router.push('/dashboard')
                 router.refresh()
             }, 1500)
-        } catch (err: any) {
-            setError(err.message || 'Erro ao salvar perfil')
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Erro ao salvar perfil')
         } finally {
             setSaving(false)
         }

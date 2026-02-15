@@ -42,7 +42,7 @@ export function CategoryChart({ data }: { data: CategoryData[] }) {
                         ))}
                     </Pie>
                     <Tooltip
-                        formatter={(value: any) => `R$ ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                        formatter={(value: number | string | undefined) => `R$ ${Number(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                         contentStyle={{
                             backgroundColor: '#141C24',
                             borderColor: 'rgba(255, 255, 255, 0.1)',

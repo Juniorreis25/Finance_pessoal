@@ -5,9 +5,20 @@ import { TransactionForm } from '@/components/forms/TransactionForm'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
+type Transaction = {
+    id: string
+    description: string
+    amount: number
+    category: string
+    date: string
+    type: 'income' | 'expense'
+    card_id?: string | null
+    purchase_date?: string | null
+}
+
 export default function EditTransactionPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params)
-    const [transaction, setTransaction] = useState<any>(null)
+    const [transaction, setTransaction] = useState<Transaction | null>(null)
     const [loading, setLoading] = useState(true)
     const router = useRouter()
     const supabase = createClient()
@@ -41,7 +52,7 @@ export default function EditTransactionPage({ params }: { params: Promise<{ id: 
                 <p className="text-slate-500 dark:text-slate-400">Atualize os dados do lançamento para manter seus registros precisos.</p>
             </div>
 
-            <TransactionForm initialData={transaction} />
+            {transaction && <TransactionForm initialData={transaction} />}
         </div>
     )
 }

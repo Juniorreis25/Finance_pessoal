@@ -19,7 +19,7 @@ type Card = {
 export function CardItem({ card }: { card: Card }) {
     const router = useRouter()
     const supabase = createClient()
-    const status = calculateCardStatus(new Date(), card.closing_day, card.due_day)
+    const status = calculateCardStatus(new Date(), card.closing_day)
 
     const handleDelete = async () => {
         if (window.confirm('Tem certeza que deseja excluir este cartão? ATENÇÃO: Todas as transações vinculadas a ele também serão excluídas permanentemente.')) {

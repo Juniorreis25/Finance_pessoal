@@ -47,13 +47,13 @@ describe('LoginPage', () => {
         render(<LoginPage />)
 
         fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'test@test.com' } })
-        fireEvent.change(screen.getByLabelText(/Senha/i), { target: { value: 'password123' } })
+        fireEvent.change(screen.getByLabelText(/Senha/i), { target: { value: 'user-pass-123' } })
         fireEvent.click(screen.getByRole('button', { name: /Entrar/i }))
 
         await waitFor(() => {
             expect(signInWithPasswordMock).toHaveBeenCalledWith({
                 email: 'test@test.com',
-                password: 'password123',
+                password: 'user-pass-123',
             })
             expect(pushMock).toHaveBeenCalledWith('/dashboard')
             expect(refreshMock).toHaveBeenCalled()

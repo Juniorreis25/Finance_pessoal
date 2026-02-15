@@ -75,7 +75,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
             if (data) setCards(data)
         }
         fetchCards()
-    }, [])
+    }, [supabase])
 
     const parseCurrency = (value: string) => {
         if (!value) return 0
@@ -112,7 +112,7 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
     }, [isInstallment, formData.date, formData.first_installment_date, formData.amount, installments])
 
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value
+        const value = e.target.value
         const numericValue = value.replace(/\D/g, '')
 
         if (!numericValue) {

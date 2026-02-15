@@ -29,8 +29,8 @@ export default function LoginPage() {
             if (error) throw error
             router.push('/dashboard')
             router.refresh()
-        } catch (err: any) {
-            setError(err.message)
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Falha na autenticação')
         } finally {
             setLoading(false)
         }

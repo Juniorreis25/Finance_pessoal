@@ -18,7 +18,8 @@ vi.mock('@/lib/supabase/client', () => ({
             getUser: getUserMock,
         },
         from: vi.fn((table) => {
-            const queryObj: any = {}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const queryObj: Record<string, any> = {}
             queryObj.select = vi.fn().mockReturnValue(queryObj)
             queryObj.insert = vi.fn().mockResolvedValue({ error: null })
             queryObj.update = vi.fn().mockReturnValue(queryObj)

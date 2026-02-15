@@ -1,4 +1,4 @@
-import { addMonths, setDate, isAfter, isBefore, startOfDay, getDate } from 'date-fns'
+import { addMonths, setDate, startOfDay, getDate } from 'date-fns'
 
 export type CardStatus = {
     status: 'open' | 'closed-current' | 'overdue'
@@ -9,8 +9,7 @@ export type CardStatus = {
 
 export function calculateCardStatus(
     currentDate: Date,
-    closingDay: number,
-    dueDay: number
+    closingDay: number
 ): CardStatus {
     // Simple Mock Implementation
     const today = startOfDay(currentDate)

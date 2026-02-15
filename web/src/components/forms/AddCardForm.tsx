@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2, CreditCard, Save, X } from 'lucide-react'
+import { Loader2, CreditCard, Save } from 'lucide-react'
 
 type CardData = {
     id?: string
@@ -49,7 +49,7 @@ export function CardForm({ initialData }: CardFormProps) {
     }, [initialData])
 
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value
+        const value = e.target.value
 
         // Remove non-digits
         const numericValue = value.replace(/\D/g, '')
@@ -112,8 +112,8 @@ export function CardForm({ initialData }: CardFormProps) {
 
             router.push('/cards')
             router.refresh()
-        } catch (err: any) {
-            setError(err.message)
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Erro desconhecido')
         } finally {
             setLoading(false)
         }

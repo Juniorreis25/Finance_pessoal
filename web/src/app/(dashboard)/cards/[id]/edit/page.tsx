@@ -5,9 +5,17 @@ import { CardForm } from '@/components/forms/AddCardForm'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
+type Card = {
+    id: string
+    name: string
+    limit_amount: number
+    closing_day: number
+    due_day: number
+}
+
 export default function EditCardPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params)
-    const [card, setCard] = useState<any>(null)
+    const [card, setCard] = useState<Card | null>(null)
     const [loading, setLoading] = useState(true)
     const router = useRouter()
     const supabase = createClient()
@@ -41,7 +49,7 @@ export default function EditCardPage({ params }: { params: Promise<{ id: string 
                 <p className="text-slate-500 dark:text-slate-400">Atualize as informações do seu cartão para manter sua gestão financeira atualizada.</p>
             </div>
 
-            <CardForm initialData={card} />
+            {card && <CardForm initialData={card} />}
         </div>
     )
 }

@@ -20,7 +20,14 @@ type Transaction = {
     type: 'income' | 'expense'
     category: string
     date: string
+    card_id?: string | null
+    cards?: { name: string } | null
 }
+
+type OverviewData = { name: string, receita: number, despesa: number }
+type CategoryData = { name: string, value: number, color: string }
+type FixedVsCardData = { name: string, value: number }
+type CardDistData = { name: string, valor: number }
 
 export default function DashboardPage() {
     const supabase = createClient()
@@ -39,10 +46,10 @@ export default function DashboardPage() {
         income: 0,
         expense: 0
     })
-    const [overviewData, setOverviewData] = useState<any[]>([])
-    const [categoryData, setCategoryData] = useState<any[]>([])
-    const [fixedVsCardData, setFixedVsCardData] = useState<any[]>([])
-    const [cardDistributionData, setCardDistributionData] = useState<any[]>([])
+    const [overviewData, setOverviewData] = useState<OverviewData[]>([])
+    const [categoryData, setCategoryData] = useState<CategoryData[]>([])
+    const [fixedVsCardData, setFixedVsCardData] = useState<FixedVsCardData[]>([])
+    const [cardDistributionData, setCardDistributionData] = useState<CardDistData[]>([])
     const [userProfile, setUserProfile] = useState<{ display_name: string | null, welcome_message: string | null }>({
         display_name: null,
         welcome_message: null
@@ -196,7 +203,7 @@ export default function DashboardPage() {
             monthTransactions
                 .filter(t => t.type === 'expense' && t.card_id)
                 .forEach(t => {
-                    const cardName = (t as any).cards?.name || 'Cartão Indefinido'
+                    const cardName = t.cards?.name || 'Cartão Indefinido'
                     cardMap[cardName] = (cardMap[cardName] || 0) + t.amount
                 })
 
@@ -230,7 +237,10 @@ export default function DashboardPage() {
     }, [supabase, currentDate, selectedCategory])
 
     useEffect(() => {
-        fetchData()
+        const timeoutId = setTimeout(() => {
+            fetchData()
+        }, 0)
+        return () => clearTimeout(timeoutId)
     }, [fetchData])
 
     // Fetch user profile

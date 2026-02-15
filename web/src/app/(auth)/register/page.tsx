@@ -32,8 +32,8 @@ export default function RegisterPage() {
 
             if (error) throw error
             setSuccess(true)
-        } catch (err: any) {
-            setError(err.message)
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Falha ao criar conta')
         } finally {
             setLoading(false)
         }
