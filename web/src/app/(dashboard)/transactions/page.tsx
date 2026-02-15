@@ -1,15 +1,16 @@
 
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
-import { Plus, ArrowDownRight, ArrowUpRight, ArrowRightLeft, Edit2, Trash2, Search, Filter, CreditCard, Wallet, CalendarRange, ListTree } from 'lucide-react'
+import { Plus, ArrowDownRight, ArrowUpRight, ArrowRightLeft, Edit2, Trash2, Search, CreditCard, Wallet, CalendarRange, ListTree } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { format, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { MonthSelector } from '@/components/ui/MonthSelector'
 import { usePrivacy } from '@/providers/PrivacyProvider'
 import { MaskedValue } from '@/components/ui/MaskedValue'
+import { MethodSelector } from '@/components/ui/MethodSelector'
 
 type Transaction = {
     id: string
@@ -41,10 +42,10 @@ export default function TransactionsPage() {
     const [loading, setLoading] = useState(true)
     const [currentDate, setCurrentDate] = useState(new Date())
     const [searchTerm, setSearchTerm] = useState('')
-    const [selectedCardId, setSelectedCardId] = useState<string>('all')
+    const [selectedCardIds, setSelectedCardIds] = useState<string[]>(['all'])
     const { isValuesVisible, toggleVisibility } = usePrivacy()
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         setLoading(true)
 
         // Fetch transactions with JOIN
@@ -72,11 +73,11 @@ export default function TransactionsPage() {
         if (recData) setRecurringExpenses(recData)
 
         setLoading(false)
-    }
+    }, [supabase])
 
     useEffect(() => {
         fetchData()
-    }, [])
+    }, [fetchData])
 
     const handleDelete = async (id: string) => {
         if (window.confirm('Tem certeza que deseja excluir esta transação?')) {
@@ -101,9 +102,9 @@ export default function TransactionsPage() {
         const matchesSearch = tx.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
             tx.category.toLowerCase().includes(searchTerm.toLowerCase())
 
-        const matchesCard = selectedCardId === 'all' ||
-            (selectedCardId === 'cash' && !tx.card_id) ||
-            tx.card_id === selectedCardId
+        const matchesCard = selectedCardIds.includes('all') ||
+            (selectedCardIds.includes('cash') && !tx.card_id) ||
+            (tx.card_id && selectedCardIds.includes(tx.card_id))
 
         return matchesDate && matchesSearch && matchesCard
     })
@@ -166,22 +167,11 @@ export default function TransactionsPage() {
 
             {/* Filters Row */}
             <div className="flex flex-wrap gap-4 items-center">
-                <div className="relative w-full md:w-72">
-                    <select
-                        value={selectedCardId}
-                        onChange={(e) => setSelectedCardId(e.target.value)}
-                        className="w-full pl-5 pr-10 py-3.5 bg-brand-deep-sea border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white appearance-none outline-none focus:border-brand-accent/50 transition-all cursor-pointer shadow-xl"
-                    >
-                        <option value="all" className="bg-brand-deep-sea">Todos os Métodos</option>
-                        <option value="cash" className="bg-brand-deep-sea">Dinheiro/Débito</option>
-                        {cards.map(card => (
-                            <option key={card.id} value={card.id} className="bg-brand-deep-sea">{card.name}</option>
-                        ))}
-                    </select>
-                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-brand-accent">
-                        <Filter className="w-4 h-4 opacity-50" />
-                    </div>
-                </div>
+                <MethodSelector
+                    cards={cards}
+                    selectedIds={selectedCardIds}
+                    onChange={setSelectedCardIds}
+                />
             </div>
 
             {/* Master Summary Card - Inspired by Dashboard minimal style */}
@@ -379,7 +369,7 @@ export default function TransactionsPage() {
                         <button
                             onClick={() => {
                                 setSearchTerm('')
-                                setSelectedCardId('all')
+                                setSelectedCardIds(['all'])
                             }}
                             className="text-brand-accent font-bold hover:underline uppercase text-[10px] tracking-widest"
                         >
