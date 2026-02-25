@@ -11,6 +11,7 @@ import { MonthSelector } from '@/components/ui/MonthSelector'
 import { usePrivacy } from '@/providers/PrivacyProvider'
 import { MaskedValue } from '@/components/ui/MaskedValue'
 import { MethodSelector } from '@/components/ui/MethodSelector'
+import { TypeSelector } from '@/components/ui/TypeSelector'
 
 type Transaction = {
     id: string
@@ -51,6 +52,7 @@ export default function TransactionsPage() {
     const [currentDate, setCurrentDate] = useState(new Date())
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedCardIds, setSelectedCardIds] = useState<string[]>(['all'])
+    const [selectedType, setSelectedType] = useState<'all' | 'income' | 'expense'>('all')
     const { isValuesVisible, toggleVisibility } = usePrivacy()
 
     const fetchData = useCallback(async () => {
@@ -117,7 +119,9 @@ export default function TransactionsPage() {
             (selectedCardIds.includes('cash') && !tx.card_id) ||
             (tx.card_id && selectedCardIds.includes(tx.card_id))
 
-        return matchesDate && matchesSearch && matchesCard
+        const matchesType = selectedType === 'all' || tx.type === selectedType
+
+        return matchesDate && matchesSearch && matchesCard && matchesType
     })
 
     // Calculate totals
@@ -159,46 +163,54 @@ export default function TransactionsPage() {
 
     return (
         <div className="space-y-8 max-w-5xl mx-auto pb-20">
-            {/* Header with Search and Date Filter */}
+            {/* Header with Title and Global Action */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-white tracking-tight">Transações</h1>
                     <p className="text-slate-400">Gerencie suas entradas e saídas.</p>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto items-center">
-                    <MonthSelector currentDate={currentDate} onDateChange={setCurrentDate} />
-
-                    <div className="flex gap-3 w-full md:w-auto">
-                        {/* Search Bar */}
-                        <div className="relative flex-1 md:w-72">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-gray" />
-                            <label htmlFor="search-transactions" className="sr-only">Buscar transações</label>
-                            <input
-                                id="search-transactions"
-                                placeholder="Buscar transações..."
-                                className="w-full pl-11 pr-4 py-3 bg-brand-deep-sea border border-white/5 rounded-2xl text-sm focus:border-brand-accent/50 outline-none transition-all text-white placeholder:text-brand-gray/50"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <Link
-                            href="/transactions/new"
-                            className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_4px_15px_rgba(0,240,255,0.3)]"
-                        >
-                            <Plus className="w-6 h-6" strokeWidth={3} />
-                        </Link>
-                    </div>
-                </div>
+                <Link
+                    href="/transactions/new"
+                    className="flex items-center justify-center w-[52px] h-[52px] bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_8px_20px_rgba(0,240,255,0.3)] cursor-pointer"
+                    title="Nova Transação"
+                >
+                    <Plus className="w-6 h-6" strokeWidth={3} />
+                </Link>
             </div>
 
-            {/* Filters Row */}
-            <div className="flex flex-wrap gap-4 items-center">
-                <MethodSelector
-                    cards={cards}
-                    selectedIds={selectedCardIds}
-                    onChange={setSelectedCardIds}
-                />
+            {/* Unified Toolbar: Professional Distribution */}
+            <div className="flex flex-col lg:flex-row gap-3 items-center w-full">
+                {/* 1. Date Navigation */}
+                <div className="w-full lg:w-auto">
+                    <MonthSelector currentDate={currentDate} onDateChange={setCurrentDate} />
+                </div>
+
+                {/* 2. Flexible Search Bar (Fills remaining center space) */}
+                <div className="relative flex-1 w-full lg:min-w-[200px]">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-gray" />
+                    <label htmlFor="search-transactions" className="sr-only">Buscar transações</label>
+                    <input
+                        id="search-transactions"
+                        placeholder="Buscar transações..."
+                        className="w-full pl-11 pr-4 py-3 bg-brand-deep-sea border border-white/5 rounded-2xl text-sm focus:border-brand-accent/50 outline-none transition-all text-white placeholder:text-brand-gray/50 h-[52px] shadow-xl"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+
+                {/* 3. Dropdown Filters Group */}
+                <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                    <TypeSelector
+                        selectedType={selectedType}
+                        onChange={setSelectedType}
+                    />
+                    <MethodSelector
+                        cards={cards}
+                        selectedIds={selectedCardIds}
+                        onChange={setSelectedCardIds}
+                    />
+                </div>
             </div>
 
             {/* Master Summary Card - Expense Focus */}
@@ -384,6 +396,7 @@ export default function TransactionsPage() {
                             onClick={() => {
                                 setSearchTerm('')
                                 setSelectedCardIds(['all'])
+                                setSelectedType('all')
                             }}
                             className="text-brand-accent font-bold hover:underline uppercase text-[10px] tracking-widest"
                         >

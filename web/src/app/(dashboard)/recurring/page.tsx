@@ -90,33 +90,34 @@ export default function RecurringExpensesPage() {
     return (
         <div className="space-y-8 max-w-5xl mx-auto">
             {/* Header */}
+            {/* Header with Title and Global Action */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-white tracking-tight">Transações Recorrentes</h1>
                     <p className="text-slate-400">Gerencie seus ganhos e pagamentos fixos mensais.</p>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
-                    {/* Search Bar */}
-                    <div className="relative flex-1 md:w-64">
-                        <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-                        <label htmlFor="search-recurring" className="sr-only">Buscar por descrição</label>
-                        <input
-                            id="search-recurring"
-                            placeholder="Buscar por descrição..."
-                            className="w-full pl-9 pr-4 py-2 bg-brand-nav border border-white/5 rounded-xl text-sm focus:ring-1 focus:ring-brand-accent/50 outline-none transition-all placeholder:text-brand-gray/30 text-white font-bold"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="flex items-center justify-center w-[52px] h-[52px] bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_8px_20px_rgba(0,240,255,0.3)] cursor-pointer"
+                    title="Nova Recorrência"
+                >
+                    <Plus className="w-6 h-6" strokeWidth={3} />
+                </button>
+            </div>
 
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="flex items-center justify-center w-10 h-10 bg-brand-accent text-black rounded-xl hover:scale-110 active:scale-95 transition-all shadow-lg shadow-brand-accent/20 cursor-pointer"
-                        title="Nova Recorrência"
-                    >
-                        <Plus className="w-6 h-6" strokeWidth={3} />
-                    </button>
+            {/* Toolbar: Search */}
+            <div className="flex flex-wrap gap-3 items-center">
+                <div className="relative flex-1 min-w-[300px]">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-gray" />
+                    <label htmlFor="search-recurring" className="sr-only">Buscar por descrição</label>
+                    <input
+                        id="search-recurring"
+                        placeholder="Buscar por descrição..."
+                        className="w-full pl-11 pr-4 py-3 bg-brand-deep-sea border border-white/5 rounded-2xl text-sm focus:border-brand-accent/50 outline-none transition-all text-white placeholder:text-brand-gray/50 h-[52px]"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                 </div>
             </div>
 

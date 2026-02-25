@@ -296,9 +296,12 @@ export default function DashboardPage() {
                         <Link href="/cards" className="p-3 bg-brand-deep-sea text-brand-gray rounded-2xl border border-white/5 hover:bg-white/5 transition-all cursor-pointer" aria-label="Ver cartões" title="Gerenciar Meus Cartões">
                             <CreditCard className="w-5 h-5" />
                         </Link>
-                        <Link href="/transactions/new" className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-black font-black uppercase tracking-tighter text-xs rounded-2xl hover:scale-105 transition-transform shadow-[0_8px_20px_rgba(0,240,255,0.3)] cursor-pointer" title="Adicionar Nova Transação">
-                            <Plus className="w-5 h-5" strokeWidth={3} />
-                            Novo
+                        <Link
+                            href="/transactions/new"
+                            className="flex items-center justify-center w-[52px] h-[52px] bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_8px_20px_rgba(0,240,255,0.3)] cursor-pointer"
+                            title="Nova Transação"
+                        >
+                            <Plus className="w-6 h-6" strokeWidth={3} />
                         </Link>
                     </div>
                 </div>
