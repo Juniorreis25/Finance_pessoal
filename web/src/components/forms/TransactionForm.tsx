@@ -71,7 +71,10 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
 
     useEffect(() => {
         async function fetchCards() {
-            const { data } = await supabase.from('cards').select('id, name')
+            const { data } = await supabase
+                .from('cards')
+                .select('id, name')
+                .eq('active', true)
             if (data) setCards(data)
         }
         fetchCards()

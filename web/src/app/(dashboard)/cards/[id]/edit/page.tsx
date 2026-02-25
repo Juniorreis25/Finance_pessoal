@@ -11,6 +11,7 @@ type Card = {
     limit_amount: number
     closing_day: number
     due_day: number
+    active: boolean
 }
 
 export default function EditCardPage({ params }: { params: Promise<{ id: string }> }) {

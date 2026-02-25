@@ -66,10 +66,11 @@ export default function TransactionsPage() {
 
         if (txData) setTransactions(txData)
 
-        // Fetch cards for filter
+        // Fetch cards for filter (Only Active)
         const { data: cardData } = await supabase
             .from('cards')
             .select('id, name')
+            .eq('active', true)
             .order('name')
 
         if (cardData) setCards(cardData)

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { CardStatus, calculateCardStatus } from '@/lib/date-logic'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -14,12 +15,48 @@ type Card = {
     limit_amount: number
     closing_day: number
     due_day: number
+    active: boolean
 }
 
-export function CardItem({ card }: { card: Card }) {
+export function CardItem({ card, onUpdate }: { card: Card, onUpdate?: () => void }) {
     const router = useRouter()
     const supabase = createClient()
     const status = calculateCardStatus(new Date(), card.closing_day)
+
+    const [isUpdating, setIsUpdating] = useState(false)
+
+    const toggleStatus = async (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        if (isUpdating) return
+
+        console.log('Iniciando toggleStatus para o cartão:', card.id, 'Status atual:', card.active)
+        setIsUpdating(true)
+        const newStatus = !card.active
+
+        try {
+            const { data, error } = await supabase
+                .from('cards')
+                .update({ active: newStatus })
+                .eq('id', card.id)
+                .select()
+
+            console.log('Resposta do Supabase:', { data, error })
+
+            if (error) throw error
+
+            console.log('Chamando onUpdate...')
+            if (onUpdate) {
+                onUpdate()
+            }
+        } catch (error) {
+            console.error('Erro detalhado no toggleStatus:', error)
+            alert('Erro ao atualizar status do cartão')
+        } finally {
+            setIsUpdating(false)
+        }
+    }
 
     const handleDelete = async () => {
         if (window.confirm('Tem certeza que deseja excluir este cartão? ATENÇÃO: Todas as transações vinculadas a ele também serão excluídas permanentemente.')) {
@@ -52,7 +89,7 @@ export function CardItem({ card }: { card: Card }) {
     const borderClass = "border-slate-800"
 
     return (
-        <div className={`relative w-full aspect-[1.586/1] rounded-[1.5rem] p-6 text-white shadow-2xl overflow-hidden group transition-all hover:scale-[1.02] hover:shadow-brand-500/10 ${bgClass} border ${borderClass}`}>
+        <div className={`relative w-full aspect-[1.586/1] rounded-[1.5rem] p-6 text-white shadow-2xl overflow-hidden group transition-all hover:scale-[1.02] hover:shadow-brand-500/10 ${bgClass} border ${borderClass} ${!card.active ? 'opacity-50 grayscale-[0.5]' : ''}`}>
 
             {/* Abstract Background Shapes */}
             <div className="absolute top-[-50%] right-[-20%] w-[100%] h-[150%] bg-gradient-to-b from-brand-500/10 to-transparent blur-3xl rounded-full pointer-events-none" />
@@ -112,6 +149,18 @@ export function CardItem({ card }: { card: Card }) {
 
             {/* Hover Actions Overlay */}
             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                <button
+                    onClick={toggleStatus}
+                    disabled={isUpdating}
+                    className={`p-2 rounded-full transition-all backdrop-blur-sm shadow-lg border border-white/10 cursor-pointer ${isUpdating ? 'opacity-50 scale-90' : 'hover:scale-110'} ${card.active ? 'bg-slate-800/80 text-white hover:bg-amber-500' : 'bg-amber-500 text-white hover:bg-emerald-500'}`}
+                    title={card.active ? 'Inativar Cartão' : 'Ativar Cartão'}
+                >
+                    {isUpdating ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                        card.active ? <CalendarX className="w-4 h-4" /> : <CalendarCheck className="w-4 h-4" />
+                    )}
+                </button>
                 <Link href={`/cards/${card.id}/edit`} className="p-2 bg-slate-800/80 text-white rounded-full hover:bg-brand-500 hover:text-slate-900 transition-colors backdrop-blur-sm shadow-lg border border-white/10 cursor-pointer" title="Editar Cartão">
                     <Edit2 className="w-4 h-4" />
                 </Link>

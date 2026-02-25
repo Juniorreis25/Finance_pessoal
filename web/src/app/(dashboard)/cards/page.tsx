@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Plus, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { CardItem } from '@/components/cards/CardItem'
+import { StatusSelector, CardStatusFilter } from '@/components/ui/StatusSelector'
 
 type Card = {
     id: string
@@ -13,19 +14,26 @@ type Card = {
     closing_day: number
     due_day: number
     user_id: string
+    active: boolean
 }
 
 export default function CardsPage() {
     const supabase = createClient()
     const [cards, setCards] = useState<Card[]>([])
     const [loading, setLoading] = useState(true)
+    const [selectedStatus, setSelectedStatus] = useState<CardStatusFilter>('all')
+
+    const fetchCards = async () => {
+        const { data } = await supabase
+            .from('cards')
+            .select('*')
+            .order('active', { ascending: false })
+            .order('name')
+        if (data) setCards(data)
+        setLoading(false)
+    }
 
     useEffect(() => {
-        async function fetchCards() {
-            const { data } = await supabase.from('cards').select('*')
-            if (data) setCards(data)
-            setLoading(false)
-        }
         fetchCards()
     }, [])
 
@@ -36,12 +44,18 @@ export default function CardsPage() {
                     <h1 className="text-3xl font-extrabold text-white tracking-tighter uppercase">Meus <span className="text-brand-accent">Cartões</span></h1>
                     <p className="text-brand-gray text-xs font-bold uppercase tracking-widest opacity-60">Gerenciamento de Crédito</p>
                 </div>
-                <Link
-                    href="/cards/new"
-                    className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_4px_15px_rgba(0,240,255,0.3)]"
-                >
-                    <Plus className="w-6 h-6" strokeWidth={3} />
-                </Link>
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <StatusSelector
+                        selectedStatus={selectedStatus}
+                        onChange={setSelectedStatus}
+                    />
+                    <Link
+                        href="/cards/new"
+                        className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_4px_15px_rgba(0,240,255,0.3)]"
+                    >
+                        <Plus className="w-6 h-6" strokeWidth={3} />
+                    </Link>
+                </div>
             </div>
 
             {loading ? (
@@ -50,9 +64,16 @@ export default function CardsPage() {
                 </div>
             ) : cards.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {cards.map((card) => (
-                        <CardItem key={card.id} card={card} />
-                    ))}
+                    {cards
+                        .filter(card => {
+                            if (selectedStatus === 'all') return true
+                            if (selectedStatus === 'active') return card.active
+                            if (selectedStatus === 'inactive') return !card.active
+                            return true
+                        })
+                        .map((card) => (
+                            <CardItem key={card.id} card={card} onUpdate={fetchCards} />
+                        ))}
                 </div>
             ) : (
                 <div className="p-16 bg-brand-deep-sea rounded-[2.5rem] border border-white/5 text-center flex flex-col items-center shadow-2xl relative overflow-hidden">
