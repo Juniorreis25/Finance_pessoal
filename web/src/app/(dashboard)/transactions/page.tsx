@@ -220,63 +220,100 @@ export default function TransactionsPage() {
             </div>
 
             {/* Master Summary Card - Expense Focus */}
-            <div className="relative overflow-hidden bg-brand-deep-sea border border-white/5 rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+            <div className="relative overflow-hidden bg-brand-deep-sea border border-white/5 rounded-[2.5rem] p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
                 {/* Background decorative elements */}
                 <div className="absolute top-0 right-0 w-96 h-96 bg-brand-accent/5 blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-success/5 blur-[100px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
-                <div className="relative flex flex-col md:flex-row justify-between items-center gap-8">
-                    {/* Left Side: Total (Cartão + Dinheiro) */}
-                    <div className="flex-1 space-y-4">
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-                                <ArrowRightLeft className="w-3.5 h-3.5 text-brand-accent" />
-                                <span>Total (Cartão + Dinheiro)</span>
+                <div className="relative space-y-8">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                        {/* Left Side: Total (Cartão + Dinheiro) */}
+                        <div className="flex-1 space-y-4">
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                                    <ArrowRightLeft className="w-3.5 h-3.5 text-brand-accent" />
+                                    <span>Total (Cartão + Dinheiro)</span>
+                                </div>
+                                <button
+                                    onClick={toggleVisibility}
+                                    className="p-2 text-slate-500 hover:text-white transition-colors cursor-pointer"
+                                    aria-label={isValuesVisible ? "Ocultar valores" : "Mostrar valores"}
+                                >
+                                    {isValuesVisible ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye-off"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" /><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" /><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" /><line x1="2" x2="22" y1="2" y2="22" /></svg>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z" /><circle cx="12" cy="12" r="3" /></svg>
+                                    )}
+                                </button>
                             </div>
-                            <button
-                                onClick={toggleVisibility}
-                                className="p-2 text-slate-500 hover:text-white transition-colors cursor-pointer"
-                                aria-label={isValuesVisible ? "Ocultar valores" : "Mostrar valores"}
-                            >
-                                {isValuesVisible ? (
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye-off"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" /><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" /><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" /><line x1="2" x2="22" y1="2" y2="22" /></svg>
-                                ) : (
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z" /><circle cx="12" cy="12" r="3" /></svg>
-                                )}
-                            </button>
+
+                            <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-rose-500 drop-shadow-[0_0_10px_rgba(244,63,94,0.1)]">
+                                <MaskedValue value={pointualTotal} prefix={isValuesVisible ? "- R$ " : ""} />
+                            </h2>
                         </div>
 
-                        <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-rose-500 drop-shadow-[0_0_10px_rgba(244,63,94,0.1)]">
-                            <MaskedValue value={pointualTotal} prefix={isValuesVisible ? "- R$ " : ""} />
-                        </h2>
+                        {/* Right Side: Specific Totals */}
+                        <div className="flex flex-col sm:flex-row gap-8">
+                            <div className="flex items-center gap-3 group">
+                                <div className="p-3 bg-brand-accent/10 rounded-2xl text-brand-accent border border-brand-accent/10 group-hover:bg-brand-accent/20 transition-all">
+                                    <CreditCard className="w-5 h-5 font-bold" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Cartão</p>
+                                    <p className="text-lg font-bold text-slate-200 leading-tight">
+                                        <MaskedValue value={totalCardExpense} prefix={isValuesVisible ? "- R$ " : ""} />
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="hidden sm:block w-px h-12 bg-white/5" />
+
+                            <div className="flex items-center gap-3 group">
+                                <div className="p-3 bg-brand-success/10 rounded-2xl text-brand-success border border-brand-success/10 group-hover:bg-brand-success/20 transition-all">
+                                    <Wallet className="w-5 h-5 font-bold" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Dinheiro/Débito</p>
+                                    <p className="text-lg font-bold text-slate-200 leading-tight">
+                                        <MaskedValue value={totalCashExpense} prefix={isValuesVisible ? "- R$ " : ""} />
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Right Side: Specific Totals */}
-                    <div className="flex flex-col sm:flex-row gap-8">
-                        <div className="flex items-center gap-3 group">
-                            <div className="p-3 bg-brand-accent/10 rounded-2xl text-brand-accent border border-brand-accent/10 group-hover:bg-brand-accent/20 transition-all">
-                                <CreditCard className="w-5 h-5 font-bold" />
-                            </div>
-                            <div>
-                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Cartão</p>
-                                <p className="text-lg font-bold text-slate-200 leading-tight">
-                                    <MaskedValue value={totalCardExpense} prefix={isValuesVisible ? "- R$ " : ""} />
-                                </p>
-                            </div>
+                    {/* Monthly Summary Divider */}
+                    <div className="h-px w-full bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+
+                    {/* Cash Flow Summary */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white/[0.02] border border-white/5 rounded-3xl p-6">
+                        <div className="space-y-1">
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                <ArrowUpRight className="w-3 h-3 text-brand-success" />
+                                Receita
+                            </p>
+                            <p className="text-xl font-bold text-brand-success">
+                                <MaskedValue value={totalIncome} prefix={isValuesVisible ? "R$ " : ""} />
+                            </p>
                         </div>
 
-                        <div className="hidden sm:block w-px h-12 bg-white/5" />
+                        <div className="space-y-1">
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                <ArrowDownRight className="w-3 h-3 text-rose-500" />
+                                Despesas
+                            </p>
+                            <p className="text-xl font-bold text-rose-500">
+                                <MaskedValue value={grandTotalExpense} prefix={isValuesVisible ? "- R$ " : ""} />
+                            </p>
+                        </div>
 
-                        <div className="flex items-center gap-3 group">
-                            <div className="p-3 bg-brand-success/10 rounded-2xl text-brand-success border border-brand-success/10 group-hover:bg-brand-success/20 transition-all">
-                                <Wallet className="w-5 h-5 font-bold" />
-                            </div>
-                            <div>
-                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Dinheiro/Débito</p>
-                                <p className="text-lg font-bold text-slate-200 leading-tight">
-                                    <MaskedValue value={totalCashExpense} prefix={isValuesVisible ? "- R$ " : ""} />
-                                </p>
-                            </div>
+                        <div className="space-y-1 p-3 bg-white/5 rounded-2xl border border-white/5">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                Total (Saldo)
+                            </p>
+                            <p className={`text-xl font-black ${projectedBalance >= 0 ? 'text-brand-accent' : 'text-rose-500'}`}>
+                                <MaskedValue value={Math.abs(projectedBalance)} prefix={isValuesVisible ? (projectedBalance >= 0 ? "R$ " : "- R$ ") : ""} />
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -411,6 +448,6 @@ export default function TransactionsPage() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     )
 }

@@ -271,7 +271,7 @@ export default function DashboardPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                 <div>
                     <h1 className="text-4xl font-extrabold tracking-tighter text-white">
-                        Visão<span className="text-brand-500">Geral</span>
+                        Visão <span className="text-brand-500">Geral</span>
                     </h1>
                     {userProfile.display_name || userProfile.welcome_message ? (
                         <p className="text-slate-400 font-medium mt-1">

@@ -281,11 +281,10 @@ export function ExportMenu({ transactions, currentDate }: ExportMenuProps) {
         <div className="relative">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-4 py-3 bg-brand-deep-sea border border-white/5 rounded-2xl text-sm font-bold text-slate-300 hover:text-white hover:border-brand-accent/50 transition-all h-[52px] shadow-xl group cursor-pointer"
+                className="flex items-center justify-center w-[52px] h-[52px] bg-brand-deep-sea border border-white/5 rounded-2xl text-slate-300 hover:text-white hover:border-brand-accent/50 transition-all shadow-xl group cursor-pointer"
+                title="Exportar Transações"
             >
-                <Download className="w-4 h-4 text-brand-accent group-hover:scale-110 transition-transform" />
-                <span>Exportar</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <Download className="w-5 h-5 text-brand-accent group-hover:scale-110 transition-transform" />
             </button>
 
             {isOpen && (
