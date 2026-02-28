@@ -62,7 +62,10 @@ export function ExportMenu({ transactions, currentDate }: ExportMenuProps) {
 
     const exportCSV = () => {
         const fullData = prepareData()
-        const exportData = fullData.map(({ rawAmount, rawType, rawCategory, rawCard, ...rest }) => rest)
+        const exportData = fullData.map(({ rawAmount, rawType, rawCategory, rawCard, Valor, ...rest }) => ({
+            ...rest,
+            Valor: rawAmount
+        }))
         const csv = Papa.unparse(exportData)
         const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' })
         const link = document.createElement('a')
@@ -78,7 +81,10 @@ export function ExportMenu({ transactions, currentDate }: ExportMenuProps) {
 
     const exportExcel = () => {
         const fullData = prepareData()
-        const exportData = fullData.map(({ rawAmount, rawType, rawCategory, rawCard, ...rest }) => rest)
+        const exportData = fullData.map(({ rawAmount, rawType, rawCategory, rawCard, Valor, ...rest }) => ({
+            ...rest,
+            Valor: rawAmount
+        }))
         const worksheet = XLSX.utils.json_to_sheet(exportData)
         const workbook = XLSX.utils.book_new()
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Transações')
