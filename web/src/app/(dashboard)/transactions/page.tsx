@@ -12,6 +12,7 @@ import { usePrivacy } from '@/providers/PrivacyProvider'
 import { MaskedValue } from '@/components/ui/MaskedValue'
 import { MethodSelector } from '@/components/ui/MethodSelector'
 import { TypeSelector } from '@/components/ui/TypeSelector'
+import { ExportMenu } from '@/components/ui/ExportMenu'
 
 type Transaction = {
     id: string
@@ -210,6 +211,10 @@ export default function TransactionsPage() {
                         cards={cards}
                         selectedIds={selectedCardIds}
                         onChange={setSelectedCardIds}
+                    />
+                    <ExportMenu
+                        transactions={filteredTransactions}
+                        currentDate={currentDate}
                     />
                 </div>
             </div>
