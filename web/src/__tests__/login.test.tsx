@@ -31,7 +31,7 @@ describe('LoginPage', () => {
 
     it('renders login form correctly', () => {
         render(<LoginPage />)
-        expect(screen.getByText(/Bem-vindo/i)).toBeInTheDocument()
+        expect(screen.getByText(/Entre para gerenciar/i)).toBeInTheDocument()
         expect(screen.getByLabelText(/Email/i)).toBeInTheDocument()
         expect(screen.getByLabelText(/Senha/i)).toBeInTheDocument()
         expect(screen.getByRole('button', { name: /Entrar/i })).toBeInTheDocument()

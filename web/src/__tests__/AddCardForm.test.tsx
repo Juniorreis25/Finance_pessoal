@@ -63,7 +63,8 @@ describe('CardForm', () => {
                 name: 'My Card',
                 limit_amount: 1000,
                 closing_day: 10,
-                due_day: 17
+                due_day: 17,
+                active: true
             })
             expect(pushMock).toHaveBeenCalledWith('/cards')
             expect(refreshMock).toHaveBeenCalled()

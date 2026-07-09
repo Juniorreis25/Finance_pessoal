@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import { Logo } from '@/components/ui/Logo'
 import { Loader2, Lock, Mail, UserPlus, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -13,8 +12,6 @@ export default function RegisterPage() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState(false)
-    const router = useRouter()
-    const supabase = createClient()
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -22,6 +19,7 @@ export default function RegisterPage() {
         setError(null)
 
         try {
+            const supabase = createClient()
             const { error } = await supabase.auth.signUp({
                 email,
                 password,
@@ -33,7 +31,23 @@ export default function RegisterPage() {
             if (error) throw error
             setSuccess(true)
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'Falha ao criar conta')
+            const message = err instanceof Error ? err.message : 'Falha ao criar conta'
+
+            if (message.includes('Missing required environment variable')) {
+                setError(
+                    'Configuração do Supabase ausente neste ambiente. Verifique NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY.'
+                )
+                return
+            }
+
+            if (message.toLowerCase().includes('failed to fetch')) {
+                setError(
+                    'Falha ao conectar com o Supabase. Verifique a URL do projeto, a anon key e se o deploy recebeu as variáveis de ambiente.'
+                )
+                return
+            }
+
+            setError(message)
         } finally {
             setLoading(false)
         }

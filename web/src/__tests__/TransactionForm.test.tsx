@@ -5,7 +5,8 @@ import { TransactionForm } from '../components/forms/TransactionForm'
 
 // Define mocks
 const getUserMock = vi.fn()
-const selectMock = vi.fn().mockResolvedValue({ data: [] })
+const cardsEqMock = vi.fn().mockResolvedValue({ data: [] })
+const selectMock = vi.fn().mockReturnValue({ eq: cardsEqMock })
 const insertMock = vi.fn().mockResolvedValue({ error: null })
 const updateMock = vi.fn().mockResolvedValue({ error: null })
 
@@ -49,7 +50,8 @@ describe('TransactionForm', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         getUserMock.mockResolvedValue({ data: { user: { id: 'user123' } }, error: null })
-        selectMock.mockResolvedValue({ data: [] })
+        cardsEqMock.mockResolvedValue({ data: [] })
+        selectMock.mockReturnValue({ eq: cardsEqMock })
         insertMock.mockResolvedValue({ error: null })
         // Re-setup update mock return
         updateMock.mockReturnValue({
