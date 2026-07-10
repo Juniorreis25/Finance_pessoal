@@ -89,7 +89,7 @@ export function CardItem({ card, onUpdate }: { card: Card, onUpdate?: () => void
     const borderClass = "border-slate-800"
 
     return (
-        <div className={`relative w-full aspect-[1.586/1] rounded-[1.5rem] p-4 sm:p-6 text-white shadow-2xl overflow-hidden group transition-all hover:scale-[1.02] hover:shadow-brand-500/10 ${bgClass} border ${borderClass} ${!card.active ? 'opacity-50 grayscale-[0.5]' : ''}`}>
+        <div className={`relative w-full max-w-[400px] mx-auto aspect-[1.586/1] rounded-[1.5rem] p-4 sm:p-6 text-white shadow-2xl overflow-hidden isolate transform-gpu group transition-all hover:scale-[1.02] hover:shadow-brand-500/10 ${bgClass} border ${borderClass} ${!card.active ? 'opacity-50 grayscale-[0.5]' : ''}`}>
 
             {/* Abstract Background Shapes */}
             <div className="absolute top-[-50%] right-[-20%] w-[100%] h-[150%] bg-gradient-to-b from-brand-500/10 to-transparent blur-3xl rounded-full pointer-events-none" />
