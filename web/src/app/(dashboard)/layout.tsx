@@ -135,7 +135,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         {/* Floating Action Button */}
                         <div className="relative -top-8">
                             <Link
-                                href="/transactions"
+                                href="/transactions/new"
                                 className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] shadow-[0_8px_20px_rgba(0,240,255,0.4)] hover:scale-110 active:scale-95 transition-all text-black"
                             >
                                 <X className="w-8 h-8 rotate-45" strokeWidth={3} />

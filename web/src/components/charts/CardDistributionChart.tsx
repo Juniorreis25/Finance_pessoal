@@ -1,6 +1,7 @@
 'use client'
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 type CardDistData = {
     name: string
@@ -8,6 +9,8 @@ type CardDistData = {
 }
 
 export function CardDistributionChart({ data }: { data: CardDistData[] }) {
+    const isMobile = useIsMobile(640)
+
     if (!data || data.length === 0 || data.every(d => d.valor === 0)) {
         return <div className="h-[300px] flex items-center justify-center text-slate-500 font-medium">Sem faturas para este mês</div>
     }
@@ -20,7 +23,7 @@ export function CardDistributionChart({ data }: { data: CardDistData[] }) {
                 <BarChart
                     data={data}
                     layout="vertical"
-                    margin={{ top: 0, right: 30, left: 40, bottom: 0 }}
+                    margin={{ top: 0, right: 15, left: 10, bottom: 0 }}
                 >
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#ffffff" opacity={0.05} />
                     <XAxis
@@ -35,8 +38,9 @@ export function CardDistributionChart({ data }: { data: CardDistData[] }) {
                         type="category"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fill: '#FFFFFF', fontSize: 10, fontWeight: 700 }}
-                        width={80}
+                        tick={{ fill: '#FFFFFF', fontSize: 9, fontWeight: 700 }}
+                        width={isMobile ? 65 : 90}
+                        tickFormatter={(value) => isMobile && value.length > 10 ? `${value.substring(0, 8)}..` : value}
                     />
                     <Tooltip
                         cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}

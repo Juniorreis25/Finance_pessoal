@@ -344,20 +344,20 @@ export default function TransactionsPage() {
                         return (
                             <div
                                 key={tx.id}
-                                className="relative group bg-brand-deep-sea/80 backdrop-blur-sm p-6 rounded-[2rem] flex items-center justify-between border border-white/5 shadow-xl hover:bg-brand-deep-sea transition-all"
+                                className="relative group bg-brand-deep-sea/80 backdrop-blur-sm p-5 sm:p-6 rounded-[2rem] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-white/5 shadow-xl hover:bg-brand-deep-sea transition-all"
                             >
                                 {/* Left: Icon & Info */}
-                                <div className="flex items-center gap-5">
-                                    <div className={`p-4 rounded-2xl border ${tx.type === 'income'
+                                <div className="flex items-start sm:items-center gap-4 sm:gap-5 w-full sm:w-auto">
+                                    <div className={`p-3.5 sm:p-4 rounded-2xl border flex-shrink-0 ${tx.type === 'income'
                                         ? 'bg-brand-success/10 text-brand-success border-brand-success/10'
                                         : 'bg-white/5 text-white border-white/10'
                                         }`}>
-                                        {tx.type === 'income' ? <ArrowUpRight className="w-6 h-6 font-bold" /> : <ArrowDownRight className="w-6 h-6 font-bold" />}
+                                        {tx.type === 'income' ? <ArrowUpRight className="w-5 h-5 sm:w-6 sm:h-6 font-bold" /> : <ArrowDownRight className="w-5 h-5 sm:w-6 sm:h-6 font-bold" />}
                                     </div>
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-3">
-                                            <h3 className="font-bold text-white text-lg tracking-tight leading-none">{tx.description}</h3>
-                                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/5 border border-white/5">
+                                    <div className="space-y-1.5 sm:space-y-2 min-w-0 flex-1">
+                                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                                            <h3 className="font-bold text-white text-base sm:text-lg tracking-tight leading-none truncate max-w-[180px] sm:max-w-none">{tx.description}</h3>
+                                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/5 border border-white/5 flex-shrink-0">
                                                 {tx.card_id ? (
                                                     <CreditCard className="w-3 h-3 text-brand-accent opacity-70" />
                                                 ) : (
@@ -371,10 +371,10 @@ export default function TransactionsPage() {
 
                                         {/* Installment Info */}
                                         {isInstallment && (
-                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 py-1">
+                                            <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 py-0.5 sm:py-1">
                                                 <div className="flex items-center gap-1.5 text-brand-accent bg-brand-accent/10 px-2 py-0.5 rounded-md border border-brand-accent/10">
                                                     <ListTree className="w-3 h-3" />
-                                                    <span className="text-[10px] font-black tracking-widest uppercase">
+                                                    <span className="text-[9px] sm:text-[10px] font-black tracking-widest uppercase">
                                                         Parcela {tx.installment_number}/{tx.total_installments}
                                                     </span>
                                                 </div>
@@ -387,17 +387,17 @@ export default function TransactionsPage() {
                                             </div>
                                         )}
 
-                                        <div className="flex flex-wrap items-center gap-3">
-                                            <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-white/5 text-brand-gray border border-white/5">
+                                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                                            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 sm:py-1 rounded-full bg-white/5 text-brand-gray border border-white/5">
                                                 {tx.category}
                                             </span>
                                             {!isInstallment && (
-                                                <span className="text-xs font-bold text-brand-gray uppercase tracking-widest opacity-60">
+                                                <span className="text-[11px] sm:text-xs font-bold text-brand-gray uppercase tracking-widest opacity-60">
                                                     {format(parseISO(tx.date), "d 'de' MMM", { locale: ptBR })}
                                                 </span>
                                             )}
                                             {tx.purchase_date && (
-                                                <span className={`text-[9px] font-bold text-brand-accent/50 uppercase tracking-widest ${!isInstallment ? 'border-l border-white/10 pl-3' : ''}`}>
+                                                <span className={`text-[9px] font-bold text-brand-accent/50 uppercase tracking-widest ${!isInstallment ? 'border-l border-white/10 pl-2 sm:pl-3' : ''}`}>
                                                     Dt Compra: {format(parseISO(tx.purchase_date), "dd/MM/yy")}
                                                 </span>
                                             )}
@@ -406,15 +406,15 @@ export default function TransactionsPage() {
                                 </div>
 
                                 {/* Right: Amount & Actions */}
-                                <div className="flex items-center gap-8">
-                                    <span className={`text-xl font-black tracking-tighter ${tx.type === 'income' ? 'text-brand-success' : 'text-white'
+                                <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-8 w-full sm:w-auto pt-3 sm:pt-0 border-t border-white/5 sm:border-0">
+                                    <span className={`text-lg sm:text-xl font-black tracking-tighter ${tx.type === 'income' ? 'text-brand-success' : 'text-white'
                                         }`}>
                                         {tx.type === 'expense' && '- '}
                                         R$ {tx.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                     </span>
 
                                     {/* Actions */}
-                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+                                    <div className="flex gap-0.5 sm:gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all lg:translate-x-2 lg:group-hover:translate-x-0">
                                         <Link href={`/transactions/${tx.id}/edit`} className="p-2 text-brand-gray hover:text-brand-accent hover:bg-white/5 rounded-xl transition-all" title="Editar">
                                             <Edit2 className="w-4 h-4" />
                                         </Link>
@@ -424,6 +424,7 @@ export default function TransactionsPage() {
                                     </div>
                                 </div>
                             </div>
+
                         )
                     })
                 ) : (
