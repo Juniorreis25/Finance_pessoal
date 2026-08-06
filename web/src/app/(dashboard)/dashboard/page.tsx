@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { ArrowUpRight, ArrowDownRight, Wallet, Loader2, Plus, CreditCard, BarChart3, ArrowRightLeft } from 'lucide-react'
+import { ArrowUpRight, Wallet, Loader2, Plus, CreditCard, BarChart3, ArrowRightLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { OverviewChart } from '@/components/charts/OverviewChart'
 import { CategoryChart } from '@/components/charts/CategoryChart'
@@ -9,8 +9,10 @@ import { FixedVsCardChart } from '@/components/charts/FixedVsCardChart'
 import { CardDistributionChart } from '@/components/charts/CardDistributionChart'
 import { MonthSelector } from '@/components/ui/MonthSelector'
 import { CategorySelector } from '@/components/ui/CategorySelector'
+import { isDateInCalendarMonth, isRecurringActiveForMonth } from '@/lib/date-logic'
+import { getLocalDemoRecurring, getLocalDemoTransactions, isLocalDemoMode } from '@/lib/local-demo'
 import Link from 'next/link'
-import { startOfMonth, endOfMonth, isWithinInterval, startOfYear, endOfYear, format, addMonths } from 'date-fns'
+import { isWithinInterval, startOfYear, endOfYear, format, addMonths } from 'date-fns'
 import { usePrivacy } from '@/providers/PrivacyProvider'
 import { MaskedValue } from '@/components/ui/MaskedValue'
 import { ptBR } from 'date-fns/locale'
@@ -59,23 +61,39 @@ export default function DashboardPage() {
     const fetchData = useCallback(async () => {
         setLoading(true)
 
-        // Fetch regular transactions
-        // Fetch regular transactions with card info
-        const { data: transactions } = await supabase
-            .from('transactions')
-            .select('*, cards(name)')
-            .order('date', { ascending: true })
+        let transactions: Transaction[] = []
+        let recurringExpenses: Array<{
+            amount: number
+            type: 'income' | 'expense'
+            category: string
+            start_date: string
+            day_of_month: number
+            active: boolean
+        }> = []
 
-        // Fetch active recurring expenses
-        const { data: recurringExpenses } = await supabase
-            .from('recurring_expenses')
-            .select('*')
-            .eq('active', true)
+        if (isLocalDemoMode) {
+            transactions = getLocalDemoTransactions().map(transaction => ({ ...transaction, cards: null }))
+            recurringExpenses = getLocalDemoRecurring().filter(recurring => recurring.active)
+        } else {
+            const [transactionResult, recurringResult] = await Promise.all([
+                supabase.from('transactions').select('*, cards(name)').order('date', { ascending: true }),
+                supabase.from('recurring_expenses').select('*').eq('active', true),
+            ])
 
-        if (transactions) {
+            if (transactionResult.error) {
+                console.error('Erro ao carregar transações:', transactionResult.error.message)
+            } else {
+                transactions = transactionResult.data || []
+            }
+
+            if (recurringResult.error) {
+                console.error('Erro ao carregar recorrências:', recurringResult.error.message)
+            } else {
+                recurringExpenses = recurringResult.data || []
+            }
+        }
+        {
             // Filter for Current Month (Stats & Categories)
-            const monthStart = startOfMonth(currentDate)
-            const monthEnd = endOfMonth(currentDate)
 
             // Apply Category Filter if Selected
             const filteredTransactions = selectedCategory
@@ -83,7 +101,7 @@ export default function DashboardPage() {
                 : transactions
 
             const monthTransactions = filteredTransactions.filter(t =>
-                isWithinInterval(new Date(t.date), { start: monthStart, end: monthEnd })
+                isDateInCalendarMonth(t.date, currentDate)
             )
 
             // Calculate Totals for Selected Month
@@ -96,7 +114,8 @@ export default function DashboardPage() {
                 .reduce((acc, curr) => acc + curr.amount, 0)
 
             // Add recurring items to current month
-            const recurringItems = (recurringExpenses || [])
+            const recurringItems = recurringExpenses
+                .filter(re => isRecurringActiveForMonth(re.start_date, currentDate))
                 .filter(re => !selectedCategory || re.category === selectedCategory)
 
             const recurringIncomeTotal = recurringItems
@@ -156,12 +175,20 @@ export default function DashboardPage() {
                 }
             })
 
-            // Add recurring items to ALL months in the year
-            Object.keys(monthlyData).forEach(monthName => {
-                monthlyData[monthName].income += recurringIncomeTotal
-                monthlyData[monthName].expense += recurringExpenseTotal
-            })
+            // Project each recurrence only from its start month.
+            Object.keys(monthlyData).forEach((monthName, monthIndex) => {
+                const monthDate = new Date(yearStart.getFullYear(), monthIndex, 1)
+                const recurringForMonth = recurringExpenses
+                    .filter(re => re.active && isRecurringActiveForMonth(re.start_date, monthDate))
+                    .filter(re => !selectedCategory || re.category === selectedCategory)
 
+                monthlyData[monthName].income += recurringForMonth
+                    .filter(re => re.type === 'income')
+                    .reduce((acc, re) => acc + re.amount, 0)
+                monthlyData[monthName].expense += recurringForMonth
+                    .filter(re => re.type !== 'income')
+                    .reduce((acc, re) => acc + re.amount, 0)
+            })
             const chartData = Object.entries(monthlyData).map(([name, values]) => ({
                 name,
                 receita: values.income,
@@ -178,7 +205,7 @@ export default function DashboardPage() {
                 })
 
                 // Add recurring items to category breakdown (expenses only for the pie chart)
-                ; (recurringExpenses || [])
+                ; recurringItems
                     .filter(re => re.type !== 'income')
                     .filter(re => !selectedCategory || re.category === selectedCategory)
                     .forEach(re => {
@@ -216,20 +243,26 @@ export default function DashboardPage() {
             // Calculate NEXT MONTH projected expenses
             const nextMonth = new Date(currentDate)
             nextMonth.setMonth(nextMonth.getMonth() + 1)
-            const nextMonthStart = startOfMonth(nextMonth)
-            const nextMonthEnd = endOfMonth(nextMonth)
 
             const nextMonthTransactions = filteredTransactions.filter(t =>
-                t.type === 'expense' && isWithinInterval(new Date(t.date), { start: nextMonthStart, end: nextMonthEnd })
+                t.type === 'expense' && isDateInCalendarMonth(t.date, nextMonth)
             )
 
             let nextMonthExpense = nextMonthTransactions.reduce((acc, curr) => acc + curr.amount, 0)
 
-            // Add recurring items to next month
-            nextMonthExpense += recurringExpenseTotal
+            const nextRecurringItems = recurringExpenses
+                .filter(re => isRecurringActiveForMonth(re.start_date, nextMonth))
+                .filter(re => !selectedCategory || re.category === selectedCategory)
+            const nextRecurringExpense = nextRecurringItems
+                .filter(re => re.type !== 'income')
+                .reduce((acc, re) => acc + re.amount, 0)
+            const nextRecurringIncome = nextRecurringItems
+                .filter(re => re.type === 'income')
+                .reduce((acc, re) => acc + re.amount, 0)
+            nextMonthExpense += nextRecurringExpense
 
             setNextMonthStats({
-                income: recurringIncomeTotal,
+                income: nextRecurringIncome,
                 expense: nextMonthExpense
             })
         }
@@ -246,6 +279,8 @@ export default function DashboardPage() {
     // Fetch user profile
     useEffect(() => {
         async function fetchProfile() {
+            if (isLocalDemoMode) return
+
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
 

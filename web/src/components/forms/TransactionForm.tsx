@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Loader2, Save, ArrowUpCircle, ArrowDownCircle, X, CalendarClock, Calculator, Repeat, Calendar } from 'lucide-react'
 import { addMonths, format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { appendLocalDemoRecurring, appendLocalDemoTransactions, isLocalDemoMode } from '@/lib/local-demo'
 
 type Card = {
     id: string
@@ -138,87 +139,119 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
         setError(null)
 
         try {
-            const { data: { user } } = await supabase.auth.getUser()
-            const userId = user?.id || 'anon-user'
             const amountValue = parseCurrency(formData.amount)
+            const dayOfMonth = parseISO(formData.date).getDate()
 
-            // Common payload props
+            if (isLocalDemoMode) {
+                if (isRecurring) {
+                    appendLocalDemoRecurring({
+                        id: `local-demo-recurring-${Date.now()}`,
+                        description: formData.description,
+                        amount: amountValue,
+                        type,
+                        category: formData.category,
+                        start_date: formData.date,
+                        day_of_month: dayOfMonth,
+                        active: true,
+                    })
+                    router.push('/recurring')
+                    router.refresh()
+                    return
+                }
+
+                const total = isInstallment && type === 'expense' ? installments : 1
+                const monthlyAmount = Math.floor((amountValue / total) * 100) / 100
+                const firstAmount = amountValue - (monthlyAmount * (total - 1))
+                const installmentId = total > 1 ? `local-demo-installment-${Date.now()}` : null
+                const dueDate = parseISO(formData.first_installment_date)
+
+                const demoTransactions = Array.from({ length: total }, (_, index) => ({
+                    id: `local-demo-${Date.now()}-${index}`,
+                    description: total > 1 ? `${formData.description} (${index + 1}/${total})` : formData.description,
+                    amount: index === 0 ? firstAmount : monthlyAmount,
+                    type,
+                    category: formData.category,
+                    date: format(addMonths(dueDate, index), 'yyyy-MM-dd'),
+                    purchase_date: formData.date,
+                    card_id: null,
+                    installment_id: installmentId,
+                    installment_number: total > 1 ? index + 1 : null,
+                    total_installments: total > 1 ? total : null,
+                }))
+
+                appendLocalDemoTransactions(demoTransactions)
+                router.push('/transactions')
+                router.refresh()
+                return
+            }
+
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error('Sessão expirada. Entre novamente para salvar a transação.')
+
+            if (isRecurring) {
+                const { error: insertError } = await supabase
+                    .from('recurring_expenses')
+                    .insert({
+                        user_id: user.id,
+                        description: formData.description,
+                        amount: amountValue,
+                        category: formData.category,
+                        day_of_month: dayOfMonth,
+                        start_date: formData.date,
+                        type,
+                        active: true,
+                    })
+
+                if (insertError) throw new Error(`Erro ao criar recorrência: ${insertError.message}`)
+                router.push('/recurring')
+                router.refresh()
+                return
+            }
+
             const basePayload = {
-                user_id: userId,
+                user_id: user.id,
                 type,
                 category: formData.category,
-                date: formData.first_installment_date, // Effective payout/installment date
+                date: formData.first_installment_date,
                 card_id: type === 'expense' && formData.card_id ? formData.card_id : null,
-                purchase_date: formData.date, // Real purchase date
-                total_installments: isInstallment ? installments : null
+                purchase_date: formData.date,
+                total_installments: isInstallment ? installments : null,
             }
 
             if (isInstallment && type === 'expense') {
-                // If editing an existing one, delete it first to recreate as a series
                 if (initialData?.id) {
-                    const { error: delError } = await supabase
-                        .from('transactions')
-                        .delete()
-                        .eq('id', initialData.id)
-
+                    const { error: delError } = await supabase.from('transactions').delete().eq('id', initialData.id)
                     if (delError) throw new Error(`Erro ao preparar parcelamento: ${delError.message}`)
                 }
 
-                // CREATE INSTALLMENTS (RPC Call)
                 const { error: rpcError } = await supabase.rpc('create_installment_transaction', {
-                    p_user_id: userId,
+                    p_user_id: user.id,
                     p_description: formData.description,
                     p_amount: amountValue,
                     p_category: formData.category,
-                    p_date: formData.first_installment_date, // 1st installment date
+                    p_date: formData.first_installment_date,
                     p_total_installments: installments,
                     p_card_id: formData.card_id || null,
-                    p_purchase_date: formData.date // Purchase date
+                    p_purchase_date: formData.date,
                 })
 
                 if (rpcError) throw new Error(`Erro ao criar parcelas: ${rpcError.message}`)
-
-                // Redirect after success
                 router.push('/transactions')
             } else {
-                // STANDARD CREATE / UPDATE
                 const payload = {
                     ...basePayload,
                     description: formData.description,
                     amount: amountValue,
                 }
 
-                if (isRecurring && type === 'income') {
-                    const dayOfMonth = new Date(formData.date).getUTCDate()
-
-                    const { error: insertError } = await supabase
-                        .from('recurring_expenses')
-                        .insert({
-                            user_id: userId,
-                            description: formData.description,
-                            amount: amountValue,
-                            category: formData.category,
-                            day_of_month: dayOfMonth,
-                            type: 'income',
-                            active: true
-                        })
-                    if (insertError) throw insertError
-
-                    router.push('/recurring')
-                } else if (initialData?.id) {
-                    const { error: updateError } = await supabase
-                        .from('transactions')
-                        .update(payload)
-                        .eq('id', initialData.id)
+                if (initialData?.id) {
+                    const { error: updateError } = await supabase.from('transactions').update(payload).eq('id', initialData.id)
                     if (updateError) throw updateError
-                    router.push('/transactions')
                 } else {
-                    const { error: insertError } = await supabase
-                        .from('transactions')
-                        .insert(payload)
+                    const { error: insertError } = await supabase.from('transactions').insert(payload)
                     if (insertError) throw insertError
-                    router.push('/transactions')
                 }
+                router.push('/transactions')
             }
             router.refresh()
         } catch (err: unknown) {
@@ -228,7 +261,6 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
             setLoading(false)
         }
     }
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target
         // Only sync dates automatically for NEW expenses that are NOT installments
@@ -420,7 +452,9 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={() => setIsInstallment(!isInstallment)}
+                                    aria-label="Marcar despesa como parcelada"
+                                    aria-pressed={isInstallment}
+                                    onClick={() => { const next = !isInstallment; setIsInstallment(next); if (next) setIsRecurring(false) }}
                                     className={`w-12 h-7 rounded-full transition-all relative ${isInstallment ? 'bg-brand-accent' : 'bg-white/10'}`}
                                 >
                                     <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all shadow-xl ${isInstallment ? 'left-6' : 'left-1'}`} />
@@ -467,8 +501,9 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={() => setIsRecurring(!isRecurring)}
-                                    className={`w-12 h-7 rounded-full transition-all relative ${isRecurring ? 'bg-brand-success' : 'bg-white/10'}`}
+                                    aria-label="Marcar receita como recorrente"
+                                    aria-pressed={isRecurring}
+                                    onClick={() => { const next = !isRecurring; setIsRecurring(next); if (next) setIsInstallment(false) }}                                    className={`w-12 h-7 rounded-full transition-all relative ${isRecurring ? 'bg-brand-success' : 'bg-white/10'}`}
                                 >
                                     <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all shadow-xl ${isRecurring ? 'left-6' : 'left-1'}`} />
                                 </button>
@@ -478,6 +513,27 @@ export function TransactionForm({ initialData }: TransactionFormProps) {
                 </div>
             </div>
 
+            {type === 'expense' && (
+                <div className="bg-brand-nav p-5 rounded-[1.5rem] border border-white/5">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-xl transition-all ${isRecurring ? 'bg-brand-success text-black' : 'bg-white/5 text-brand-gray'}`}>
+                                <Repeat className="w-4 h-4" />
+                            </div>
+                            <p className="font-black text-white text-[9px] uppercase tracking-[0.2em] opacity-80">Despesa Recorrente?</p>
+                        </div>
+                        <button
+                            type="button"
+                            aria-label="Marcar despesa como recorrente"
+                            aria-pressed={isRecurring}
+                            onClick={() => { const next = !isRecurring; setIsRecurring(next); if (next) setIsInstallment(false) }}
+                            className={`w-12 h-7 rounded-full transition-all relative ${isRecurring ? 'bg-brand-success' : 'bg-white/10'}`}
+                        >
+                            <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-all shadow-xl ${isRecurring ? 'left-6' : 'left-1'}`} />
+                        </button>
+                    </div>
+                </div>
+            )}
             <div className="pt-8 flex flex-col sm:flex-row gap-4">
                 <button
                     type="submit"

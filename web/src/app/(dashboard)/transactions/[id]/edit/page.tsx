@@ -4,6 +4,7 @@ import { useEffect, useState, use } from 'react'
 import { TransactionForm } from '@/components/forms/TransactionForm'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { isLocalDemoMode } from '@/lib/local-demo'
 
 type Transaction = {
     id: string
@@ -25,6 +26,10 @@ export default function EditTransactionPage({ params }: { params: Promise<{ id: 
 
     useEffect(() => {
         async function fetchTransaction() {
+            if (isLocalDemoMode) {
+                router.push('/transactions')
+                return
+            }
             const { data, error } = await supabase
                 .from('transactions')
                 .select('*')

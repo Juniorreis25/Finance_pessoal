@@ -1,5 +1,20 @@
 import { describe, it, expect } from 'vitest'
-import { calculateCardStatus } from './date-logic'
+import { calculateCardStatus, isDateInCalendarMonth } from './date-logic'
+
+describe('isDateInCalendarMonth', () => {
+    it('keeps the 31st in its stored calendar month', () => {
+        const august = new Date(2026, 7, 1)
+
+        expect(isDateInCalendarMonth('2026-08-31', august)).toBe(true)
+        expect(isDateInCalendarMonth('2026-08-31T23:00:00.000Z', august)).toBe(true)
+    })
+
+    it('does not include the date in the following month', () => {
+        const september = new Date(2026, 8, 1)
+
+        expect(isDateInCalendarMonth('2026-08-31', september)).toBe(false)
+    })
+})
 
 describe('calculateCardStatus', () => {
     // Scenario: Closing day is 10, Due day is 17. Current day is 5.

@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Plus, Edit2, Trash2, Repeat, CheckCircle, XCircle, Search, Wallet, ArrowUpRight, ArrowRightLeft } from 'lucide-react'
+import { Plus, Edit2, Trash2, Repeat, CheckCircle, XCircle, Search, ArrowUpRight, ArrowRightLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { RecurringModal } from '@/components/modals/RecurringModal'
 import { usePrivacy } from '@/providers/PrivacyProvider'
 import { MaskedValue } from '@/components/ui/MaskedValue'
+import { deleteLocalDemoRecurring, getLocalDemoRecurring, isLocalDemoMode, updateLocalDemoRecurring } from '@/lib/local-demo'
 
 type RecurringExpense = {
     id: string
@@ -18,6 +19,7 @@ type RecurringExpense = {
     active: boolean
     type: 'income' | 'expense'
     last_processed_date?: string
+    start_date: string
 }
 
 export default function RecurringExpensesPage() {
@@ -31,15 +33,25 @@ export default function RecurringExpensesPage() {
 
     const fetchExpenses = useCallback(async () => {
         setLoading(true)
-        const { data } = await supabase
+
+        if (isLocalDemoMode) {
+            setExpenses(getLocalDemoRecurring().sort((a, b) => a.day_of_month - b.day_of_month))
+            setLoading(false)
+            return
+        }
+
+        const { data, error } = await supabase
             .from('recurring_expenses')
             .select('*')
             .order('day_of_month', { ascending: true })
 
-        if (data) setExpenses(data)
+        if (error) {
+            console.error('Erro ao carregar recorrências:', error.message)
+        } else {
+            setExpenses(data || [])
+        }
         setLoading(false)
     }, [supabase])
-
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             fetchExpenses()
@@ -48,29 +60,43 @@ export default function RecurringExpensesPage() {
     }, [fetchExpenses])
 
     const handleDelete = async (id: string) => {
-        if (window.confirm('Tem certeza que deseja excluir esta despesa recorrente?')) {
-            const { error } = await supabase.from('recurring_expenses').delete().eq('id', id)
-            if (error) {
-                alert('Erro ao excluir despesa')
-            } else {
-                fetchExpenses()
-                router.refresh() // Invalidate cache
-            }
-        }
-    }
+        if (!window.confirm('Tem certeza que deseja excluir esta recorrência?')) return
 
+        if (isLocalDemoMode) {
+            deleteLocalDemoRecurring(id)
+            fetchExpenses()
+            return
+        }
+
+        const { error } = await supabase.from('recurring_expenses').delete().eq('id', id)
+        if (error) {
+            alert(`Erro ao excluir recorrência: ${error.message}`)
+            return
+        }
+
+        fetchExpenses()
+        router.refresh()
+    }
     const toggleStatus = async (id: string, currentStatus: boolean) => {
+        if (isLocalDemoMode) {
+            updateLocalDemoRecurring(id, { active: !currentStatus })
+            fetchExpenses()
+            return
+        }
+
         const { error } = await supabase
             .from('recurring_expenses')
             .update({ active: !currentStatus })
             .eq('id', id)
 
-        if (!error) {
-            fetchExpenses()
-            router.refresh() // Invalidate Next.js cache so Dashboard re-fetches
+        if (error) {
+            alert(`Erro ao atualizar recorrência: ${error.message}`)
+            return
         }
-    }
 
+        fetchExpenses()
+        router.refresh()
+    }
     // Filter expenses by search term
     const filteredExpenses = expenses.filter(expense => {
         return expense.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -263,12 +289,13 @@ export default function RecurringExpensesPage() {
                         <p className="text-slate-500 dark:text-slate-400 mb-6 max-w-sm mx-auto">
                             Cadastre seus ganhos ou contas fixas (aluguel, internet, streaming) para não esquecer.
                         </p>
-                        <Link
-                            href="/recurring/new"
+                        <button
+                            type="button"
+                            onClick={() => setIsModalOpen(true)}
                             className="text-brand-500 font-bold hover:underline"
                         >
                             Criar primeira recorrente
-                        </Link>
+                        </button>
                     </div>
                 )}
             </div>

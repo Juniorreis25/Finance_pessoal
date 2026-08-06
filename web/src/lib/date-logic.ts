@@ -1,5 +1,12 @@
 import { addMonths, setDate, startOfDay, getDate } from 'date-fns'
 
+export function isDateInCalendarMonth(dateValue: string, referenceDate: Date): boolean {
+    const databaseMonth = dateValue.slice(0, 7)
+    const referenceMonth = `${referenceDate.getFullYear()}-${String(referenceDate.getMonth() + 1).padStart(2, '0')}`
+
+    return databaseMonth === referenceMonth
+}
+
 export type CardStatus = {
     status: 'open' | 'closed-current' | 'overdue'
     bestPurchaseDate: Date
@@ -35,4 +42,11 @@ export function calculateCardStatus(
             currentInvoiceMonth: today
         }
     }
+}
+
+export function isRecurringActiveForMonth(startDate: string | null | undefined, referenceDate: Date): boolean {
+    if (!startDate) return true
+
+    const referenceMonth = `${referenceDate.getFullYear()}-${String(referenceDate.getMonth() + 1).padStart(2, '0')}`
+    return startDate.slice(0, 7) <= referenceMonth
 }

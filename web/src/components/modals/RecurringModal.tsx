@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Loader2, Save, X, ArrowDownCircle } from 'lucide-react'
+import { appendLocalDemoRecurring, isLocalDemoMode } from '@/lib/local-demo'
 
 interface RecurringModalProps {
     isOpen: boolean
@@ -54,36 +55,47 @@ export function RecurringModal({ isOpen, onClose, onSuccess }: RecurringModalPro
         setError(null)
 
         try {
-            const { data: { user } } = await supabase.auth.getUser()
-            const userId = user?.id
-
-            if (!userId) throw new Error('Usuário não autenticado')
-
             const amountValue = parseCurrency(formData.amount)
             const dayValue = new Date(formData.date).getUTCDate()
 
-            const { error: insertError } = await supabase
-                .from('recurring_expenses')
-                .insert({
-                    user_id: userId,
+            if (isLocalDemoMode) {
+                appendLocalDemoRecurring({
+                    id: `local-demo-recurring-${Date.now()}`,
                     description: formData.description,
                     amount: amountValue,
                     category: formData.category,
                     day_of_month: dayValue,
+                    start_date: formData.date,
                     active: true,
-                    type: 'expense' // Assuming expense as requested
+                    type: 'expense',
                 })
+            } else {
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) throw new Error('Usuário não autenticado')
 
-            if (insertError) throw insertError
+                const { error: insertError } = await supabase
+                    .from('recurring_expenses')
+                    .insert({
+                        user_id: user.id,
+                        description: formData.description,
+                        amount: amountValue,
+                        category: formData.category,
+                        day_of_month: dayValue,
+                        start_date: formData.date,
+                        active: true,
+                        type: 'expense',
+                    })
+
+                if (insertError) throw insertError
+            }
 
             onSuccess()
             onClose()
-            // Reset form
             setFormData({
                 description: '',
                 amount: '',
                 category: '',
-                date: new Date().toISOString().split('T')[0]
+                date: new Date().toISOString().split('T')[0],
             })
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Ocorreu um erro inesperado'
@@ -92,7 +104,6 @@ export function RecurringModal({ isOpen, onClose, onSuccess }: RecurringModalPro
             setLoading(false)
         }
     }
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
     }

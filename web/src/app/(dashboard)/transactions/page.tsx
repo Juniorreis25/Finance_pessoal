@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { Plus, ArrowDownRight, ArrowUpRight, ArrowRightLeft, Edit2, Trash2, Search, CreditCard, Wallet, CalendarRange, ListTree } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { format, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths, parseISO } from 'date-fns'
+import { format, addMonths, subMonths, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { MonthSelector } from '@/components/ui/MonthSelector'
 import { usePrivacy } from '@/providers/PrivacyProvider'
@@ -13,6 +13,9 @@ import { MaskedValue } from '@/components/ui/MaskedValue'
 import { MethodSelector } from '@/components/ui/MethodSelector'
 import { TypeSelector } from '@/components/ui/TypeSelector'
 import { ExportMenu } from '@/components/ui/ExportMenu'
+import { isDateInCalendarMonth, isRecurringActiveForMonth } from '@/lib/date-logic'
+import { getLocalDemoRecurring, getLocalDemoTransactions, isLocalDemoMode } from '@/lib/local-demo'
+import { getRecurringOccurrenceDate } from '@/lib/recurring-logic'
 
 type Transaction = {
     id: string
@@ -26,6 +29,8 @@ type Transaction = {
     installment_id: string | null
     installment_number: number | null
     total_installments: number | null
+    is_recurring?: boolean
+    recurring_id?: string
     cards: {
         name: string
     } | null
@@ -37,6 +42,9 @@ type RecurringExpense = {
     amount: number
     type: 'income' | 'expense'
     category: string
+    start_date: string
+    day_of_month: number
+    active: boolean
 }
 
 type Card = {
@@ -58,6 +66,14 @@ export default function TransactionsPage() {
 
     const fetchData = useCallback(async () => {
         setLoading(true)
+
+        if (isLocalDemoMode) {
+            setTransactions(getLocalDemoTransactions().map(transaction => ({ ...transaction, cards: null })))
+            setRecurringExpenses(getLocalDemoRecurring().filter(recurring => recurring.active))
+            setCards([])
+            setLoading(false)
+            return
+        }
 
         // Fetch transactions with JOIN
         const { data: txData } = await supabase
@@ -108,11 +124,7 @@ export default function TransactionsPage() {
 
     // Filter transactions by selected month, search term and card
     const filteredTransactions = transactions.filter(tx => {
-        const txDate = parseISO(tx.date)
-        const matchesDate = isWithinInterval(txDate, {
-            start: startOfMonth(currentDate),
-            end: endOfMonth(currentDate)
-        })
+        const matchesDate = isDateInCalendarMonth(tx.date, currentDate)
 
         const matchesSearch = tx.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
             tx.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -126,13 +138,44 @@ export default function TransactionsPage() {
         return matchesDate && matchesSearch && matchesCard && matchesType
     })
 
+    const recurringOccurrences: Transaction[] = recurringExpenses
+        .filter(recurring => {
+            const occurrenceDate = getRecurringOccurrenceDate(recurring, currentDate)
+            const matchesSearch = recurring.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                recurring.category.toLowerCase().includes(searchTerm.toLowerCase())
+            const matchesType = selectedType === 'all' || recurring.type === selectedType
+            const matchesMethod = selectedCardIds.includes('all') || selectedCardIds.includes('cash')
+
+            return Boolean(occurrenceDate) && matchesSearch && matchesType && matchesMethod
+        })
+        .map(recurring => ({
+            id: `recurring-${recurring.id}-${currentDate.getFullYear()}-${currentDate.getMonth() + 1}`,
+            recurring_id: recurring.id,
+            is_recurring: true,
+            description: recurring.description,
+            amount: recurring.amount,
+            type: recurring.type,
+            category: recurring.category,
+            date: getRecurringOccurrenceDate(recurring, currentDate)!,
+            purchase_date: null,
+            card_id: null,
+            installment_id: null,
+            installment_number: null,
+            total_installments: null,
+            cards: null,
+        }))
+
+    const displayedTransactions = [...filteredTransactions, ...recurringOccurrences]
+        .sort((a, b) => b.date.localeCompare(a.date))
     // Calculate totals
     // Calculate totals including recurring items
     const totalRecurringIncome = recurringExpenses
+        .filter(re => isRecurringActiveForMonth(re.start_date, currentDate))
         .filter(re => re.type === 'income')
         .reduce((acc, re) => acc + re.amount, 0)
 
     const totalRecurringExpense = recurringExpenses
+        .filter(re => isRecurringActiveForMonth(re.start_date, currentDate))
         .filter(re => re.type === 'expense')
         .reduce((acc, re) => acc + re.amount, 0)
 
@@ -165,6 +208,11 @@ export default function TransactionsPage() {
 
     return (
         <div className="space-y-8 max-w-5xl mx-auto pb-20">
+            {isLocalDemoMode && (
+                <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 px-5 py-3 text-xs font-bold text-amber-200">
+                    Modo demonstracao local: os dados exibidos sao simulados e nenhuma alteracao sera enviada ao banco.
+                </div>
+            )}
             {/* Header with Title and Global Action */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
@@ -327,8 +375,8 @@ export default function TransactionsPage() {
                             <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded"></div>
                         </div>
                     </div>
-                ) : filteredTransactions.length > 0 ? (
-                    filteredTransactions.map((tx) => {
+                ) : displayedTransactions.length > 0 ? (
+                    displayedTransactions.map((tx) => {
                         const isInstallment = tx.installment_id && tx.total_installments && tx.total_installments > 1
 
                         // Calculate installment dates if applicable
@@ -414,14 +462,24 @@ export default function TransactionsPage() {
                                     </span>
 
                                     {/* Actions */}
-                                    <div className="flex gap-0.5 sm:gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all lg:translate-x-2 lg:group-hover:translate-x-0">
-                                        <Link href={`/transactions/${tx.id}/edit`} className="p-2 text-brand-gray hover:text-brand-accent hover:bg-white/5 rounded-xl transition-all" title="Editar">
-                                            <Edit2 className="w-4 h-4" />
+                                    {tx.is_recurring ? (
+                                        <Link
+                                            href="/recurring"
+                                            className="px-3 py-2 text-[9px] font-black uppercase tracking-widest text-brand-success bg-brand-success/10 border border-brand-success/10 rounded-xl"
+                                            title="Gerenciar recorrência"
+                                        >
+                                            Recorrente
                                         </Link>
-                                        <button onClick={() => handleDelete(tx.id)} className="p-2 text-brand-gray hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer" title="Excluir">
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
+                                    ) : (
+                                        <div className="flex gap-0.5 sm:gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all lg:translate-x-2 lg:group-hover:translate-x-0">
+                                            <Link href={`/transactions/${tx.id}/edit`} className="p-2 text-brand-gray hover:text-brand-accent hover:bg-white/5 rounded-xl transition-all" title="Editar">
+                                                <Edit2 className="w-4 h-4" />
+                                            </Link>
+                                            <button onClick={() => handleDelete(tx.id)} className="p-2 text-brand-gray hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer" title="Excluir">
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

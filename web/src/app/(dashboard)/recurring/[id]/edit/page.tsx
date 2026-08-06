@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2, Save, X, Calendar, DollarSign, Tag, FileText, ArrowDownCircle } from 'lucide-react'
+import { Loader2, Save, ArrowDownCircle } from 'lucide-react'
+import { getLocalDemoRecurring, isLocalDemoMode, updateLocalDemoRecurring } from '@/lib/local-demo'
 
 export default function EditRecurringExpensePage() {
     const router = useRouter()
@@ -26,6 +27,19 @@ export default function EditRecurringExpensePage() {
 
     useEffect(() => {
         async function loadExpense() {
+            if (isLocalDemoMode) {
+                const expense = getLocalDemoRecurring().find(item => item.id === String(params.id))
+                if (expense) {
+                    setFormData({
+                        description: expense.description,
+                        amount: formatCurrency(expense.amount),
+                        category: expense.category,
+                        day_of_month: expense.day_of_month.toString(),
+                    })
+                }
+                setInitialLoading(false)
+                return
+            }
             const { data } = await supabase
                 .from('recurring_expenses')
                 .select('*')
@@ -82,6 +96,17 @@ export default function EditRecurringExpensePage() {
                 throw new Error('Dia do mês inválido (1-31)')
             }
 
+            if (isLocalDemoMode) {
+                updateLocalDemoRecurring(String(params.id), {
+                    description: formData.description,
+                    amount: amountValue,
+                    category: formData.category,
+                    day_of_month: dayValue,
+                })
+                router.push('/recurring')
+                router.refresh()
+                return
+            }
             const { error: updateError } = await supabase
                 .from('recurring_expenses')
                 .update({

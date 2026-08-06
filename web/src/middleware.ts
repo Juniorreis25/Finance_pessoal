@@ -3,6 +3,15 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { getSupabaseConfig } from './lib/supabase/config'
 
 export async function middleware(request: NextRequest) {
+    const path = request.nextUrl.pathname
+    const isLocalDemoMode =
+        process.env.NODE_ENV === 'development' &&
+        process.env.LOCAL_DEMO_MODE === 'true'
+
+    if (isLocalDemoMode && (path.startsWith('/dashboard') || path.startsWith('/cards') || path.startsWith('/transactions'))) {
+        return NextResponse.next({ request })
+    }
+
     let supabaseResponse = NextResponse.next({
         request,
     })
@@ -34,9 +43,6 @@ export async function middleware(request: NextRequest) {
     const {
         data: { user },
     } = await supabase.auth.getUser()
-
-    const path = request.nextUrl.pathname
-
     if (user && (path === '/login' || path === '/register' || path === '/')) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
