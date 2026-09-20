@@ -14,7 +14,7 @@ Para instruções detalhadas de como rodar o projeto, acesse o [README do diret�
 
 ## 🛠️ Requisitos Rápidos
 
-- **Node.js**: 20.x ou superior.
+- **Node.js**: 24.x ou superior.
 - **Supabase**: Projeto configurado com Auth, Database e Storage.
 
 ---

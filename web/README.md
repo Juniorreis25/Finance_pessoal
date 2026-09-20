@@ -24,7 +24,7 @@ Aplicação moderna de gestão financeira pessoal desenvolvida com Next.js e Sup
 ## 🛠️ Instalação
 
 ### Pré-requisitos
-- Node.js 20+
+- Node.js 24+
 - Conta no Supabase
 
 ### Passo a passo
@@ -59,6 +59,13 @@ Para rodar a suíte de testes unitários:
 ```bash
 npm test
 ```
+
+## CI e monitoramento
+
+- O workflow `.github/workflows/ci.yml` executa lint, testes e build em Node.js 24.x nos pushes e pull requests para `main`. O build usa apenas valores públicos fictícios do Supabase.
+- O workflow `.github/workflows/production-health.yml` verifica a aplicação e o serviço Supabase Auth em produção a cada 15 minutos. Também pode ser iniciado manualmente em **GitHub Actions**. Uma falha gera uma execução marcada como falha no GitHub Actions.
+- O endpoint `/api/health` retorna somente `ok` ou `unavailable`; não inclui URL, chave, sessão ou dados de usuário. Falhas no callback de confirmação são registradas no Vercel com um identificador fixo, sem detalhes do erro ou dados de autenticação.
+- Para receber avisos de falha, habilite notificações de falha do GitHub Actions na conta responsável pelo repositório.
 
 ## 📄 Notas de Versão
 

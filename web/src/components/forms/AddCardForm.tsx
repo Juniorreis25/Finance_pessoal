@@ -11,6 +11,7 @@ type CardData = {
     limit_amount: number | string
     closing_day: number | string
     due_day: number | string
+    active?: boolean
 }
 
 interface CardFormProps {
@@ -34,7 +35,7 @@ export function CardForm({ initialData }: CardFormProps) {
         limit_amount: initialData?.limit_amount ? formatCurrency(initialData.limit_amount) : '',
         closing_day: initialData?.closing_day || '',
         due_day: initialData?.due_day || '',
-        active: initialData?.hasOwnProperty('active') ? (initialData as any).active : true
+        active: initialData?.active ?? true
     })
     const [error, setError] = useState<string | null>(null)
 
@@ -45,7 +46,7 @@ export function CardForm({ initialData }: CardFormProps) {
                 limit_amount: initialData.limit_amount ? formatCurrency(initialData.limit_amount) : '',
                 closing_day: String(initialData.closing_day),
                 due_day: String(initialData.due_day),
-                active: (initialData as any).active ?? true
+                active: initialData.active ?? true
             })
         }
     }, [initialData])

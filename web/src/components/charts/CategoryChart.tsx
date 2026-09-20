@@ -10,6 +10,8 @@ type CategoryData = {
 }
 
 export function CategoryChart({ data }: { data: CategoryData[] }) {
+    const isMobile = useIsMobile(640)
+
     if (!data || data.length === 0) {
         return <div className="h-full flex items-center justify-center text-slate-500 font-medium">Sem dados para exibir</div>
     }
@@ -23,8 +25,6 @@ export function CategoryChart({ data }: { data: CategoryData[] }) {
         '#003D2B', // Dark Emerald
         '#141C24', // Deep Sea
     ]
-
-    const isMobile = useIsMobile(640)
 
     return (
         <div className="h-[300px] w-full">

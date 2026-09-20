@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Download, FileSpreadsheet, FileText, FileJson, ChevronDown } from 'lucide-react'
+import { Download, FileSpreadsheet, FileText, FileJson } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
@@ -34,16 +34,6 @@ export function ExportMenu({ transactions, currentDate }: ExportMenuProps) {
     const monthYear = format(currentDate, 'MMMM_yyyy', { locale: ptBR })
     const monthYearDisplay = format(currentDate, 'MMMM yyyy', { locale: ptBR })
 
-    // Cores da aplicação (Deep Sea e Accent)
-    const APP_COLORS = {
-        accent: [0, 240, 255], // #00F0FF
-        deepSea: [20, 28, 36], // #141C24
-        text: [255, 255, 255],
-        gray: [142, 142, 147],
-        income: [0, 255, 148], // #00FF94
-        expense: [244, 63, 94]  // Rose 500
-    }
-
     const prepareData = () => {
         return transactions.map(tx => ({
             Data: format(parseISO(tx.date), 'dd/MM/yyyy'),
@@ -62,9 +52,14 @@ export function ExportMenu({ transactions, currentDate }: ExportMenuProps) {
 
     const exportCSV = () => {
         const fullData = prepareData()
-        const exportData = fullData.map(({ rawAmount, rawType, rawCategory, rawCard, Valor, ...rest }) => ({
-            ...rest,
-            Valor: rawAmount
+        const exportData = fullData.map(({ Data, Descrição, Categoria, Tipo, Parcelas, Cartão, rawAmount }) => ({
+            Data,
+            Descrição,
+            Categoria,
+            Valor: rawAmount,
+            Tipo,
+            Parcelas,
+            Cartão,
         }))
         const csv = Papa.unparse(exportData)
         const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' })
@@ -81,9 +76,14 @@ export function ExportMenu({ transactions, currentDate }: ExportMenuProps) {
 
     const exportExcel = () => {
         const fullData = prepareData()
-        const exportData = fullData.map(({ rawAmount, rawType, rawCategory, rawCard, Valor, ...rest }) => ({
-            ...rest,
-            Valor: rawAmount
+        const exportData = fullData.map(({ Data, Descrição, Categoria, Tipo, Parcelas, Cartão, rawAmount }) => ({
+            Data,
+            Descrição,
+            Categoria,
+            Valor: rawAmount,
+            Tipo,
+            Parcelas,
+            Cartão,
         }))
         const worksheet = XLSX.utils.json_to_sheet(exportData)
         const workbook = XLSX.utils.book_new()
@@ -163,7 +163,7 @@ export function ExportMenu({ transactions, currentDate }: ExportMenuProps) {
 
         // --- Visão Executiva (Resumos) ---
         // Pegar a posição Y após a tabela principal
-        let currentY = (doc as any).lastAutoTable.finalY + 20
+        let currentY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 20
 
         // Se estiver muito embaixo, começar em nova página
         if (currentY > 220) {
@@ -182,14 +182,14 @@ export function ExportMenu({ transactions, currentDate }: ExportMenuProps) {
         doc.line(14, currentY + 2, 35, currentY + 2)
 
         // Cálculos de Resumo
-        const summaryByCategory = fullData.reduce((acc: any, d) => {
+        const summaryByCategory = fullData.reduce<Record<string, number>>((acc, d) => {
             if (d.rawType === 'expense') {
                 acc[d.rawCategory] = (acc[d.rawCategory] || 0) + d.rawAmount
             }
             return acc
         }, {})
 
-        const summaryByCard = fullData.reduce((acc: any, d) => {
+        const summaryByCard = fullData.reduce<Record<string, number>>((acc, d) => {
             if (d.rawType === 'expense') {
                 acc[d.rawCard] = (acc[d.rawCard] || 0) + d.rawAmount
             }
@@ -201,8 +201,8 @@ export function ExportMenu({ transactions, currentDate }: ExportMenuProps) {
             startY: currentY + 10,
             head: [['Gasto por Categoria', 'Total']],
             body: Object.entries(summaryByCategory)
-                .sort((a: any, b: any) => b[1] - a[1])
-                .map(([cat, total]: any) => [cat, total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })]),
+                .sort((a, b) => b[1] - a[1])
+                .map(([cat, total]) => [cat, total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })]),
             headStyles: { fillColor: [20, 28, 36], textColor: [255, 255, 255], fontSize: 9 },
             columnStyles: { 1: { halign: 'right', fontStyle: 'bold' } },
             tableWidth: 85,
@@ -211,14 +211,14 @@ export function ExportMenu({ transactions, currentDate }: ExportMenuProps) {
         })
 
         // Tabela de Resumo por Cartão (posicionada ao lado ou abaixo dependendo do espaço)
-        const summaryCategoryY = (doc as any).lastAutoTable.finalY
+        const summaryCategoryY = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY
 
         autoTable(doc, {
             startY: currentY + 10,
             head: [['Gasto por Método', 'Total']],
             body: Object.entries(summaryByCard)
-                .sort((a: any, b: any) => b[1] - a[1])
-                .map(([card, total]: any) => [card, total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })]),
+                .sort((a, b) => b[1] - a[1])
+                .map(([card, total]) => [card, total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })]),
             headStyles: { fillColor: [20, 28, 36], textColor: [255, 255, 255], fontSize: 9 },
             columnStyles: { 1: { halign: 'right', fontStyle: 'bold' } },
             tableWidth: 85,
@@ -226,7 +226,7 @@ export function ExportMenu({ transactions, currentDate }: ExportMenuProps) {
             theme: 'grid'
         })
 
-        const finalSectionY = Math.max(summaryCategoryY, (doc as any).lastAutoTable.finalY) + 20
+        const finalSectionY = Math.max(summaryCategoryY, (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY) + 20
 
         // --- Totais Finais (Rodapé da análise) ---
         if (finalSectionY > 260) {
@@ -264,7 +264,7 @@ export function ExportMenu({ transactions, currentDate }: ExportMenuProps) {
         doc.text(balance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), 190, currentY + 20, { align: 'right' })
 
         // Adicionar número de página em todos os rodapés
-        const pageCount = (doc as any).internal.getNumberOfPages()
+        const pageCount = doc.getNumberOfPages()
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i)
             doc.setFontSize(8)

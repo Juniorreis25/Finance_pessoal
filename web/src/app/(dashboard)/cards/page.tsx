@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Plus, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -18,12 +18,12 @@ type Card = {
 }
 
 export default function CardsPage() {
-    const supabase = createClient()
+    const supabase = useMemo(() => createClient(), [])
     const [cards, setCards] = useState<Card[]>([])
     const [loading, setLoading] = useState(true)
     const [selectedStatus, setSelectedStatus] = useState<CardStatusFilter>('all')
 
-    const fetchCards = async () => {
+    const fetchCards = useCallback(async () => {
         const { data } = await supabase
             .from('cards')
             .select('*')
@@ -31,11 +31,13 @@ export default function CardsPage() {
             .order('name')
         if (data) setCards(data)
         setLoading(false)
-    }
+    }, [supabase])
 
     useEffect(() => {
-        fetchCards()
-    }, [])
+        // The updates happen after the asynchronous Supabase request resolves.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        void fetchCards()
+    }, [fetchCards])
 
     return (
         <div className="space-y-8">

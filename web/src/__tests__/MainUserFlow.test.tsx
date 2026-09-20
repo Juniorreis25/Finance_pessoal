@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import LoginPage from '../app/(auth)/login/page'
@@ -20,10 +20,21 @@ vi.mock('@/components/charts/CardDistributionChart', () => ({
     CardDistributionChart: () => <div data-testid="card-distribution-chart">CardDistributionChart Mock</div>
 }))
 
+type MockCard = { id: string; name: string; active?: boolean }
+type MockTransaction = {
+    id: string
+    amount: number
+    type: 'income' | 'expense'
+    category: string
+    date: string
+    card_id: string | null
+    cards: { name: string } | null
+}
+
 // Variables to store mocked database state
-let mockCards: any[] = []
-let mockTransactions: any[] = []
-let mockUserProfile = { display_name: 'Junior', welcome_message: 'Bem-vindo de volta!' }
+let mockCards: MockCard[] = []
+let mockTransactions: MockTransaction[] = []
+const mockUserProfile = { display_name: 'Junior', welcome_message: 'Bem-vindo de volta!' }
 
 // Global mock spies for assertions
 const signInWithPasswordMock = vi.fn()
@@ -37,11 +48,11 @@ vi.mock('@/lib/supabase/client', () => ({
             signInWithPassword: signInWithPasswordMock,
             getUser: getUserMock,
         },
-        from: vi.fn((table) => {
-            const queryChain: any = {}
+        from: vi.fn((table: string) => {
+            const queryChain: Record<string, unknown> = {}
             
             const selectSpy = vi.fn().mockReturnValue(queryChain)
-            const insertSpy = vi.fn().mockImplementation((payload) => {
+            const insertSpy = vi.fn().mockImplementation((payload: unknown) => {
                 insertMock(payload)
                 return Promise.resolve({ error: null })
             })
@@ -55,7 +66,7 @@ vi.mock('@/lib/supabase/client', () => ({
                 return Promise.resolve({ data: [], error: null })
             })
             
-            const eqSpy = vi.fn().mockImplementation((field: string, val: any) => {
+            const eqSpy = vi.fn().mockImplementation((field: string, val: unknown) => {
                 if (table === 'cards' && field === 'active' && val === true) {
                     return Promise.resolve({ data: mockCards, error: null })
                 }

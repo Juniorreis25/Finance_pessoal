@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { LogoDiamond } from '@/components/ui/LogoDiamond'
@@ -12,7 +12,44 @@ export default function LoginPage() {
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [showResendConfirmation, setShowResendConfirmation] = useState(false)
+    const [resendMessage, setResendMessage] = useState<string | null>(null)
+    const [resendLoading, setResendLoading] = useState(false)
     const router = useRouter()
+
+    useEffect(() => {
+        if (new URLSearchParams(window.location.search).get('error') === 'auth_callback') {
+            setError('O link de confirmação é inválido ou expirou. Solicite um novo email de confirmação.')
+            setShowResendConfirmation(true)
+        }
+    }, [])
+
+    const handleResendConfirmation = async () => {
+        const confirmationEmail = email.trim()
+        setResendMessage(null)
+
+        if (!confirmationEmail) {
+            setResendMessage('Informe seu email para solicitar um novo link.')
+            return
+        }
+
+        setResendLoading(true)
+        try {
+            const supabase = createClient()
+            const { error } = await supabase.auth.resend({
+                type: 'signup',
+                email: confirmationEmail,
+                options: { emailRedirectTo: `${location.origin}/auth/callback` },
+            })
+
+            if (error) throw error
+            setResendMessage('Se houver uma conta aguardando confirmação nesse email, enviaremos um novo link.')
+        } catch {
+            setResendMessage('Não foi possível solicitar um novo email agora. Tente novamente em instantes.')
+        } finally {
+            setResendLoading(false)
+        }
+    }
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -145,6 +182,24 @@ export default function LoginPage() {
                                     </>
                                 )}
                             </button>
+
+                            {showResendConfirmation && (
+                                <div className="space-y-2 text-center">
+                                    {resendMessage && (
+                                        <p role="status" className="text-xs text-brand-gray">
+                                            {resendMessage}
+                                        </p>
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={handleResendConfirmation}
+                                        disabled={resendLoading}
+                                        className="text-xs font-semibold text-brand-accent hover:underline disabled:opacity-50"
+                                    >
+                                        {resendLoading ? 'Enviando...' : 'Reenviar email de confirmação'}
+                                    </button>
+                                </div>
+                            )}
                         </form>
 
                         {/* Register Link - Minimal */}

@@ -1,13 +1,22 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { getSupabaseConfig } from '@/lib/supabase/config'
 
-export async function GET(request: Request) {
-    const requestUrl = new URL(request.url)
-    const code = requestUrl.searchParams.get('code')
+function redirectToLogin(request: NextRequest) {
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('error', 'auth_callback')
+    return NextResponse.redirect(loginUrl)
+}
 
-    if (code) {
-        const response = NextResponse.redirect(new URL('/dashboard', requestUrl.origin))
+export async function GET(request: NextRequest) {
+    const code = request.nextUrl.searchParams.get('code')
+
+    if (!code) {
+        return redirectToLogin(request)
+    }
+
+    try {
+        const response = NextResponse.redirect(new URL('/dashboard', request.url))
         const { url, anonKey } = getSupabaseConfig()
         const supabase = createServerClient(
             url,
@@ -15,18 +24,26 @@ export async function GET(request: Request) {
             {
                 cookies: {
                     getAll() {
-                        return []
+                        return request.cookies.getAll()
                     },
-                    setAll() {
-                        // Callback route only exchanges the auth code and redirects.
+                    setAll(cookiesToSet) {
+                        cookiesToSet.forEach(({ name, value, options }) =>
+                            response.cookies.set(name, value, options)
+                        )
                     }
                 }
             }
         )
 
-        await supabase.auth.exchangeCodeForSession(code)
-        return response
-    }
+        const { error } = await supabase.auth.exchangeCodeForSession(code)
+        if (error) {
+            console.error('auth_callback_exchange_failed')
+            return redirectToLogin(request)
+        }
 
-    return NextResponse.redirect(new URL('/login', requestUrl.origin))
+        return response
+    } catch {
+        console.error('auth_callback_exchange_failed')
+        return redirectToLogin(request)
+    }
 }

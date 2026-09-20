@@ -2,8 +2,13 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getSupabaseConfig } from './lib/supabase/config'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const path = request.nextUrl.pathname
+
+    if (path === '/api/health') {
+        return NextResponse.next({ request })
+    }
+
     const isLocalDemoMode =
         process.env.NODE_ENV === 'development' &&
         process.env.LOCAL_DEMO_MODE === 'true'

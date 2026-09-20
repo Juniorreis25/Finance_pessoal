@@ -4,12 +4,14 @@ import LoginPage from '../app/(auth)/login/page'
 
 // Define Mocks
 const signInWithPasswordMock = vi.fn()
+const resendConfirmationMock = vi.fn()
 
 // Mock @/lib/supabase/client
 vi.mock('@/lib/supabase/client', () => ({
     createClient: vi.fn(() => ({
         auth: {
             signInWithPassword: signInWithPasswordMock,
+            resend: resendConfirmationMock,
         },
     }))
 }))
@@ -27,6 +29,8 @@ vi.mock('next/navigation', () => ({
 describe('LoginPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        window.history.replaceState({}, '', '/')
+        resendConfirmationMock.mockResolvedValue({ error: null })
     })
 
     it('renders login form correctly', () => {
@@ -75,6 +79,35 @@ describe('LoginPage', () => {
 
         await waitFor(() => {
             expect(screen.getByText('Invalid login credentials')).toBeInTheDocument()
+        })
+    })
+
+    it('explains that an expired confirmation link must be requested again', async () => {
+        window.history.replaceState({}, '', '/login?error=auth_callback')
+
+        render(<LoginPage />)
+
+        expect(await screen.findByText(/O link de confirmação é inválido ou expirou/i)).toBeInTheDocument()
+    })
+
+    it('resends an expired confirmation link without revealing account status', async () => {
+        window.history.replaceState({}, '', '/login?error=auth_callback')
+        render(<LoginPage />)
+
+        fireEvent.change(screen.getByLabelText(/Email/i), {
+            target: { value: 'user@example.com' },
+        })
+        fireEvent.click(screen.getByRole('button', { name: 'Reenviar email de confirmação' }))
+
+        await waitFor(() => {
+            expect(resendConfirmationMock).toHaveBeenCalledWith({
+                type: 'signup',
+                email: 'user@example.com',
+                options: { emailRedirectTo: `${location.origin}/auth/callback` },
+            })
+            expect(screen.getByRole('status')).toHaveTextContent(
+                'Se houver uma conta aguardando confirmação nesse email, enviaremos um novo link.',
+            )
         })
     })
 })
