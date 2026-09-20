@@ -64,9 +64,15 @@ export default function ProfilePage() {
         const file = e.target.files?.[0]
         if (!file) return
 
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            setError('Por favor, selecione uma imagem válida')
+        // Allow only image formats supported by the avatars bucket.
+        const extensionByMimeType: Record<string, string> = {
+            'image/jpeg': 'jpg',
+            'image/png': 'png',
+            'image/webp': 'webp',
+        }
+        const fileExt = extensionByMimeType[file.type]
+        if (!fileExt) {
+            setError('Use uma imagem JPG, PNG ou WebP')
             return
         }
 
@@ -83,10 +89,8 @@ export default function ProfilePage() {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) throw new Error('Não autenticado')
 
-            // Create unique filename
-            const fileExt = file.name.split('.').pop()
-            const fileName = `${user.id}-${Date.now()}.${fileExt}`
-            const filePath = fileName // Direct in the bucket
+            // Store each avatar under the authenticated user's own folder.
+            const filePath = `${user.id}/${Date.now()}.${fileExt}`
 
             // Upload to Supabase Storage
             const { error: uploadError } = await supabase.storage
@@ -253,7 +257,7 @@ export default function ProfilePage() {
                         <label className="cursor-pointer group">
                             <input
                                 type="file"
-                                accept="image/*"
+                                accept="image/jpeg,image/png,image/webp"
                                 onChange={handleAvatarUpload}
                                 className="hidden"
                                 disabled={uploading}
