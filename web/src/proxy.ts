@@ -4,6 +4,10 @@ import { getSupabaseConfig } from './lib/supabase/config'
 
 export async function proxy(request: NextRequest) {
     const path = request.nextUrl.pathname
+    const protectedRoutes = ['/dashboard', '/cards', '/transactions', '/recurring', '/profile']
+    const isProtectedRoute = protectedRoutes.some(
+        (route) => path === route || path.startsWith(`${route}/`),
+    )
 
     if (path === '/api/health') {
         return NextResponse.next({ request })
@@ -13,7 +17,9 @@ export async function proxy(request: NextRequest) {
         process.env.NODE_ENV === 'development' &&
         process.env.LOCAL_DEMO_MODE === 'true'
 
-    if (isLocalDemoMode && (path.startsWith('/dashboard') || path.startsWith('/cards') || path.startsWith('/transactions'))) {
+    if (isLocalDemoMode && protectedRoutes.slice(0, 3).some(
+        (route) => path === route || path.startsWith(`${route}/`),
+    )) {
         return NextResponse.next({ request })
     }
 
@@ -45,15 +51,22 @@ export async function proxy(request: NextRequest) {
         }
     )
 
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
-    if (user && (path === '/login' || path === '/register' || path === '/')) {
-        return NextResponse.redirect(new URL('/dashboard', request.url))
+    const { data, error } = await supabase.auth.getClaims()
+    const hasSession = !error && Boolean(data?.claims?.sub)
+    const redirectWithSessionCookies = (pathname: string) => {
+        const response = NextResponse.redirect(new URL(pathname, request.url))
+        supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
+            response.cookies.set(name, value, options)
+        })
+        return response
     }
 
-    if (!user && (path.startsWith('/dashboard') || path.startsWith('/cards') || path.startsWith('/transactions'))) {
-        return NextResponse.redirect(new URL('/login', request.url))
+    if (hasSession && (path === '/login' || path === '/register' || path === '/')) {
+        return redirectWithSessionCookies('/dashboard')
+    }
+
+    if (!hasSession && isProtectedRoute) {
+        return redirectWithSessionCookies('/login')
     }
 
     return supabaseResponse

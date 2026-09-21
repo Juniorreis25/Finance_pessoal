@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
     signUp: vi.fn(),
     signOut: vi.fn(),
     push: vi.fn(),
+    refresh: vi.fn(),
 }))
 
 vi.mock('@/lib/supabase/client', () => ({
@@ -14,14 +15,17 @@ vi.mock('@/lib/supabase/client', () => ({
 }))
 
 vi.mock('next/navigation', () => ({
-    useRouter: () => ({ push: mocks.push, refresh: vi.fn(), back: vi.fn() }),
+    useRouter: () => ({ push: mocks.push, refresh: mocks.refresh, back: vi.fn() }),
     usePathname: () => '/dashboard',
 }))
 
 describe('auth flows', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        mocks.signUp.mockResolvedValue({ error: null })
+        mocks.signUp.mockResolvedValue({
+            data: { user: { id: 'test-user' }, session: null },
+            error: null,
+        })
         mocks.signOut.mockResolvedValue({ error: null })
     })
 
@@ -43,6 +47,32 @@ describe('auth flows', () => {
                 options: { emailRedirectTo: `${location.origin}/auth/callback` },
             })
             expect(screen.getByText('Verifique seu email')).toBeInTheDocument()
+        })
+    })
+
+    it('opens the app immediately when signup returns an authenticated session', async () => {
+        mocks.signUp.mockResolvedValue({
+            data: {
+                user: { id: 'test-user' },
+                session: { access_token: 'test-token' },
+            },
+            error: null,
+        })
+
+        render(<RegisterPage />)
+
+        fireEvent.change(screen.getByLabelText('Email'), {
+            target: { value: 'user@example.com' },
+        })
+        fireEvent.change(screen.getByLabelText('Senha'), {
+            target: { value: 'test-password-123' },
+        })
+        fireEvent.click(screen.getByRole('button', { name: /Criar Conta/i }))
+
+        await waitFor(() => {
+            expect(mocks.push).toHaveBeenCalledWith('/dashboard')
+            expect(mocks.refresh).toHaveBeenCalledOnce()
+            expect(screen.queryByText('Verifique seu email')).not.toBeInTheDocument()
         })
     })
 

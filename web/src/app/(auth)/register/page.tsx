@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Logo } from '@/components/ui/Logo'
 import { Loader2, Lock, Mail, UserPlus, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default function RegisterPage() {
+    const router = useRouter()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
@@ -20,7 +22,7 @@ export default function RegisterPage() {
 
         try {
             const supabase = createClient()
-            const { error } = await supabase.auth.signUp({
+            const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
@@ -29,6 +31,12 @@ export default function RegisterPage() {
             })
 
             if (error) throw error
+            if (data.session) {
+                router.push('/dashboard')
+                router.refresh()
+                return
+            }
+
             setSuccess(true)
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Falha ao criar conta'

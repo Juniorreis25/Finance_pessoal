@@ -87,13 +87,12 @@ export function CardForm({ initialData }: CardFormProps) {
 
         try {
             const { data: { user } } = await supabase.auth.getUser()
-            // if (!user) throw new Error('Usuário não autenticado')
-            const userId = user?.id || 'anon-user'
+            if (!user) throw new Error('Sessão expirada. Entre novamente para salvar o cartão.')
 
             const limitValue = parseCurrency(String(formData.limit_amount))
 
             const payload = {
-                user_id: userId,
+                user_id: user.id,
                 name: formData.name,
                 limit_amount: limitValue,
                 closing_day: Number(formData.closing_day),

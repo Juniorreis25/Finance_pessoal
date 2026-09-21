@@ -70,4 +70,20 @@ describe('CardForm', () => {
             expect(refreshMock).toHaveBeenCalled()
         })
     })
+
+    it('does not save a card when there is no authenticated user', async () => {
+        getUserMock.mockResolvedValue({ data: { user: null }, error: null })
+        render(<AddCardForm />)
+
+        fireEvent.change(screen.getByPlaceholderText(/Ex: Nubank Black/i), { target: { value: 'My Card' } })
+        fireEvent.change(screen.getByPlaceholderText(/R\$ 0,00/i), { target: { value: '100000' } })
+        fireEvent.change(screen.getByPlaceholderText(/10/i), { target: { value: '10' } })
+        fireEvent.change(screen.getByPlaceholderText(/17/i), { target: { value: '17' } })
+        fireEvent.click(screen.getByText(/Conectar Cartão/i))
+
+        await waitFor(() => {
+            expect(insertMock).not.toHaveBeenCalled()
+            expect(screen.getByText('Sessão expirada. Entre novamente para salvar o cartão.')).toBeInTheDocument()
+        })
+    })
 })
