@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { Plus, ArrowDownRight, ArrowUpRight, ArrowRightLeft, Edit2, Trash2, Search, CreditCard, Wallet, CalendarRange, ListTree } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { format, addMonths, subMonths, parseISO } from 'date-fns'
+import { format, addMonths, subMonths, parseISO, startOfMonth } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { MonthSelector } from '@/components/ui/MonthSelector'
 import { usePrivacy } from '@/providers/PrivacyProvider'
@@ -52,6 +52,8 @@ type Card = {
     name: string
 }
 
+const TRANSACTIONS_PER_PAGE = 20
+
 export default function TransactionsPage() {
     const supabase = createClient()
     const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -62,6 +64,7 @@ export default function TransactionsPage() {
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedCardIds, setSelectedCardIds] = useState<string[]>(['all'])
     const [selectedType, setSelectedType] = useState<'all' | 'income' | 'expense'>('all')
+    const [currentPage, setCurrentPage] = useState(1)
     const { isValuesVisible, toggleVisibility } = usePrivacy()
 
     const fetchData = useCallback(async () => {
@@ -75,33 +78,74 @@ export default function TransactionsPage() {
             return
         }
 
-        // Fetch transactions with JOIN
-        const { data: txData } = await supabase
-            .from('transactions')
-            .select('*, cards(name)')
-            .order('date', { ascending: false })
+        const monthStart = startOfMonth(currentDate)
+        const nextMonthStart = addMonths(monthStart, 1)
+        const firstDate = format(monthStart, 'yyyy-MM-dd')
+        const nextMonthDate = format(nextMonthStart, 'yyyy-MM-dd')
+        const pageSize = 500
+        const transactionRows: Transaction[] = []
+        let offset = 0
+        let transactionError: string | null = null
 
-        if (txData) setTransactions(txData)
-
-        // Fetch cards for filter (Only Active)
-        const { data: cardData } = await supabase
+        const cardsRequest = supabase
             .from('cards')
             .select('id, name')
             .eq('active', true)
             .order('name')
-
-        if (cardData) setCards(cardData)
-
-        // Fetch recurring expenses
-        const { data: recData } = await supabase
+        const recurringRequest = supabase
             .from('recurring_expenses')
-            .select('*')
+            .select('id, description, amount, type, category, start_date, day_of_month, active')
             .eq('active', true)
+        const cardsPromise = cardsRequest.then(result => result)
+        const recurringPromise = recurringRequest.then(result => result)
 
-        if (recData) setRecurringExpenses(recData)
+        while (true) {
+            const { data, error } = await supabase
+                .from('transactions')
+                .select('id, description, amount, type, category, date, purchase_date, card_id, installment_id, installment_number, total_installments, cards(name)')
+                .gte('date', firstDate)
+                .lt('date', nextMonthDate)
+                .order('date', { ascending: false })
+                .order('id', { ascending: false })
+                .range(offset, offset + pageSize - 1)
+
+            if (error) {
+                transactionError = error.message
+                break
+            }
+
+            const page = (data || []).map(row => {
+                const cardRelation = row.cards as unknown as { name: string } | { name: string }[] | null
+                return {
+                    ...row,
+                    cards: Array.isArray(cardRelation) ? cardRelation[0] ?? null : cardRelation,
+                }
+            }) as Transaction[]
+            transactionRows.push(...page)
+            if (page.length < pageSize) break
+            offset += pageSize
+        }
+
+        const [cardsResult, recurringResult] = await Promise.all([cardsPromise, recurringPromise])
+
+        if (transactionError) {
+            console.error('Erro ao carregar transações:', transactionError)
+        } else {
+            setTransactions(transactionRows)
+        }
+        if (cardsResult.error) {
+            console.error('Erro ao carregar cartões:', cardsResult.error.message)
+        } else {
+            setCards(cardsResult.data || [])
+        }
+        if (recurringResult.error) {
+            console.error('Erro ao carregar recorrências:', recurringResult.error.message)
+        } else {
+            setRecurringExpenses(recurringResult.data || [])
+        }
 
         setLoading(false)
-    }, [supabase])
+    }, [supabase, currentDate])
 
     useEffect(() => {
         const timeoutId = setTimeout(() => {
@@ -167,6 +211,13 @@ export default function TransactionsPage() {
 
     const displayedTransactions = [...filteredTransactions, ...recurringOccurrences]
         .sort((a, b) => b.date.localeCompare(a.date))
+    const totalPages = Math.max(1, Math.ceil(displayedTransactions.length / TRANSACTIONS_PER_PAGE))
+    const visiblePage = Math.min(currentPage, totalPages)
+    const paginatedTransactions = displayedTransactions.slice(
+        (visiblePage - 1) * TRANSACTIONS_PER_PAGE,
+        visiblePage * TRANSACTIONS_PER_PAGE
+    )
+
     // Calculate totals
     // Calculate totals including recurring items
     const totalRecurringIncome = recurringExpenses
@@ -233,7 +284,13 @@ export default function TransactionsPage() {
             <div className="flex flex-col lg:flex-row gap-3 items-center w-full">
                 {/* 1. Date Navigation */}
                 <div className="w-full lg:w-auto">
-                    <MonthSelector currentDate={currentDate} onDateChange={setCurrentDate} />
+                    <MonthSelector
+                        currentDate={currentDate}
+                        onDateChange={(date) => {
+                            setCurrentDate(date)
+                            setCurrentPage(1)
+                        }}
+                    />
                 </div>
 
                 {/* 2. Flexible Search Bar (Fills remaining center space) */}
@@ -245,7 +302,10 @@ export default function TransactionsPage() {
                         placeholder="Buscar transações..."
                         className="w-full pl-11 pr-4 py-3 bg-brand-deep-sea border border-white/5 rounded-2xl text-sm focus:border-brand-accent/50 outline-none transition-all text-white placeholder:text-brand-gray/50 h-[52px] shadow-xl"
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => {
+                            setSearchTerm(e.target.value)
+                            setCurrentPage(1)
+                        }}
                     />
                 </div>
 
@@ -253,12 +313,18 @@ export default function TransactionsPage() {
                 <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
                     <TypeSelector
                         selectedType={selectedType}
-                        onChange={setSelectedType}
+                        onChange={(type) => {
+                            setSelectedType(type)
+                            setCurrentPage(1)
+                        }}
                     />
                     <MethodSelector
                         cards={cards}
                         selectedIds={selectedCardIds}
-                        onChange={setSelectedCardIds}
+                        onChange={(ids) => {
+                            setSelectedCardIds(ids)
+                            setCurrentPage(1)
+                        }}
                     />
                     <ExportMenu
                         transactions={filteredTransactions}
@@ -376,7 +442,7 @@ export default function TransactionsPage() {
                         </div>
                     </div>
                 ) : displayedTransactions.length > 0 ? (
-                    displayedTransactions.map((tx) => {
+                    paginatedTransactions.map((tx) => {
                         const isInstallment = tx.installment_id && tx.total_installments && tx.total_installments > 1
 
                         // Calculate installment dates if applicable
@@ -499,12 +565,41 @@ export default function TransactionsPage() {
                                 setSearchTerm('')
                                 setSelectedCardIds(['all'])
                                 setSelectedType('all')
+                                setCurrentPage(1)
                             }}
                             className="text-brand-accent font-bold hover:underline uppercase text-[10px] tracking-widest"
                         >
                             Limpar Filtros
                         </button>
                     </div>
+                )}
+                {!loading && displayedTransactions.length > 0 && (
+                    <nav className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2" aria-label="Paginação de transações">
+                        <p className="text-xs text-slate-400" aria-live="polite">
+                            Exibindo {(visiblePage - 1) * TRANSACTIONS_PER_PAGE + 1}–{Math.min(visiblePage * TRANSACTIONS_PER_PAGE, displayedTransactions.length)} de {displayedTransactions.length}
+                        </p>
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setCurrentPage(Math.max(1, visiblePage - 1))}
+                                disabled={visiblePage === 1}
+                                className="rounded-xl border border-white/10 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                Anterior
+                            </button>
+                            <span className="min-w-24 text-center text-xs text-slate-400">
+                                Página {visiblePage} de {totalPages}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setCurrentPage(Math.min(totalPages, visiblePage + 1))}
+                                disabled={visiblePage === totalPages}
+                                className="rounded-xl border border-white/10 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                Próxima
+                            </button>
+                        </div>
+                    </nav>
                 )}
             </div>
         </div >

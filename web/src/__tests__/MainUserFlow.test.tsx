@@ -49,50 +49,55 @@ vi.mock('@/lib/supabase/client', () => ({
             getUser: getUserMock,
         },
         from: vi.fn((table: string) => {
-            const queryChain: Record<string, unknown> = {}
-            
-            const selectSpy = vi.fn().mockReturnValue(queryChain)
-            const insertSpy = vi.fn().mockImplementation((payload: unknown) => {
+            type MockQueryChain = {
+                [key: string]: unknown
+                then: (resolve: (value: unknown) => unknown, reject: (reason: unknown) => unknown) => Promise<unknown>
+            }
+            const queryChain = {} as MockQueryChain
+            let operation: 'select' | 'update' | 'delete' = 'select'
+            let rangeStart = 0
+            let rangeEnd = Number.POSITIVE_INFINITY
+
+            const resolveQuery = () => {
+                if (operation !== 'select') return { data: null, error: null }
+                if (table === 'transactions') {
+                    return { data: mockTransactions.slice(rangeStart, rangeEnd + 1), error: null }
+                }
+                if (table === 'cards') return { data: mockCards, error: null }
+                if (table === 'recurring_expenses') return { data: [], error: null }
+                if (table === 'user_profiles') return { data: mockUserProfile, error: null }
+                return { data: [], error: null }
+            }
+
+            queryChain.select = vi.fn().mockReturnValue(queryChain)
+            queryChain.insert = vi.fn().mockImplementation((payload: unknown) => {
                 insertMock(payload)
                 return Promise.resolve({ error: null })
             })
-            const updateSpy = vi.fn().mockReturnValue(queryChain)
-            const deleteSpy = vi.fn().mockReturnValue(queryChain)
-            
-            const orderSpy = vi.fn().mockImplementation(() => {
-                if (table === 'transactions') {
-                    return Promise.resolve({ data: mockTransactions, error: null })
-                }
-                return Promise.resolve({ data: [], error: null })
+            queryChain.update = vi.fn().mockImplementation(() => {
+                operation = 'update'
+                return queryChain
             })
-            
-            const eqSpy = vi.fn().mockImplementation((field: string, val: unknown) => {
-                if (table === 'cards' && field === 'active' && val === true) {
-                    return Promise.resolve({ data: mockCards, error: null })
-                }
-                if (table === 'transactions') {
-                    return queryChain // for update/delete chains
-                }
-                if (table === 'recurring_expenses') {
-                    return Promise.resolve({ data: [], error: null })
-                }
-                if (table === 'user_profiles') {
-                    return {
-                        single: () => Promise.resolve({ data: mockUserProfile, error: null })
-                    }
-                }
-                return Promise.resolve({ data: [], error: null })
+            queryChain.delete = vi.fn().mockImplementation(() => {
+                operation = 'delete'
+                return queryChain
             })
-            
-            const singleSpy = vi.fn().mockResolvedValue({ data: null, error: null })
-
-            queryChain.select = selectSpy
-            queryChain.insert = insertSpy
-            queryChain.update = updateSpy
-            queryChain.delete = deleteSpy
-            queryChain.order = orderSpy
-            queryChain.eq = eqSpy
-            queryChain.single = singleSpy
+            queryChain.eq = vi.fn().mockReturnValue(queryChain)
+            queryChain.gte = vi.fn().mockReturnValue(queryChain)
+            queryChain.lte = vi.fn().mockReturnValue(queryChain)
+            queryChain.order = vi.fn().mockReturnValue(queryChain)
+            queryChain.range = vi.fn().mockImplementation((from: number, to: number) => {
+                rangeStart = from
+                rangeEnd = to
+                return queryChain
+            })
+            queryChain.single = vi.fn().mockImplementation(() => Promise.resolve({
+                data: table === 'user_profiles' ? mockUserProfile : null,
+                error: null,
+            }))
+            // Supabase's PostgREST builder is thenable; keep filters fluent until awaited.
+            queryChain.then = (resolve: (value: unknown) => unknown, reject: (reason: unknown) => unknown) =>
+                Promise.resolve(resolveQuery()).then(resolve, reject)
 
             return queryChain
         })

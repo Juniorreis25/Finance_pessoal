@@ -12,7 +12,7 @@ import { CategorySelector } from '@/components/ui/CategorySelector'
 import { isDateInCalendarMonth, isRecurringActiveForMonth } from '@/lib/date-logic'
 import { getLocalDemoRecurring, getLocalDemoTransactions, isLocalDemoMode } from '@/lib/local-demo'
 import Link from 'next/link'
-import { isWithinInterval, startOfYear, endOfYear, format, addMonths } from 'date-fns'
+import { isWithinInterval, startOfYear, endOfYear, endOfMonth, format, addMonths } from 'date-fns'
 import { usePrivacy } from '@/providers/PrivacyProvider'
 import { MaskedValue } from '@/components/ui/MaskedValue'
 import { ptBR } from 'date-fns/locale'
@@ -61,6 +61,12 @@ export default function DashboardPage() {
     const fetchData = useCallback(async () => {
         setLoading(true)
 
+        const yearStart = startOfYear(currentDate)
+        const yearEnd = endOfYear(currentDate)
+        const nextMonth = addMonths(currentDate, 1)
+        const nextMonthEnd = endOfMonth(nextMonth)
+        const dataEnd = nextMonthEnd > yearEnd ? nextMonthEnd : yearEnd
+
         let transactions: Transaction[] = []
         let recurringExpenses: Array<{
             amount: number
@@ -75,15 +81,51 @@ export default function DashboardPage() {
             transactions = getLocalDemoTransactions().map(transaction => ({ ...transaction, cards: null }))
             recurringExpenses = getLocalDemoRecurring().filter(recurring => recurring.active)
         } else {
-            const [transactionResult, recurringResult] = await Promise.all([
-                supabase.from('transactions').select('*, cards(name)').order('date', { ascending: true }),
-                supabase.from('recurring_expenses').select('*').eq('active', true),
-            ])
+            const transactionRows: Transaction[] = []
+            const transactionPageSize = 500
+            let transactionOffset = 0
+            let transactionError: string | null = null
 
-            if (transactionResult.error) {
-                console.error('Erro ao carregar transações:', transactionResult.error.message)
+            const recurringRequest = supabase
+                .from('recurring_expenses')
+                .select('amount, type, category, start_date, day_of_month, active')
+                .eq('active', true)
+                .lte('start_date', format(dataEnd, 'yyyy-MM-dd'))
+            const recurringPromise = recurringRequest.then(result => result)
+
+            while (true) {
+                const { data, error } = await supabase
+                    .from('transactions')
+                    .select('amount, type, category, date, card_id, cards(name)')
+                    .gte('date', format(yearStart, 'yyyy-MM-dd'))
+                    .lte('date', format(dataEnd, 'yyyy-MM-dd'))
+                    .order('date', { ascending: true })
+                    .order('id', { ascending: true })
+                    .range(transactionOffset, transactionOffset + transactionPageSize - 1)
+
+                if (error) {
+                    transactionError = error.message
+                    break
+                }
+
+                const page = (data || []).map(row => {
+                    const cardRelation = row.cards as unknown as { name: string } | { name: string }[] | null
+                    return {
+                        ...row,
+                        cards: Array.isArray(cardRelation) ? cardRelation[0] ?? null : cardRelation,
+                    }
+                }) as Transaction[]
+                transactionRows.push(...page)
+                if (page.length < transactionPageSize) break
+                transactionOffset += transactionPageSize
+            }
+
+            const recurringResult = await recurringPromise
+
+            if (transactionError) {
+                console.error('Erro ao carregar transações:', transactionError)
             } else {
-                transactions = transactionResult.data || []
+                transactions = transactionRows
             }
 
             if (recurringResult.error) {
@@ -147,8 +189,6 @@ export default function DashboardPage() {
             })
 
             // Group by Month (For Overview Chart - Whole Year of Selected Date)
-            const yearStart = startOfYear(currentDate)
-            const yearEnd = endOfYear(currentDate)
             const yearTransactions = filteredTransactions.filter(t =>
                 isWithinInterval(new Date(t.date), { start: yearStart, end: yearEnd })
             )
@@ -241,9 +281,6 @@ export default function DashboardPage() {
             setCardDistributionData(cardDistData)
 
             // Calculate NEXT MONTH projected expenses
-            const nextMonth = new Date(currentDate)
-            nextMonth.setMonth(nextMonth.getMonth() + 1)
-
             const nextMonthTransactions = filteredTransactions.filter(t =>
                 t.type === 'expense' && isDateInCalendarMonth(t.date, nextMonth)
             )
