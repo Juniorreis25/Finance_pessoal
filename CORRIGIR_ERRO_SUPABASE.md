@@ -12,7 +12,7 @@
 
 #### Project URL:
 ```
-https://osscplmtycftgiorcmba.supabase.co
+https://osscplmlycffgiorcmba.supabase.co
 ```
 ✅ Esta está correta no .env.local
 
@@ -66,7 +66,7 @@ Supabase Dashboard
 └── Seu Projeto "Finance Pessoal"
     └── Settings (ícone de engrenagem)
         └── API
-            ├── Project URL: https://osscplmtycftgiorcmba.supabase.co ✅
+            ├── Project URL: https://osscplmlycffgiorcmba.supabase.co ✅
             └── Project API keys:
                 ├── anon public: eyJhbGci... ⬅️ COPIE ESTA!
                 └── service_role: eyJhbGci... (NÃO USE!)
@@ -96,3 +96,20 @@ Supabase Dashboard
 ---
 
 Me avise quando tiver a chave correta e eu ajudo a atualizar!
+
+## MCP checklist
+
+Use one single project ref everywhere:
+
+- MCP URL: https://mcp.supabase.com/mcp?project_ref=osscplmlycffgiorcmba
+- Project URL: https://osscplmlycffgiorcmba.supabase.co
+- Vercel env: NEXT_PUBLIC_SUPABASE_URL=https://osscplmlycffgiorcmba.supabase.co
+- Vercel env: NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key-from-dashboard>
+
+Supabase dashboard checks:
+
+- Site URL should point to your Vercel domain.
+- Redirect URLs should include `https://<vercel-domain>/auth/callback`.
+- Use the anon/public key, not `service_role`.
+- Keep the MCP server scoped to this project ref when connecting.
+
