@@ -41,11 +41,12 @@ Aplicação moderna de gestão financeira pessoal desenvolvida com Next.js e Sup
    ```
 
 3. **Configure as variáveis de ambiente**
-   Crie um arquivo `.env.local` na pasta `web` com:
+   Copie `.env.example` para `.env.local` na pasta `web` e preencha a URL do seu projeto Supabase e a chave anon/publicável:
    ```env
    NEXT_PUBLIC_SUPABASE_URL=sua_url_aqui
    NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_aqui
    ```
+   Essas variáveis `NEXT_PUBLIC_` ficam disponíveis no navegador. Use somente a chave anon/publicável; nunca coloque `service_role` ou uma chave secreta nelas nem versione arquivos `.env`.
 
 4. **Inicie o servidor de desenvolvimento**
    ```bash
@@ -67,3 +68,4 @@ npm test
 - Dashboard dinâmico com gráficos.
 - Adição de despesas recorrentes.
 - Perfil de usuário com upload de imagem.
+
